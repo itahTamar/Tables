@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import { TableModel } from "../Table/tableModel";
 
 export interface IDataDocument extends Document {
+  _id: ObjectId
   index: number;
   dateCreated: Date;
   fieldOfInterest: string;

@@ -248,7 +248,7 @@ export const findOneAndUpdateDataOnMongoDB = async <T extends Document>(
 //delete
 //item is uniq
 export const deleteOneDataFromMongoDB = async <T extends Document>(
-  modelName: Model<MyDocument<T>>,
+  modelName: Model<T>,
   item: any
 ) => {
   try {

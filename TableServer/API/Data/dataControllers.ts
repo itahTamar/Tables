@@ -1,5 +1,6 @@
 import {
   createAndSaveDataToMongoDB,
+  deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
   saveDataToMongoDB,
   updateOneDataOnMongoDB,
@@ -26,12 +27,10 @@ export async function addNewRowData(req: any, res: any) {
     const { tableId, fieldOfInterest, creator } = req.cookie;
 
     if (!fieldOfInterest || !creator || !tableId) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Field of interest, creator, and tableId are not found in cookie",
-        });
+      return res.status(400).json({
+        message:
+          "Field of interest, creator, and tableId are not found in cookie",
+      });
     }
 
     // Create the new Data document
@@ -109,5 +108,37 @@ export async function updateFieldByDataId(req: any, res: any) {
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: error.message });
+  }
+}
+
+export async function deleteRowDataById(req: any, res: any) {
+  try {
+    const dataID = req.params.DataID;
+    if (!dataID) throw new Error("no data id in params deleteRowDataById");
+    console.log("at dataControllers/deleteRowDataById the dataID:", dataID);
+
+    const tableID = req.params.tableID;
+    if (!tableID) throw new Error("no data id in params deleteRowDataById");
+    console.log("at dataControllers/deleteRowDataById the tableID:", tableID);
+
+    if (await deleteOneDataFromMongoDB(TableDataModel, {   //delete the data from the specific table
+        tableID: tableID,
+        dataID: dataID,
+      })
+    ) {
+      res.send({ ok: true, massage: "the data deleted from table" });
+    } else {
+      res.send({ ok: false, massage: "the data not deleted from table" });
+    }
+
+    if (await deleteOneDataFromMongoDB(DataModel, {dataID: dataID}) //delete the data from the DB
+    ) {
+      res.send({ ok: true, massage: "the data deleted from table" });
+    } else {
+      res.send({ ok: false, massage: "the data not deleted from table" });
+    }
+
+  } catch (error) {
+    console.error(error, "at dataControllers/deleteRowDataById delete failed");
   }
 }
