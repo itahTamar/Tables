@@ -6,10 +6,7 @@ import {
   updateOneDataOnMongoDB,
 } from "../../CRUD/mongoCRUD";
 import { DataModel, TableDataModel } from "./dataModel";
-
-const { JWT_SECRET } = process.env;
-const secret = JWT_SECRET;
-const saltRounds = 10;
+import jwt from 'jwt-simple';
 
 export async function getAllData(req: any, res: any) {
   try {
@@ -24,14 +21,21 @@ export async function getAllData(req: any, res: any) {
 
 export async function addNewRowData(req: any, res: any) {
   try {
-    const { tableId, fieldOfInterest, creator } = req.cookie;
+    const tableData = req.cookies; // get the tableId&fieldOfInterest from the cookie - its coded!
 
-    if (!fieldOfInterest || !creator || !tableId) {
+    if (!tableData) {
       return res.status(400).json({
         message:
-          "Field of interest, creator, and tableId are not found in cookie",
+          "table data from cookie are not found in cookie",
       });
     }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret)
+      throw new Error("At addNewRowData: Couldn't load secret from .env");
+    const decodedTableData = jwt.decode(tableData, secret);
+    const { tableId, fieldOfInterest } = decodedTableData
+    console.log("At userCont getUser the tableId, fieldOfInterest:", tableId, fieldOfInterest); 
 
     // Create the new Data document
     const newRowDataEmpty = new DataModel({

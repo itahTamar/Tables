@@ -246,7 +246,7 @@ export const findOneAndUpdateDataOnMongoDB = async <T extends Document>(
 }; //work ok
 
 //delete
-//item is uniq
+//item is uniq (delete one)
 export const deleteOneDataFromMongoDB = async <T extends Document>(
   modelName: Model<T>,
   item: any
@@ -269,3 +269,27 @@ export const deleteOneDataFromMongoDB = async <T extends Document>(
     return { ok: false, error: error.message };
   }
 }; //work ok
+
+//delete many by one field
+
+export const deleteManyDataFromMongoDB = async <T extends Document>(
+  modelName: Model<T>,
+  filter: any
+): Promise<{ ok: boolean; deletedCount?: number; error?: string }> => {
+  try {
+    console.log("At deleteManyDataFromMongoDB the modelName:", modelName);
+    console.log("At deleteManyDataFromMongoDB the filter:", filter);
+
+    const result = await modelName.deleteMany(filter);
+    console.log("At deleteManyDataFromMongoDB result:", result);
+
+    if (result.deletedCount === 0) {
+      return { ok: false, deletedCount: 0, error: "No documents matched the filter" };
+    }
+
+    return { ok: true, deletedCount: result.deletedCount };
+  } catch (error) {
+    console.error("Error in deleteManyDataFromMongoDB:", error);
+    return { ok: false, error: error.message };
+  }
+};
