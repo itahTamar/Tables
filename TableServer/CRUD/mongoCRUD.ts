@@ -1,6 +1,6 @@
 import mongoose, { Model, Document } from "mongoose";
 import { ObjectId } from "mongodb";
-import { IUserWordDoc, MyJoinCollection } from "../API/words/wordModel";
+import { ITableDataDocument, MyJoinCollection } from "../API/Data/dataModel";
 export interface JoinDocument {
   item1ID: ObjectId;
   item2ID: ObjectId;
@@ -25,12 +25,12 @@ export const saveDataToMongoDB = async (data: any) => {
 
 //only for join collection
 export const createAndSaveDataToMongoDB = async <
-  T extends MyDocument<IUserWordDoc>>(
+  T extends MyDocument<ITableDataDocument>>(
   modelName: Model<MyJoinCollection<T>>,
-  library1Name: string, // name of library 1
-  library2Name: string, // name of library 2
-  item1ID: ObjectId, // object from library 1
-  item2ID: ObjectId // object from library 2
+  library1Name: string, // name of first library (e.g: tableId)
+  library2Name: string, // name of second library (e,g: allDataId)
+  item1ID: ObjectId, // object from first library 
+  item2ID: ObjectId // object from second library 
 ) => {
   try {
     console.log("at mongoCRUD/createAndSaveData the item1ID is:", item1ID);
