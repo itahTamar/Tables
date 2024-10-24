@@ -76,9 +76,9 @@ export async function addNewRowData(req: any, res: any) {
 
 export async function updateFieldByDataId(req: any, res: any) {
   try {
-    const DataID = req.params.DataID;
-    if (!DataID) throw new Error("no Data id in params updateData");
-    console.log("at dataControllers/updateFieldByDataId the DataID:", DataID);
+    const dataID = req.params.dataID;
+    if (!dataID) throw new Error("no Data id in params updateData");
+    console.log("at dataControllers/updateFieldByDataId the DataID:", dataID);
 
     const { field } = req.body;
     console.log("at dataControllers/updateFieldByDataId the field:", field); //ok
@@ -97,7 +97,7 @@ export async function updateFieldByDataId(req: any, res: any) {
     //find the Data in DB by Data_id and update the require field
     const DataExistAndUpdate = await updateOneDataOnMongoDB(
       DataModel,
-      { _id: DataID },
+      { _id: dataID },
       updateFieldData
     );
     console.log(
@@ -113,16 +113,16 @@ export async function updateFieldByDataId(req: any, res: any) {
 
 export async function deleteRowDataById(req: any, res: any) {
   try {
-    const dataID = req.params.DataID;
+    const dataID = req.params.dataID;
     if (!dataID) throw new Error("no data id in params deleteRowDataById");
     console.log("at dataControllers/deleteRowDataById the dataID:", dataID);
 
-    const tableID = req.params.tableID;
-    if (!tableID) throw new Error("no data id in params deleteRowDataById");
-    console.log("at dataControllers/deleteRowDataById the tableID:", tableID);
+    const {tableId} = req.cookie;
+    if (!tableId) throw new Error("no data id in params deleteRowDataById");
+    console.log("at dataControllers/deleteRowDataById the tableID:", tableId);
 
     if (await deleteOneDataFromMongoDB(TableDataModel, {   //delete the data from the specific table
-        tableID: tableID,
+        tableID: tableId,
         dataID: dataID,
       })
     ) {
