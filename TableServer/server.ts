@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import mongoose, { ConnectOptions } from 'mongoose';
 import cookieParser from 'cookie-parser';
-import {addFieldToUsers} from './API/users/updateUserDB'
+// import {addFieldToUsers} from './API/users/updateUserDB'
 import cors from 'cors'
 import { corsOptions } from "./config/corsOptions";
 import { sendEmail } from './services/mailService'; // Import the sendEmail function
@@ -21,27 +21,26 @@ app.use(cors(corsOptions))
 //middleware for using parser
 app.use(cookieParser())
 
-import connectionMongo from "./config/dbConn";
+import connectionMongo from "./DBConnection/mongoDB";
 
 //API routes
 // get router from usersRouter
-import userRoute from "./API/users/userRoute";
-
+import userRoute from "./API/User/userRoute";
 app.use("/api/users", userRoute);
 
-// get router from wordRouter
-import wordRoute from "./API/words/wordRoute";
-app.use("/api/words", wordRoute);
+// get router from dataModel
+import dataRoutes  from "./API/Data/dataRoutes";
+app.use("/api/data", dataRoutes);
 
-// get router from wordRouter
-import userWordsRoute from "./API/userWords/userWordsRoute";
-import { isEmailExist } from "./API/users/userCont";
-app.use("/api/userWords", userWordsRoute);
+import tableRoutes from "./API/Table/tableRoutes";
+app.use("/api/tables", tableRoutes)
 
 // Route for sending recovery email
+import { isEmailExist } from "./API/User/userCont";
 app.post("/send_recovery_email", async (req: Request, res: Response) => {
   try { 
-    const emailExists = await isEmailExist(req, res);  // Await the async function
+    const email = req.body.recipient_email
+    const emailExists = await isEmailExist(email);  // Await the async function
     if (emailExists) {
       sendEmail(req.body)
       .then((response) => res.send(response))
@@ -59,8 +58,6 @@ app.post("/send_recovery_email", async (req: Request, res: Response) => {
 const connectToMongoDB = async () => {
   try {
     await connectionMongo;
-    // Update user DB with a new field - enter new fieldName and defaultValue and save & run "npm run dev"
-        // addFieldToUsers("name of new field", "initial value"); 
   } catch (err) {
     console.error(err);
     process.exit(1); // Exit the process with a non-zero code

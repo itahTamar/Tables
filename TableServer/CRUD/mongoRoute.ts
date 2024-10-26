@@ -1,5 +1,6 @@
 import express from 'express'
-import { getAllData, isEmailExist } from '../API/dataControllers';
+import { getAllData } from '../API/Data/dataControllers';
+import { isEmailExist } from '../API/User/userCont';
 
 const router = express.Router();
 

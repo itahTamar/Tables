@@ -15,7 +15,11 @@ const secret = JWT_SECRET;
 // add table
 export async function addNewTable(req: any, res: any) {
   try {
+    console.log("addNewTable():")
     const { fieldOfInterest, creator } = req.body;
+    console.log("At tableControllers/addTable the fieldOfInterest:", fieldOfInterest)
+    console.log("At tableControllers/addTable the creator:", creator)
+
     if (!fieldOfInterest || !creator)
       throw new Error(
         "At tableControllers/addTable missing fieldOfInterest and/or creator"
@@ -24,13 +28,16 @@ export async function addNewTable(req: any, res: any) {
     // Create the new Table document
     const newTable = new TableModel({ fieldOfInterest, creator });
 
+    console.log("At tableControllers/addTable the newTable:", newTable)
+
     // Save the new Table to MongoDB
-    const ok = await saveDataToMongoDB(newTable);
-    if (!ok.ok)
+    const response = await saveDataToMongoDB(newTable);
+    console.log("At tableControllers/addTable the response:", response)
+    if (!response.ok)
       throw new Error(
         "at tableControllers/addTable Fails to save the Table in Table-db"
       );
-    const tableId = ok.response._id;
+    const tableId = response.response._id;
     console.log("At tableControllers/addTable the tableId is:", tableId);
 
     //create and encode cookie with JWT
@@ -51,7 +58,7 @@ export async function addNewTable(req: any, res: any) {
     console.error("Error in addNewRowData:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-}
+} //work ok
 
 // get all table data
 export async function getAllTableRowData(req: any, res: any) {

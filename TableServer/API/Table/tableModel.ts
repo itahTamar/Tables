@@ -28,7 +28,7 @@ export class Table {
 //define a schema (It is like interface in typescript)
 export const tableSchema = new mongoose.Schema<ITable>({
   fieldOfInterest: { type: String, required: true, unique: true },
-  dateCreated: { type: String, required: true },
+  dateCreated: { type: String },
   creator: String,
 });
 

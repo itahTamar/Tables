@@ -86,7 +86,7 @@ DataSchema.pre<IDataDocument>("save", async function (next) {
 });
 
 export const DataModel: Model<IDataDocument> = model<IDataDocument>(
-  "data",
+  "datas",
   DataSchema
 ); //the collection name is in plural!!!
 

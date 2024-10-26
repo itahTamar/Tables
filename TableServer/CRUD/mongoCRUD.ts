@@ -12,6 +12,7 @@ interface MyDocument<T extends Document> extends Document<any, any, T> {}
 //create
 export const saveDataToMongoDB = async (data: any) => {
   try {
+    console.log("at mongoCRUD/saveData the data is:", data);
     const response = await data.save();
     console.log("at mongoCRUD/saveData the response is:", response);
     if (response) {
@@ -97,10 +98,14 @@ export const getOneDataFromMongoDB = async <T extends Document>(
 ) => {
   try {
     console.log("at mongoCRUD/getOneDataFromMongoDB the modelName is:", modelName);
+    console.log("at mongoCRUD/getOneDataFromMongoDB the filterCriteria is:", filterCriteria);
     const response = await modelName.findOne(filterCriteria);
     console.log("at mongoCRUD/getOneDataFromMongoDB the response is:", response);
     if (response) {
       return { ok: true, response };
+    }
+    if (!response) {
+      return {ok: false}
     }
   } catch (error) {
     console.error(error);
