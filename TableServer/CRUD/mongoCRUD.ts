@@ -34,17 +34,11 @@ export const createAndSaveDataToMongoDB = async <
   item2ID: ObjectId // object from second library 
 ) => {
   try {
+    console.log("at mongoCRUD/createAndSaveData the library1Name is:", library1Name);
+    console.log("at mongoCRUD/createAndSaveData the library2Name is:", library2Name);
     console.log("at mongoCRUD/createAndSaveData the item1ID is:", item1ID);
     console.log("at mongoCRUD/createAndSaveData the item2ID is:", item2ID);
     console.log("at mongoCRUD/createAndSaveData the modelName is:", modelName);
-    console.log(
-      "at mongoCRUD/createAndSaveData the item1IdName is:",
-      library1Name
-    );
-    console.log(
-      "at mongoCRUD/createAndSaveData the item2IdName is:",
-      library2Name
-    );
 
     if (!item1ID || !item2ID) {
       throw new Error("Invalid item1ID or item2ID");
@@ -54,10 +48,7 @@ export const createAndSaveDataToMongoDB = async <
       [library1Name]: item1ID,
       [library2Name]: item2ID,
     }); // save the new join in the join-DB
-    console.log(
-      "at mongoCRUD/createAndSaveData the newJoinData is:",
-      newJoinData
-    );
+    console.log("at mongoCRUD/createAndSaveData the newJoinData is:", newJoinData);
 
     const response = await saveDataToMongoDB(newJoinData);
     console.log("at mongoCRUD/createAndSaveData the response is:", response);
@@ -77,9 +68,9 @@ export const getAllDataFromMongoDB = async <T extends Document>(
   filterCriteria?: Record<string, any>
 ) => {
   try {
-    console.log("at mongoCRUD/getAllData the modelName is:", modelName);
+    console.log("at mongoCRUD/getAllDataFromMongoDB the modelName is:", modelName);
     const response = await modelName.find(filterCriteria);
-    console.log("at mongoCRUD/getAllData the response is:", response);
+    console.log("at mongoCRUD/getAllDataFromMongoDB the response is:", response);
     if (response) {
       return { ok: true, response };
     } else {
@@ -117,23 +108,22 @@ export const getOneDataFromMongoDB = async <T extends Document>(
 export const getOneDataFromJoinCollectionInMongoDB = async <T extends Document>(
   modelName: Model<T>,
   filterCriteria: {
-    wordsId: ObjectId;
-    userId: string | ObjectId;
+    id: string | ObjectId;
   }
 ) => {
   try {
-    console.log("at mongoCRUD/getDataByID the modelName:", modelName);
-    console.log("at mongoCRUD/getDataByID the filterCriteria:", filterCriteria);
-    // Check if userId is a string and convert it to ObjectId
-    if (typeof filterCriteria.userId === "string") {
-      filterCriteria.userId = new ObjectId(filterCriteria.userId);
+    console.log("at mongoCRUD/getOneDataFromJoinCollectionInMongoDB the modelName:", modelName);
+    console.log("at mongoCRUD/getOneDataFromJoinCollectionInMongoDB the filterCriteria:", filterCriteria);
+    // Check if id is a string and convert it to ObjectId
+    if (typeof filterCriteria.id === "string") {
+      filterCriteria.id = new ObjectId(filterCriteria.id);
       console.log(
-        "at mongoCRUD/getDataByID the new filterCriteria:",
+        "at mongoCRUD/getOneDataFromJoinCollectionInMongoDB the new filterCriteria:",
         filterCriteria
       );
     }
     const response = await modelName.findOne(filterCriteria);
-    console.log("at mongoCRUD/getDataByID the response is:", response);
+    console.log("at mongoCRUD/getOneDataFromJoinCollectionInMongoDB the response is:", response);
     if (response) {
       return { ok: true, response };
     } else {

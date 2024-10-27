@@ -93,8 +93,8 @@ export const DataModel: Model<IDataDocument> = model<IDataDocument>(
 export const allData: Data[] = [];
 
 const TableDataSchema = new mongoose.Schema({
-  allDataId: { type: Schema.Types.ObjectId, ref: DataModel },
-  tableId: { type: Schema.Types.ObjectId, ref: TableModel },
+  tableId: { type: Schema.Types.ObjectId, ref: DataModel },
+  dataId: { type: Schema.Types.ObjectId, ref: TableModel },
 });
 
 export const TableDataModel: Model<

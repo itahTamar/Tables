@@ -1,12 +1,14 @@
+import jwt from 'jwt-simple';
 import {
   createAndSaveDataToMongoDB,
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
+  getOneDataFromMongoDB,
   saveDataToMongoDB,
   updateOneDataOnMongoDB,
 } from "../../CRUD/mongoCRUD";
+import { TableModel } from "../Table/tableModel";
 import { DataModel, TableDataModel } from "./dataModel";
-import jwt from 'jwt-simple';
 
 export async function getAllData(req: any, res: any) {
   try {
@@ -21,9 +23,11 @@ export async function getAllData(req: any, res: any) {
 
 export async function addNewRowData(req: any, res: any) {
   try {
-    const tableData = req.cookies; // get the tableId&fieldOfInterest from the cookie - its coded!
+    console.log("At addNewRowData")
+    const tableID = req.cookies.table; // get the tableId&fieldOfInterest from the cookie - its coded!
+    console.log("At addNewRowData tableID cookie:", tableID)
 
-    if (!tableData) {
+    if (!tableID) {
       return res.status(400).json({
         message:
           "table data from cookie are not found in cookie",
@@ -33,13 +37,18 @@ export async function addNewRowData(req: any, res: any) {
     const secret = process.env.JWT_SECRET;
     if (!secret)
       throw new Error("At addNewRowData: Couldn't load secret from .env");
-    const decodedTableData = jwt.decode(tableData, secret);
-    const { tableId, fieldOfInterest } = decodedTableData
-    console.log("At userCont getUser the tableId, fieldOfInterest:", tableId, fieldOfInterest); 
+    const decodedTableID = jwt.decode(tableID, secret);
+    console.log("Encoded JWT Cookie:", decodedTableID);
+
+    const tableDetails = await getOneDataFromMongoDB(TableModel, {_id: decodedTableID})
+    console.log("At addNewRowData the tableDetails:", tableDetails);
+
+    const fieldOfInterest = tableDetails.response.fieldOfInterest
+    console.log("At addNewRowData the fieldOfInterest:", fieldOfInterest);
 
     // Create the new Data document
     const newRowDataEmpty = new DataModel({
-      fieldOfInterest,
+      fieldOfInterest: fieldOfInterest,
       details: "", // Empty string for details
       dataLink: "", // Empty string for dataLink
       price: 0, // Default price
@@ -50,16 +59,16 @@ export async function addNewRowData(req: any, res: any) {
     const ok = await saveDataToMongoDB(newRowDataEmpty);
     if (!ok.ok)
       throw new Error("at addNewRowData Fails to save the Data in Data-db");
-    const dataId = ok.response._id;
+    const dataId = newRowDataEmpty._id;
     console.log("At addNewRowData the dataId is:", dataId);
 
     // Use the createAndSaveDataToMongoDB function to save the join
     const response = await createAndSaveDataToMongoDB(
       TableDataModel,
-      "tableId",
-      "dataId",
-      tableId,
-      dataId
+      "tableId", //library1Name
+      "dataId",  //library2Name
+      decodedTableID,  //item1ID
+      dataId    //item2ID
     );
 
     // If the join was successfully saved, respond with the result
@@ -76,7 +85,7 @@ export async function addNewRowData(req: any, res: any) {
     console.error("Error in addNewRowData:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-}
+} // work ok
 
 export async function updateFieldByDataId(req: any, res: any) {
   try {

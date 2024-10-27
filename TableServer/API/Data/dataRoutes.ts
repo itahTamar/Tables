@@ -4,8 +4,8 @@ import { addNewRowData, deleteRowDataById, getAllData, updateFieldByDataId } fro
 const router = express.Router();
 
 router
-.get('/getAllData', getAllData)
 .post('/addNewRowData', addNewRowData)
+.get('/getAllData', getAllData)
 .patch('/updateFieldByDataId/:dataID', updateFieldByDataId)
 .delete('/deleteRowDataById/:dataID', deleteRowDataById)
 
