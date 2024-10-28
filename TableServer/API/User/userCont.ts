@@ -170,7 +170,7 @@ export async function isEmailExist(email) {
 //reset user password
 export const resetPassword = async (req: any, res: any) => {
   try {
-    console.log("hello from server resetPassword");
+    console.log("Hello from server resetPassword");
 
     const { email, password } = req.body;
     console.log({ password }, { email });
@@ -178,7 +178,7 @@ export const resetPassword = async (req: any, res: any) => {
       throw new Error("At userCont-resetPassword complete all fields");
 
     //check if email exist , if so update the user password
-    const isEmailExists = await isEmailExist(req); // Await the result
+    const isEmailExists = await isEmailExist(email); // Await the result
     console.log("at resetPassword the isEmailExists answer is:", isEmailExists);
 
     if (!isEmailExists) {
