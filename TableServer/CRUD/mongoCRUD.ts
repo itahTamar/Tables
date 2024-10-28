@@ -135,84 +135,11 @@ export const getOneDataFromJoinCollectionInMongoDB = async <T extends Document>(
   }
 }; //work ok
 
-//read - get a list of items by field (aggregate)
-// export const getXRandomDataList = async <T extends Document>(
-//   modelName: Model<MyDocument<T>>,
-//   modelId: string,
-//   IdMongoose: any,
-//   listLength: number,
-//   dbName: string,
-//   localFieldName: string,
-//   foreignFieldName: string,
-//   itemName: string
-// ) => {
-//   try {
-//     console.log("at mongoCRUD/getDataByID the modelName:", modelName);
-//     console.log("at mongoCRUD/getDataByID the modelId:", modelId);
-//     console.log("at mongoCRUD/getDataByID the IdMongoose:", IdMongoose);
-//     console.log("at mongoCRUD/getDataByID the listLength:", listLength);
-//     console.log("at mongoCRUD/getDataByID the dbName:", dbName);
-//     console.log("at mongoCRUD/getDataByID the localFieldName:", localFieldName);
-//     console.log(
-//       "at mongoCRUD/getDataByID the foreignFieldName:",
-//       foreignFieldName
-//     );
-//     console.log("at mongoCRUD/getDataByID the itemName:", itemName);
-
-//     const response = await modelName.aggregate([
-//       { $match: { [modelId]: IdMongoose } },
-//       { $sample: { size: listLength } },
-//       {
-//         $lookup: {
-//           from: dbName,
-//           localField: localFieldName,
-//           foreignField: foreignFieldName,
-//           as: itemName,
-//         },
-//       },
-//     ]);
-//     if (response) {
-//       console.log("at mongoCRUD/getXRandomDataList the response:", response);
-//       return { ok: true, response };
-//     } else {
-//       return { ok: false };
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     return { ok: false, error: error.message };
-//   }
-// }; //work ok
-
-//update
-export const updateOneDataOnMongoDB = async <T extends Document>(
-  modelName: Model<T>,
-  filter: any,
-  update: any
-) => {
-  try {
-    console.log("at mongoCRUD/updateOneDataOnMongoDB the modelName", modelName);
-    console.log("at mongoCRUD/updateOneDataOnMongoDB the filter", filter);
-    console.log("at mongoCRUD/updateOneDataOnMongoDB the update", update);
-    const response = await modelName.findOneAndUpdate(filter, update, {new: true });
-    //By default, findOneAndUpdate() returns the document as it was before update was applied.
-    //You should set the new option to true to return the document after update was applied
-    if (response) {
-      console.log("at mongoCRUD/updateOneData the response", response);
-      return { ok: true, response, massage: "The word update successfully" };
-    } else {
-      return { ok: false, massage: "The word not exist nor update" };
-    }
-  } catch (error) {
-    console.error(error);
-    return { ok: false, error: error.message };
-  }
-}; //work ok
-
 //find one and update many
 export const findOneAndUpdateDataOnMongoDB = async <T extends Document>(
   modelName: Model<T>,       // Generic model passed to the function
-  filter: Record<string, any>, // Filter criterion (e.g., email, ID, etc.)
-  update: Record<string, any>  // Fields to update
+  filter: Record<string, any>, // Filter criterion (e.g., email, ID, etc.) - how to find the document
+  update: Record<string, any>  // Fields to update - work on multiple fields
 ) => {
   try {
     console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB the modelName", modelName);
@@ -285,4 +212,4 @@ export const deleteManyDataFromMongoDB = async <T extends Document>(
     console.error("Error in deleteManyDataFromMongoDB:", error);
     return { ok: false, error: error.message };
   }
-};
+}; //work ok

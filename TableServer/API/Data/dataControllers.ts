@@ -2,14 +2,13 @@ import jwt from 'jwt-simple';
 import {
   createAndSaveDataToMongoDB,
   deleteOneDataFromMongoDB,
+  findOneAndUpdateDataOnMongoDB,
   // getAllDataFromMongoDB,
   getOneDataFromMongoDB,
-  saveDataToMongoDB,
-  updateOneDataOnMongoDB,
+  saveDataToMongoDB
 } from "../../CRUD/mongoCRUD";
 import { TableModel } from "../Table/tableModel";
 import { DataModel, TableDataModel } from "./dataModel";
-import { ObjectId } from 'mongoose';
 
 // export async function getAllData(req: any, res: any) {
 //   try {
@@ -103,7 +102,7 @@ export async function updateFieldByDataId(req: any, res: any) {
     );
 
     //find the Data in DB by Data_id and update the require field
-    const DataExistAndUpdate = await updateOneDataOnMongoDB(
+    const DataExistAndUpdate = await findOneAndUpdateDataOnMongoDB(
       DataModel,
       { _id: dataID },
       updateFieldData

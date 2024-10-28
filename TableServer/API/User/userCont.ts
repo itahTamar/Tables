@@ -86,11 +86,12 @@ export const login = async (req: any, res: any) => {
 
 export async function deleteUser(req: any, res: any) {
   try {
-    const { userName, password } = req.body;
-    if (!userName || !password) throw new Error("please fill all");
+    const { email, password } = req.body;
+    if (!email || !password) throw new Error("please fill all");
 
     //check if user exist and password is correct
-    const userDB = await UserModel.findOne({ userName });
+    const userDB = await UserModel.findOne({ email });
+    console.log("At deleteUser the userDB:", userDB)
     if (!userDB) throw new Error("some of the details are incorrect");
     const { password: hash } = userDB;
     if (!hash) throw new Error("some of the details are incorrect");
@@ -99,7 +100,7 @@ export async function deleteUser(req: any, res: any) {
     const match: boolean = await bcrypt.compare(password, hash);
     if (!match) throw new Error("some of the details are incorrect");
 
-    await UserModel.findOneAndDelete({ userName, password });
+    await UserModel.findOneAndDelete({ email, password });
     res.send({ ok: true });
   } catch (error) {
     console.error(error);
@@ -107,14 +108,20 @@ export async function deleteUser(req: any, res: any) {
   }
 }
 
-export async function updateUser(req: any, res: any) {
+export async function updateUserDetails(req: any, res: any) {
   try {
-    const { oldName, oldPassword, newname, newPassword } = req.body;
-    if (!oldName || !oldPassword || !newname || !newPassword)
+    const { oldEmail, oldPassword, newEmail, newPassword } = req.body;
+    if (!oldEmail || !oldPassword || !newEmail || !newPassword)
       throw new Error("please fill all");
+    console.log("At updateUserDetails the oldEmail:", oldEmail)
+    console.log("At updateUserDetails the oldPassword:", oldPassword)
+    console.log("At updateUserDetails the newEmail:", newEmail)
+    console.log("At updateUserDetails the newPassword:", newPassword)
 
     //check if user exist and password is correct
-    const userDB = await UserModel.findOne({ oldName });
+    const userDB = await UserModel.findOne({ email: oldEmail });
+    console.log("At updateUserDetails the userDB:", userDB)
+
     if (!userDB) throw new Error("some of the details are incorrect");
     const { password: hash } = userDB;
     if (!hash) throw new Error("some of the details are incorrect");
@@ -123,57 +130,21 @@ export async function updateUser(req: any, res: any) {
     const match: boolean = await bcrypt.compare(oldPassword, hash);
     if (!match) throw new Error("some of the details are incorrect");
 
-    const newUserdb = await UserModel.findOneAndUpdate(
-      { oldName, oldPassword },
-      { newname, newPassword }
+    const updatedUser = await findOneAndUpdateDataOnMongoDB(UserModel,
+      { email: oldEmail },  //search the doc by the old-email
+      { //update thous fields
+        email: newEmail,
+        password: await bcrypt.hash(newPassword, 10) // Hash the new password before saving
+      }
     );
-    res.send({ ok: true }, newUserdb);
+    console.log("At updateUserDetails the newUserDB:", updatedUser)
+
+    res.send({ ok: true , updatedUser});
   } catch (error) {
     console.error(error);
     res.send({ error });
   }
-}
-
-//update user details
-export const UpdateUserDetails = async (req: any, res: any) => {
-  try {
-    console.log("hello from server resetPassword");
-
-    const { email, password } = req.body;
-    console.log({ password }, { email });
-    if (!password || !email)
-      throw new Error("At userCont-UpdateUserDetails complete all fields");
-
-    //check if user exist ,by email, if so update the user details
-    const isEmailExists = await isEmailExist(req); // Await the result
-    console.log("at resetPassword the isEmailExists answer is:", isEmailExists);
-
-    if (!isEmailExists) {
-      //if email not exist (false)
-      res.send({ ok: false, massage: "Email not exist" });
-    } else {
-      //encode password with bcrypt.js
-      const hash = await bcrypt.hash(password, saltRounds);
-      console.log("hash:", hash);
-
-      const userDB = await findOneAndUpdateDataOnMongoDB(
-        UserModel,
-        { email },
-        { password: hash, email }
-      );
-      console.log("userDB:", userDB);
-
-      if (userDB) {
-        res.send({ ok: true });
-      } else {
-        res.send({ ok: false });
-      }
-    }
-  } catch (error) {
-    console.error(error);
-    res.send({ ok: false, error: "server error at register-user" });
-  }
-}; 
+} //work ok
 
 //check if the user email is existing in DB, return true or false
 export async function isEmailExist(email) {
