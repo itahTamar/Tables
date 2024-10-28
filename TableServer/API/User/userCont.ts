@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jwt-simple";
 import {
+  deleteOneDataFromMongoDB,
   findOneAndUpdateDataOnMongoDB,
   getOneDataFromMongoDB,
 } from "./../../CRUD/mongoCRUD";
@@ -92,7 +93,9 @@ export async function deleteUser(req: any, res: any) {
     //check if user exist and password is correct
     const userDB = await UserModel.findOne({ email });
     console.log("At deleteUser the userDB:", userDB)
+
     if (!userDB) throw new Error("some of the details are incorrect");
+
     const { password: hash } = userDB;
     if (!hash) throw new Error("some of the details are incorrect");
 
@@ -100,13 +103,13 @@ export async function deleteUser(req: any, res: any) {
     const match: boolean = await bcrypt.compare(password, hash);
     if (!match) throw new Error("some of the details are incorrect");
 
-    await UserModel.findOneAndDelete({ email, password });
+    await deleteOneDataFromMongoDB(UserModel, { email });
     res.send({ ok: true });
   } catch (error) {
     console.error(error);
     res.send({ error });
   }
-}
+} //work ok
 
 export async function updateUserDetails(req: any, res: any) {
   try {
