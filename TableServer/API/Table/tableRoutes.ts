@@ -4,7 +4,7 @@ const router = express.Router();
 
 router
 .post('/addNewTable', addNewTable)
-.get('/getAllTableRowData', getAllTableRowData)
-.delete('/deleteTable', deleteTable)
+.get('/getAllTableRowData/:tableId', getAllTableRowData)
+.delete('/deleteTable/:tableId/:fieldOfInterest', deleteTable)
 
 export default router;

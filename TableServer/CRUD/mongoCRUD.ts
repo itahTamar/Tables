@@ -253,9 +253,9 @@ export const deleteOneDataFromMongoDB = async <T extends Document>(
     if (response === null) throw new Error("response is null");
     
     if (response) {
-      return { ok: true };
+      return true ;
     } else {
-      return { ok: false };
+      return false ;
     }
   } catch (error) {
     console.error(error);
@@ -273,7 +273,7 @@ export const deleteManyDataFromMongoDB = async <T extends Document>(
     console.log("At deleteManyDataFromMongoDB the modelName:", modelName);
     console.log("At deleteManyDataFromMongoDB the filter:", filter);
 
-    const result = await modelName.deleteMany(filter);
+    const result = await modelName.deleteMany({fieldOfInterest: `${filter}`});
     console.log("At deleteManyDataFromMongoDB result:", result);
 
     if (result.deletedCount === 0) {

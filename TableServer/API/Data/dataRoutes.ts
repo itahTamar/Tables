@@ -6,7 +6,7 @@ import { addNewRowData, deleteRowDataById,
 const router = express.Router();
 
 router
-.post('/addNewRowData', addNewRowData)
+.post('/addNewRowData/:tableId', addNewRowData)
 // .get('/getAllData', getAllData)
 .patch('/updateFieldByDataId/:dataID', updateFieldByDataId)
 .delete('/deleteRowDataById/:dataID', deleteRowDataById)

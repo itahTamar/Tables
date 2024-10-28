@@ -25,8 +25,8 @@ import { ObjectId } from 'mongoose';
 export async function addNewRowData(req: any, res: any) {
   try {
     console.log("At addNewRowData")
-    const tableID = req.cookies.table; // get the tableId&fieldOfInterest from the cookie - its coded!
-    console.log("At addNewRowData tableID cookie:", tableID)
+    const tableID = req.params.tableId; // get the tableId&fieldOfInterest from the cookie - its coded!
+    console.log("At addNewRowData tableID :", tableID)
 
     if (!tableID) {
       return res.status(400).json({
@@ -35,13 +35,7 @@ export async function addNewRowData(req: any, res: any) {
       });
     }
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret)
-      throw new Error("At addNewRowData: Couldn't load secret from .env");
-    const decodedTableID = jwt.decode(tableID, secret);
-    console.log("Encoded JWT Cookie:", decodedTableID);
-
-    const tableDetails = await getOneDataFromMongoDB(TableModel, {_id: decodedTableID})
+    const tableDetails = await getOneDataFromMongoDB(TableModel, {_id: tableID})
     console.log("At addNewRowData the tableDetails:", tableDetails);
 
     const fieldOfInterest = tableDetails.response.fieldOfInterest
@@ -68,7 +62,7 @@ export async function addNewRowData(req: any, res: any) {
       TableDataModel,
       "tableId", //library1Name
       "dataId",  //library2Name
-      decodedTableID,  //item1ID
+      tableID,  //item1ID
       dataId    //item2ID
     );
 
