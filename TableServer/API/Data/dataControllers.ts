@@ -131,13 +131,19 @@ export async function deleteRowDataById(req: any, res: any) {
     if (!dataID) throw new Error("no data id in params deleteRowDataById");
     console.log("at dataControllers/deleteRowDataById the dataID:", dataID);
 
-    const {tableId} = req.cookie;
+    const tableId = req.cookies.table;
     if (!tableId) throw new Error("no data id in params deleteRowDataById");
     console.log("at dataControllers/deleteRowDataById the tableID:", tableId);
 
+    const secret = process.env.JWT_SECRET;
+    if (!secret)
+      throw new Error("At addNewRowData: Couldn't load secret from .env");
+    const decodedTableID = jwt.decode(tableId, secret);
+    console.log("Encoded JWT Cookie:", decodedTableID);
+
     if (await deleteOneDataFromMongoDB(TableDataModel, {   //delete the data from the specific table
-        tableID: tableId,
-        dataID: dataID,
+        tableId: decodedTableID,
+        dataId: dataID,
       })
     ) {
       res.send({ ok: true, massage: "the data deleted from table" });
@@ -145,7 +151,7 @@ export async function deleteRowDataById(req: any, res: any) {
       res.send({ ok: false, massage: "the data not deleted from table" });
     }
 
-    if (await deleteOneDataFromMongoDB(DataModel, {dataID: dataID}) //delete the data from the DB
+    if (await deleteOneDataFromMongoDB(DataModel, {_id: dataID}) //delete the data from the DB
     ) {
       res.send({ ok: true, massage: "the data deleted from table" });
     } else {
@@ -155,4 +161,4 @@ export async function deleteRowDataById(req: any, res: any) {
   } catch (error) {
     console.error(error, "at dataControllers/deleteRowDataById delete failed");
   }
-}
+} //work ok
