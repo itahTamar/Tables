@@ -2,24 +2,25 @@ import jwt from 'jwt-simple';
 import {
   createAndSaveDataToMongoDB,
   deleteOneDataFromMongoDB,
-  getAllDataFromMongoDB,
+  // getAllDataFromMongoDB,
   getOneDataFromMongoDB,
   saveDataToMongoDB,
   updateOneDataOnMongoDB,
 } from "../../CRUD/mongoCRUD";
 import { TableModel } from "../Table/tableModel";
 import { DataModel, TableDataModel } from "./dataModel";
+import { ObjectId } from 'mongoose';
 
-export async function getAllData(req: any, res: any) {
-  try {
-    console.log("getAllData function");
-    const dataDB = await getAllDataFromMongoDB<any>(DataModel);
-    console.log("At getAllData dataDB:", dataDB);
-    res.send({ data: dataDB });
-  } catch (error) {
-    console.error(error);
-  }
-}
+// export async function getAllData(req: any, res: any) {
+//   try {
+//     console.log("getAllData function");
+//     const dataDB = await getAllDataFromMongoDB<any>(DataModel);
+//     console.log("At getAllData dataDB:", dataDB);
+//     res.send({ data: dataDB });
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
 
 export async function addNewRowData(req: any, res: any) {
   try {
@@ -103,7 +104,7 @@ export async function updateFieldByDataId(req: any, res: any) {
 
     const updateFieldData = { [field]: updateData };
     console.log(
-      "at dataControllers/updateFieldByDataId the updateDataData:",
+      "at dataControllers/updateFieldByDataId the updateFieldData:",
       updateFieldData
     );
 
@@ -122,7 +123,7 @@ export async function updateFieldByDataId(req: any, res: any) {
     console.error(error);
     res.status(500).send({ error: error.message });
   }
-}
+} //work ok
 
 export async function deleteRowDataById(req: any, res: any) {
   try {
