@@ -206,4 +206,4 @@ export const resetPassword = async (req: any, res: any) => {
     console.error(error);
     res.send({ ok: false, error: "server error at register-user" });
   }
-}; 
+}; //work ok
