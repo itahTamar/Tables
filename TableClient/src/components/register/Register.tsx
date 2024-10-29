@@ -6,7 +6,6 @@ import "../../style/register.css";
 import { ServerContext } from "../../context/ServerUrlContext";
 
 const Register = () => {
-  const [userName, setUserName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const navigate = useNavigate();
@@ -33,9 +32,9 @@ const Register = () => {
     try {
       ev.preventDefault();
       if (password === confirmPassword) {
-        const data = { userName, email, password };
+        const data = { email, password };
         if (!data) throw new Error("register failed - no email or password");
-        const response = await register(serverUrl, userName, email, password);
+        const response = await register(serverUrl, email, password);
         if (!response) throw new Error("register failed from server");
         navigate("/");
       } else {
@@ -83,21 +82,7 @@ const Register = () => {
         </button>
 
         <form className="custom-form relative" onSubmit={handleSubmitRegister}>
-          <div className="">
-            <div className="icon_container"></div>
-            <input
-              className="border border-black m-2 rounded-2xl w-72 h-12 relative indent-4"
-              type="userName"
-              name="userName"
-              autoComplete="given-name"
-              placeholder="Choose a UserName" //must be uniq
-              value={userName}
-              onInput={(ev) =>
-                setUserName((ev.target as HTMLInputElement).value)
-              }
-            />
-          </div>
-
+          <div className="relative left-4">
           <input
               className="border border-black m-2 rounded-2xl w-72 h-12 relative indent-4"
               type="email"
@@ -109,7 +94,8 @@ const Register = () => {
                 setEmail((ev.target as HTMLInputElement).value)
               }
             />
-
+          </div>
+    
           <div className="relative left-4">
             <input
               className="border border-black m-2 rounded-2xl w-72 h-12 relative indent-4"

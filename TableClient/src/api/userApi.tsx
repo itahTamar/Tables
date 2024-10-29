@@ -5,17 +5,15 @@ import Cookies from "js-cookie";
 //register
 export const register = async (
   serverUrl: string,
-  userName: string,
   email: string,
   password: string
 ) => {
   try {
-    if (!password || !userName || !email)
+    if (!password || !email)
       throw new Error(
         "please provide a valid username and password to register"
       );
     const response = await axios.post(`${serverUrl}/api/users/register`, {
-      userName,
       email,
       password,
     });
@@ -38,16 +36,15 @@ export const register = async (
 //logIn
 export const login = async (
   serverUrl: string,
-  userName: string,
   email: string,
   password: string
 ) => {
   try {
-    if (!userName || !password || !email)
+    if (!password || !email)
       throw new Error("please provide a valid username and password to login");
     const response = await axios.post(
       `${serverUrl}/api/users/login`,
-      { userName, email, password },
+      { email, password },
       { withCredentials: true }
     );
     console.log("at user-api login response from server is:", response);
@@ -63,29 +60,6 @@ export const login = async (
 export const logout = () => {
   Cookies.remove("user");
   return true;
-};
-
-//get user high scores
-//userId is in cookie
-export const getUserHighScore = async (serverUrl: string) => {
-  try {
-    const result = await axios.get(`${serverUrl}/api/users/getUserHighScore`, {
-      withCredentials: true,
-    }); // get from server: { ok: true, highScore: userDB.highScore }
-    console.log("at userApi/getUserHighScore the result:", result);
-    if (!result)
-      throw new Error(
-        "at userApi/getUserHighScore there was no result from server"
-      );
-    console.log(
-      "at userApi/getUserHighScore the result.data.highScore:",
-      result.data.highScore
-    );
-
-    if (result.data.ok) return result.data.highScore;
-  } catch (error) {
-    console.error(error, "at userApi/getUserHighScore there was a catch error");
-  }
 };
 
 export const recoveryEmail = async ({
@@ -159,30 +133,26 @@ export const resetPassword = async ({
 
 export const updateUserDetails = async ({
   serverUrl,
-  userName,
   email,
   password,
 }: {
   serverUrl: string;
-  userName: string;
   email: string;
   password: string;
 }) => {
   try {
-    if (!password || !email || !userName)
+    if (!password || !email)
       throw new Error(
         "please provide a valid userName, email and password to Update User Details"
       );
     console.log(
       "at UpdateUserDetails the userName, email & password are:",
-      userName,
       email,
       password
     );
     const response = await axios.post(
       `${serverUrl}/api/users/UpdateUserDetails`,
       {
-        userName,
         email,
         password,
       }
