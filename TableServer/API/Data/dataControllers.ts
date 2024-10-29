@@ -10,17 +10,6 @@ import {
 import { TableModel } from "../Table/tableModel";
 import { DataModel, TableDataModel } from "./dataModel";
 
-// export async function getAllData(req: any, res: any) {
-//   try {
-//     console.log("getAllData function");
-//     const dataDB = await getAllDataFromMongoDB<any>(DataModel);
-//     console.log("At getAllData dataDB:", dataDB);
-//     res.send({ data: dataDB });
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
 export async function addNewRowData(req: any, res: any) {
   try {
     console.log("At addNewRowData")

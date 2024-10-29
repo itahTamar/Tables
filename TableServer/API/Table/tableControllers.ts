@@ -103,6 +103,18 @@ export async function getAllTableRowData(req: any, res: any) {
   }
 } //work ok
 
+// get all tables (for all users!)
+export async function getAllTables(req: any, res: any) {
+  try {
+    console.log("getAllTables function");
+    const dataDB = await getAllDataFromMongoDB<any>(TableModel);
+    console.log("At getAllTables dataDB:", dataDB);
+    res.send({ data: dataDB });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 // delete table
 export async function deleteTable(req: any, res: any) {
   try {

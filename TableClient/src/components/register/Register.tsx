@@ -82,7 +82,7 @@ const Register = () => {
         </button>
 
         <form className="custom-form relative" onSubmit={handleSubmitRegister}>
-          <div className="relative left-4">
+          <div className="relative right-4">
           <input
               className="border border-black m-2 rounded-2xl w-72 h-12 relative indent-4"
               type="email"
@@ -96,7 +96,7 @@ const Register = () => {
             />
           </div>
     
-          <div className="relative left-4">
+          <div className="relative ">
             <input
               className="border border-black m-2 rounded-2xl w-72 h-12 relative indent-4"
               type={visible ? "text" : "password"}
@@ -111,7 +111,7 @@ const Register = () => {
             ></input>
             <button
               type="button"
-              className="emoji-button visible right-12"
+              className="emoji-button visible"
               onClick={() => toggleVisibility("password")}
             >
               <span className="emoji">&#128065;</span>
@@ -119,7 +119,7 @@ const Register = () => {
             </button>
           </div>
 
-          <div className="relative left-4">
+          <div className="relative ">
             <input
               className="border border-black m-2 rounded-2xl w-72 h-12 relative indent-4"
               type={visibleConfirm ? "text" : "password"}
@@ -134,7 +134,7 @@ const Register = () => {
             ></input>
             <button
               type="button"
-              className="emoji-button visible right-12"
+              className="emoji-button visible"
               onClick={() => toggleVisibility("confirmPassword")}
             >
               <span className="emoji">&#128065;</span>

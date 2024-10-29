@@ -1,1 +1,1 @@
-This project is for home list tables.
+This project is for all kinds of list tables.
