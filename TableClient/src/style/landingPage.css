@@ -4,7 +4,7 @@
     height: 100vh;
     width: 100vw;
     padding-top: 7rem;
-    background-color: moccasin;
+    background-color: rgb(246, 223, 248);
 }
 
 @media only screen and (max-height: 666px), 
