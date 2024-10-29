@@ -1,0 +1,30 @@
+.emoji {
+  display: inline-block;
+  }
+  
+.slash {
+  position: absolute;
+  top: -1px;
+  left: 38%;
+  transform: translate(0%, 0) rotate(20deg);
+  color: red;
+  font-size: 1em;
+}
+
+.register-container {
+  background-color: bisque;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position:bottom right
+}
+
+.custom-form  {
+  top: 16rem;
+}
+
+@media only screen and (max-height: 535px),
+        only screen and (max-width: 300px) {
+          .custom-form {
+            top: 11rem;
+          } 
+}

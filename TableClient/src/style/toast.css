@@ -1,0 +1,13 @@
+.toast-container {
+    width: 100%;
+    max-width: 300px;
+}
+
+.toast-message-loading {
+    background-color: #333;
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 16px;
+}

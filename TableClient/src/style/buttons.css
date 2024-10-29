@@ -1,0 +1,53 @@
+.register {
+    margin-top: 1rem;
+    font-size: 0.7rem;
+}
+
+.registerBtn {
+    margin-top: 5rem;
+}
+
+.back {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;  
+}
+
+.login {
+    margin-top: 2rem;
+}
+
+.logout {
+    position: absolute;
+    top: 1.5rem;
+    right: 2.5rem;
+    border-radius: 50%;
+}
+
+.emoji-button {
+    position: relative;
+    display: inline-block;
+    font-size: 2rem;
+    padding: 0em 0em;
+    margin: 0;
+    border: 0px;
+    background-color: white;
+}
+
+.visible {
+    right: 2rem;
+    top: 0.2rem;
+    background-color: transparent;
+}
+
+.btn-garbageCan-img{
+    background-color: transparent;
+    /* background-color: white; */
+    font-size: larger;
+    height: 2rem;
+    width: 2rem;
+    padding: 0;
+}
+
+
+  
