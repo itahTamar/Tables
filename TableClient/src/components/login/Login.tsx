@@ -7,10 +7,8 @@ import { ServerContext } from "../../context/ServerUrlContext";
 
 //work ok
 const Login = () => {
-  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [email, setEmail] = useState<string>("")
-  const { setUser } = useContext(UserContext);
   const { setUserEmail } = useContext(UserContext);
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
@@ -22,18 +20,16 @@ const Login = () => {
       ev.preventDefault();
       console.log(
         "At handleSubmitLogin the username, email & password are:",
-        username,
         email,
         password
       );
-      const response = await login(serverUrl, username, email, password);
+      const response = await login(serverUrl, email, password);
       if (!response) {
         window.alert(
           "login failed! check your username, email or password or please register first"
         );
         throw new Error("login failed, please register first");
       }
-      setUser(username);
       setUserEmail(email);
       navigate(`/userPage`);
     } catch (error) {
@@ -58,22 +54,7 @@ const Login = () => {
     <div>
       <form className="relative top-24" onSubmit={handleSubmitLogin}>
         <h1 className="text-4xl pb-5">Welcome</h1>
-        <div className="m-6">
-          <label className="text-2xl">Please enter your UserName</label>
-          <div>
-            <input
-              className="border border-black m-2 rounded-2xl w-72 indent-4"
-              type="username"
-              name="username"
-              autoComplete="given-name"
-              value={username}
-              onInput={(ev) =>
-                setUsername((ev.target as HTMLInputElement).value)
-              }
-            />
-          </div>
-        </div>
-
+       
         <div className="m-6">
           <label className="text-2xl">Please enter your Email</label>
           <div>
