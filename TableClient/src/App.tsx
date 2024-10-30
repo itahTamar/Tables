@@ -5,12 +5,8 @@ import { useState } from "react";
 import { UserContext } from "./context/userContext";
 // import { disableReactDevTools } from '@fvilers/disable-react-devtools' //add before prodction
 import { ServerContext } from "./context/ServerUrlContext";
-import { tableContext } from "./context/tableContext";
+import { TableProvider } from "./context/tableContext";
 
-interface Table {
-  _id: string;
-  fieldOfInterest: string;
-}
 
 let environment = import.meta.env.MODE;
 const dev_server = import.meta.env.VITE_REACT_APP_SERVER_URL_DEV;
@@ -30,14 +26,14 @@ function App() {
 
   const [user, setUser] = useState<any>(null);
   const [email, setUserEmail] = useState<string>("");
-  const [tables, setTables] = useState<Table[]>([]);
+ 
   console.log(`Server URL: ${serverUrl}`); // Use serverUrl as needed in the API path
   return (
     <UserContext.Provider value={{ user, setUser, email, setUserEmail }}>
       <ServerContext.Provider value={serverUrl}>
-        <tableContext.Provider value={{ tables, setTables }}>
+        <TableProvider >
           <RouterProvider router={router} />
-        </tableContext.Provider>
+        </TableProvider>
       </ServerContext.Provider>
     </UserContext.Provider>
   );

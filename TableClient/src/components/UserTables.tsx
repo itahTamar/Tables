@@ -1,41 +1,36 @@
-import React, { useEffect, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchTables } from '../api/tablesApi';
-import { ServerContext } from '../context/ServerUrlContext';
+import { TableContext } from '../context/tableContext';
 import GeneralSearch from './GeneralSearch';
-import { tableContext } from '../context/tableContext';
+import { RowData } from '../types/tableType';
 
 const UserTables: React.FC = () => {
-  const {tables, setTables} = useContext(tableContext); // Use context to get tables and setTables
-  const [filteredTables, setFilteredTables] = useState<string[]>([]); // Store filtered results
+  const tableContext = useContext(TableContext);
+
+  if (!tableContext) {
+    throw new Error("TableContext must be used within a TableProvider");
+  }
+
+  const { tables } = tableContext;
+  console.log("at UserTables the table from context is:", tables)
+  console.log("at UserTables the tables.data from context is:", tables)
+
+  const [filteredTables, setFilteredTables] = useState<RowData[]>([]); // Store filtered results as RowData[]
   const navigate = useNavigate();
-  const serverUrl = useContext(ServerContext);
-
-  // Fetch all user tables from the server
-  const handleGetAllUserTables = async () => {
-    try {
-      const tablesData = await fetchTables(serverUrl);
-      if (!tablesData) throw new Error("No tables found.");
-      setTables(tablesData); // Update the context state
-    } catch (error) {
-      console.error('Error fetching user tables:', error);
-    }
-  };
-
-  // Fetch tables on component mount
-  useEffect(() => {
-    handleGetAllUserTables();
-  }, []);
-
+ 
   // Handle search results from the GeneralSearch component
   const handleSearchResults = (results: string[]) => {
+    console.log("at UserTables/handleSearchResults the results:", results)
+    console.log("at UserTables/handleSearchResults the results.length:", results.length)
+
     if (results.length === 0) {
       setFilteredTables([]); // Clear filters if no results
     } else {
-     // @ts-ignore
-      setFilteredTables(tables.filter(table => 
-        table.fieldOfInterest.toLowerCase().includes(results[0].toLowerCase()) // Filter by fieldOfInterest
-      ));
+      setFilteredTables(
+        tables.filter((table) => 
+          table.fieldOfInterest.toLowerCase().includes(results[0].toLowerCase())
+        )
+      );
     }
   };
 
@@ -45,13 +40,10 @@ const UserTables: React.FC = () => {
 
   return (
     <div>
-      <GeneralSearch
-        onSearchResults={handleSearchResults} // Pass the search results handler
-      />
+      <GeneralSearch onSearchResults={handleSearchResults} />
 
       {/* Display tables in grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-      {/* @ts-ignore */}
         {(filteredTables.length > 0 ? filteredTables : tables).map((table) => (
           <div
             key={table._id}

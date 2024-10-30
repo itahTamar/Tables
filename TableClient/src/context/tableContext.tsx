@@ -1,17 +1,20 @@
-import { createContext } from "react";
+// tableContext.tsx
+import React, { createContext, ReactNode, useState } from "react";
+import { Table } from "../types/tableType";
 
-// export const tableContext = createContext<any>(null)
+interface TableContextType {
+  tables: Table; // Define as an array of RowData
+  setTables: (tables: Table) => void;
+}
 
-interface Table {
-    _id: string;
-    fieldOfInterest: string;
-  }
-  
-  interface TableContextType {
-    tables: Table[];                     // Array of tables
-    setTables: (tables: Table[]) => void; // Function to update tables
-  }
-  
-  // Create the context with a default value
-  export const tableContext = createContext<TableContextType | any>(null);
-  
+export const TableContext = createContext<TableContextType | undefined>(undefined);
+
+export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [tables, setTables] = useState<Table>([]); // Initialize as an empty array
+
+  return (
+    <TableContext.Provider value={{ tables, setTables }}>
+      {children}
+    </TableContext.Provider>
+  );
+};

@@ -1,33 +1,37 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchTables } from "../../api/tablesApi";
 import { login } from "../../api/userApi";
+import { ServerContext } from "../../context/ServerUrlContext";
 import { UserContext } from "../../context/userContext";
 import "../../style/buttons.css";
-import { ServerContext } from "../../context/ServerUrlContext";
-import { tableContext } from "../../context/tableContext";
-import { fetchTables } from "../../api/tablesApi";
+import { TableContext } from "../../context/tableContext";
 
 //work ok
 const Login = () => {
   const [password, setPassword] = useState<string>("");
-  const [email, setEmail] = useState<string>("")
+  const [email, setEmail] = useState<string>("");
   const { setUserEmail } = useContext(UserContext);
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const serverUrl = useContext(ServerContext);
-  const { setTables } = useContext(tableContext); //Holds the original list of tables fetched from the server.
-  
+  const tableContext = useContext(TableContext);
+  if (!tableContext) {
+    throw new Error("TableContext must be used within a TableProvider");
+  }
+  const { setTables } = tableContext;
+
   const handleGetAllUserTables = async () => {
     try {
       const tablesData = await fetchTables(serverUrl);
       if (!tablesData) throw new Error("No tables found.");
       setTables(tablesData);
     } catch (error) {
-      console.error('Error fetching user tables:', error);
+      console.error("Error fetching user tables:", error);
     }
   };
-  
+
   const handleSubmitLogin = async (ev: React.FormEvent<HTMLFormElement>) => {
     try {
       ev.preventDefault();
@@ -54,7 +58,7 @@ const Login = () => {
   const toggleVisibility = () => {
     if (timeoutId) clearTimeout(timeoutId);
     setVisible((prevVisible) => {
-      const newVisible = !prevVisible
+      const newVisible = !prevVisible;
       if (newVisible) {
         const id = setTimeout(() => setVisible(false), 2000);
         //@ts-ignore
@@ -68,7 +72,7 @@ const Login = () => {
     <div>
       <form className="relative top-24" onSubmit={handleSubmitLogin}>
         <h1 className="text-4xl pb-5">Welcome</h1>
-       
+
         <div className="m-6">
           <label className="text-2xl">Please enter your Email</label>
           <div>
@@ -78,9 +82,7 @@ const Login = () => {
               name="email"
               autoComplete="given-email"
               value={email}
-              onInput={(ev) =>
-                setEmail((ev.target as HTMLInputElement).value)
-              }
+              onInput={(ev) => setEmail((ev.target as HTMLInputElement).value)}
             />
           </div>
         </div>
@@ -112,14 +114,14 @@ const Login = () => {
         <div>
           <a
             href="#"
-            onClick={() => navigate('/forgotPassword')}
+            onClick={() => navigate("/forgotPassword")}
             className="text-gray-800"
           >
             {" "}
             Forgot Password?
           </a>
         </div>
-        
+
         <button className="login text-xl" type="submit">
           Log in
         </button>
