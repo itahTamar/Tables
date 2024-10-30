@@ -75,7 +75,8 @@ export const login = async (req: any, res: any) => {
       // httpOnly: true,  //makes the cookie inaccessible via JavaScript on the client side. It won't show up in document.cookie or the browser's developer tools.
       path: "/", // Set the path to root to make it available across the entire site
       sameSite: "None", // Required for cross-origin cookies
-      secure: true, //!true for PROD, false for DEV
+      secure: false, //!true for PROD, false for DEV
+      // secure: true, //!true for PROD, false for DEV
       maxAge: 1000 * 60 * 60 * 24, //1 day
     }); //send the cookie to client
     res.send({ ok: true });

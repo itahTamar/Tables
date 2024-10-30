@@ -113,7 +113,7 @@ export async function getAllTables(req: any, res: any) {
   } catch (error) {
     console.error(error);
   }
-}
+} //work ok
 
 // delete table
 export async function deleteTable(req: any, res: any) {

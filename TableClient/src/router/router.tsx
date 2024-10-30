@@ -5,6 +5,7 @@ import ResetPassword from "../components/ResetPassword"
 import ForgotPassword from "../components/ForgotPassword"
 import OTPInput from "../components/OTPInput"
 import UpdateUserDetails from "../components/UpdateUserDetails"
+import MainTablesPage from "../view/MainTablesPage"
 
 export const router = createBrowserRouter([
     {path: "/", element: <LandingPage/>},
@@ -13,4 +14,6 @@ export const router = createBrowserRouter([
     {path: "/forgotPassword", element: <ForgotPassword/>},
     {path: "/resetPassword", element: <ResetPassword/>},
     {path: "/updateUserDetails", element: <UpdateUserDetails/>},
+    {path: "/mainTablesPage", element: <MainTablesPage/>},
+
 ])

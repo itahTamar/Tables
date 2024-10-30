@@ -1,32 +1,32 @@
 import React, { useState } from 'react';
 
-interface GeneralSearchProps<T> {
-  items: T[]; // Array of any structure items to search through
+interface GeneralSearchProps {
+  onSearchResults: (results: string[]) => void; // Callback to return search results
   placeholder?: string;
-  searchKeys?: (keyof T)[]; // Optional list of keys to search within each item
-  onSelectResult?: (result: T) => void; // Callback for selecting a result
 }
 
-function GeneralSearch<T extends Record<string, any> | any[]>({
-  items,
+const GeneralSearch: React.FC<GeneralSearchProps> = ({
+  onSearchResults,
   placeholder = "Search...",
-  searchKeys,
-  onSelectResult,
-}: GeneralSearchProps<T>) {
+}) => {
   const [query, setQuery] = useState<string>('');
+  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null); // Correct type for the timer
 
-  const filteredResults = items.filter((item) => {
-    const searchableValues = searchKeys
-      ? searchKeys.map((key) => item[key]) // Access specified keys
-      : Object.values(item); // Default to all values
+  // Handle input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    if (timer) clearTimeout(timer); // Clear previous timer
 
-    return searchableValues.some((value) =>
-      String(value).toLowerCase().includes(query.toLowerCase())
-    );
-  });
+    // Set a new timer for 1 seconds
+    const newTimer = setTimeout(() => {
+      if (e.target.value) {
+        onSearchResults([e.target.value]); // Trigger search with query
+      } else {
+        onSearchResults([]); // No query, return empty results
+      }
+    }, 1000);
 
-  const handleSelect = (result: T) => {
-    onSelectResult?.(result);
+    setTimer(newTimer);
   };
 
   return (
@@ -34,26 +34,12 @@ function GeneralSearch<T extends Record<string, any> | any[]>({
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={handleChange}
         placeholder={placeholder}
         style={{ width: '100%', padding: '8px', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc' }}
       />
-      {filteredResults.length > 0 && (
-        <ul style={{ listStyleType: 'none', padding: 0, marginTop: '8px', border: '1px solid #ddd', borderRadius: '4px' }}>
-          {filteredResults.map((result, index) => (
-            <li
-              key={index}
-              onClick={() => handleSelect(result)}
-              style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid #eee' }}
-            >
-              {JSON.stringify(result)}
-            </li>
-          ))}
-        </ul>
-      )}
-      {query && filteredResults.length === 0 && <p>No results found.</p>}
     </div>
   );
-}
+};
 
 export default GeneralSearch;

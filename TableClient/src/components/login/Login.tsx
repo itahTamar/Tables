@@ -4,6 +4,8 @@ import { login } from "../../api/userApi";
 import { UserContext } from "../../context/userContext";
 import "../../style/buttons.css";
 import { ServerContext } from "../../context/ServerUrlContext";
+import { tableContext } from "../../context/tableContext";
+import { fetchTables } from "../../api/tablesApi";
 
 //work ok
 const Login = () => {
@@ -14,12 +16,23 @@ const Login = () => {
   const [visible, setVisible] = useState(false);
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const serverUrl = useContext(ServerContext);
-
+  const { setTables } = useContext(tableContext); //Holds the original list of tables fetched from the server.
+  
+  const handleGetAllUserTables = async () => {
+    try {
+      const tablesData = await fetchTables(serverUrl);
+      if (!tablesData) throw new Error("No tables found.");
+      setTables(tablesData);
+    } catch (error) {
+      console.error('Error fetching user tables:', error);
+    }
+  };
+  
   const handleSubmitLogin = async (ev: React.FormEvent<HTMLFormElement>) => {
     try {
       ev.preventDefault();
       console.log(
-        "At handleSubmitLogin the username, email & password are:",
+        "At handleSubmitLogin the email & password are:",
         email,
         password
       );
@@ -28,10 +41,11 @@ const Login = () => {
         window.alert(
           "login failed! check your username, email or password or please register first"
         );
-        throw new Error("login failed, please register first");
+        throw new Error("login failed from server!");
       }
       setUserEmail(email);
-      navigate(`/userPage`);
+      handleGetAllUserTables();
+      navigate(`/mainTablesPage`);
     } catch (error) {
       console.error(error);
     }
