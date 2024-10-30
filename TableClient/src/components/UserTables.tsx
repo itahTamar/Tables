@@ -1,8 +1,8 @@
-import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TableContext } from '../context/tableContext';
-import GeneralSearch from './GeneralSearch';
-import { RowData } from '../types/tableType';
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { TableContext } from "../context/tableContext";
+import GeneralSearch from "./GeneralSearch";
+import { RowData } from "../types/tableType";
 
 const UserTables: React.FC = () => {
   const tableContext = useContext(TableContext);
@@ -12,22 +12,17 @@ const UserTables: React.FC = () => {
   }
 
   const { tables } = tableContext;
-  console.log("at UserTables the table from context is:", tables)
-  console.log("at UserTables the tables.data from context is:", tables)
 
   const [filteredTables, setFilteredTables] = useState<RowData[]>([]); // Store filtered results as RowData[]
   const navigate = useNavigate();
- 
+
   // Handle search results from the GeneralSearch component
   const handleSearchResults = (results: string[]) => {
-    console.log("at UserTables/handleSearchResults the results:", results)
-    console.log("at UserTables/handleSearchResults the results.length:", results.length)
-
     if (results.length === 0) {
       setFilteredTables([]); // Clear filters if no results
     } else {
       setFilteredTables(
-        tables.filter((table) => 
+        tables.filter((table) =>
           table.fieldOfInterest.toLowerCase().includes(results[0].toLowerCase())
         )
       );
@@ -40,10 +35,11 @@ const UserTables: React.FC = () => {
 
   return (
     <div>
-      <GeneralSearch onSearchResults={handleSearchResults} />
-
+      <div className="flex justify-center">
+        <GeneralSearch onSearchResults={handleSearchResults} />
+      </div>
       {/* Display tables in grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-9 lg:grid-cols-4 gap-4 mt-16 ">
         {(filteredTables.length > 0 ? filteredTables : tables).map((table) => (
           <div
             key={table._id}

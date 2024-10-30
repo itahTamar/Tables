@@ -30,7 +30,7 @@ const GeneralSearch: React.FC<GeneralSearchProps> = ({
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto', position: 'absolute' }}>
       <input
         type="text"
         value={query}

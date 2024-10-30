@@ -16,8 +16,8 @@ const MainTablesPage: React.FC = () => {
   };
 
   return (
-    <div className="relative p-6 min-h-screen">
-      <header className="flex justify-between items-center mb-6">
+    <div className="p-6 ">
+      <header className="flex justify-between items-center mb-24">
         {/* Logout Button */}
         <button
           onClick={handleLogout}
@@ -32,7 +32,7 @@ const MainTablesPage: React.FC = () => {
           className="absolute top-4 right-4 flex items-center justify-center w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600"
           title="Add Table" // Tooltip message on hover
         >
-          <span className="text-white text-2xl">+</span>
+          <span className="text-white text-2xl text-center">+</span>
         </button>
       </header>
 
