@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../api/userApi';
 import UserTables from './../components/UserTables';
+import '../style/mainTablePage.css'
+import AddNewTable from '../components/AddNewTable';
+import PopupWithAnimation from '../components/popupWithAnimation';
 
 const MainTablesPage: React.FC = () => {
   const navigate = useNavigate();
+  const [showPopupAddNewTable, setShowPopupAddNewTable] = useState(false);
   
   const handleLogout = () => {
     logout();
     navigate('/');
-  };
-
-  const handleAddTable = () => {
-    navigate('/add-table'); // Navigate to the add table page
   };
 
   return (
@@ -28,12 +28,17 @@ const MainTablesPage: React.FC = () => {
 
         {/* Add Table Button */}
         <button
-          onClick={handleAddTable}
+          onClick={() => setShowPopupAddNewTable(true)}
           className="absolute top-4 right-4 flex items-center justify-center w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600"
           title="Add Table" // Tooltip message on hover
         >
-          <span className="text-white text-2xl text-center">+</span>
+          <span className="text-white text-2xl text-center" style={{ paddingBottom: '0.33rem'}}>+</span>
         </button>
+        {showPopupAddNewTable && (
+            <PopupWithAnimation open={showPopupAddNewTable} onClose={() => setShowPopupAddNewTable(false)}>
+              <AddNewTable onClose={() => setShowPopupAddNewTable(false)}/>
+            </PopupWithAnimation>
+          )}
       </header>
 
       {/* Center the UserTables component */}

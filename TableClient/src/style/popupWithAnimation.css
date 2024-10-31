@@ -1,0 +1,52 @@
+.popup2 {
+    position: fixed;
+    top:3rem;
+    left: 47rem;
+    width: 50%;
+    height: 50%;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .popup2-open {
+    opacity: 1;
+    visibility: visible;
+    animation: popupGrow 0.6s ease forwards;
+  }
+  
+  .popup2-inner {
+    position: relative;
+    height: 38vh; 
+    width: 20vw; 
+    background-color: #7dfafa;
+    border-radius: 2rem;
+    overflow: hidden;
+    transform-origin: top right;
+  }
+  
+  .close2 {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 1.2rem;
+    padding: 0 0.5rem;
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+  
+  @keyframes popupGrow {
+    0% {
+      transform: scale(0.2)  translate(10%, -10%);
+    }
+    100% {
+      transform: scale(1) translate(0, 0);
+    }
+  }
+  

@@ -40,7 +40,7 @@ export async function addNewTable(req: any, res: any) {
     const tableId = response.response._id;
     console.log("At tableControllers/addTable the tableId is:", tableId);
 
-    res.send({ ok: true, tableID: tableId, fieldOfInterest: fieldOfInterest });
+    res.send({ ok: true });
   } catch (error) {
     console.error("Error in addNewRowData:", error);
     return res.status(500).json({ message: "Internal server error" });
