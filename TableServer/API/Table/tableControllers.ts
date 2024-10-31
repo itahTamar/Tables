@@ -3,6 +3,7 @@ import {
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
   getOneDataFromJoinCollectionInMongoDB,
+  getOneDataFromMongoDB,
   saveDataToMongoDB,
 } from "../../CRUD/mongoCRUD";
 import { DataModel, TableDataModel } from "../Data/dataModel";
@@ -25,6 +26,9 @@ export async function addNewTable(req: any, res: any) {
         "At tableControllers/addTable missing fieldOfInterest and/or creator"
       );
 
+    const isExist = isTableExist(fieldOfInterest)  
+    if (isExist) res.send({ok: false, massage: "Table Exist in DB"})
+    
     // Create the new Table document
     const newTable = new TableModel({ fieldOfInterest, creator });
 
@@ -145,5 +149,21 @@ export async function deleteTable(req: any, res: any) {
     }
   } catch (error) {
     console.error(error, "at tableControllers/deleteTable - deleted failed");
+  }
+} //work ok
+
+export async function isTableExist(fieldOfInterest) {
+  try {
+    console.log("isTableExist function");
+    console.log("At isTableExist fieldOfInterest:", fieldOfInterest);
+    const dataDB = await getOneDataFromMongoDB<any>(TableModel, {
+      fieldOfInterest: fieldOfInterest,
+    });
+    console.log("At isTableExist dataDB:", dataDB);
+    console.log("At isTableExist dataDB.ok:", dataDB.ok);
+    return dataDB.ok;
+  } catch (error) {
+    console.error(error);
+    return error;
   }
 } //work ok
