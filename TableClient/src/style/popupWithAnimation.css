@@ -1,9 +1,10 @@
 .popup2 {
-    position: fixed;
-    top:3rem;
-    left: 47rem;
-    width: 50%;
-    height: 50%;
+    position: absolute;
+    top:5rem;
+      right: 3rem; /* Align with the right edge of the button */
+      width: auto; /* Set width based on content */
+      height: auto; /* Adjust height based on content */
+      max-height: 50vh; /* Limit height to prevent overflow */
     background-color: transparent;
     display: flex;
     justify-content: center;
@@ -21,8 +22,8 @@
   
   .popup2-inner {
     position: relative;
-    height: 38vh; 
-    width: 20vw; 
+    height: 20rem; 
+    width: 20rem; 
     background-color: #7dfafa;
     border-radius: 2rem;
     overflow: hidden;
@@ -49,4 +50,33 @@
       transform: scale(1) translate(0, 0);
     }
   }
+
+  /* Media Queries for responsiveness */
+@media (max-width: 360px) {
+  .popup2 {
+    top:5rem;
+    right: 1rem; /* Align with the right edge of the button */
+
+  }
+}
+
+@media only screen and (max-height: 666px), 
+        only screen and (max-width: 792px) {
+
+}
+
+@media only screen and (max-height: 535px),
+        only screen and (max-width: 470px) {
+    
+}
+
+@media only screen and (max-height: 422px),
+        only screen and (max-width: 355px) {
+   
+}
+
+@media only screen and (max-height: 422px),
+        only screen and (max-width: 355px) {
+ 
+}
   
