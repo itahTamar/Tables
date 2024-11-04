@@ -79,15 +79,16 @@ function useSkipper() {
 
 export function TableData() {
   const [loading, setLoading] = useState(false);
-  // let [columns, setColumns] = useState<ColumnDef<ITableData>[]>([]);
+  const [showHiddenRows, setShowHiddenRows] = useState(false);
   const [data, setData] = useState<ITableData[]>([]);
-  const [hiddenData, setHiddenData] = useState<ITableData[]>([]);
+  const [visibleData, setVisibleData] = useState<ITableData[]>([]);
+  const [allData, setAllData] = useState<ITableData[]>([]);
   const serverUrl = useContext(ServerContext);
   const { tableId } = useParams();
   if (!tableId) {
     throw new Error("TableId is undefined");
   }
-
+  console.log("at TableData the showHiddenRows:", showHiddenRows);
   const handelGetAllTableData = async () => {
     const tableData = await getAllTableRowData(serverUrl, tableId);
 
@@ -100,12 +101,31 @@ export function TableData() {
       // Filter the data based on the `visible` field
       //@ts-ignore
       const visibleData = tableData.filter((row) => row.visible === true);
-      //@ts-ignore
-      const hiddenData = tableData.filter((row) => row.visible === false);
       setData(visibleData);
-      setHiddenData(hiddenData);
+      setVisibleData(visibleData);
+      setAllData(tableData);
     }
   };
+
+  const handleShowAllData = () => {
+    setShowHiddenRows((prev) => !prev);
+  };
+
+  useEffect(() => {
+    console.log(
+      "at TableData/handleShowAllData/useEffect the showHiddenRows:",
+      showHiddenRows
+    );
+
+    //if showHiddenRows == true -> see all row
+    if (showHiddenRows) {
+      setData(allData);
+    }
+    //if showHiddenRows == false -> see only visible row
+    else {
+      setData(visibleData);
+    } 
+  }, [showHiddenRows]);
 
   useEffect(() => {
     handelGetAllTableData();
@@ -241,7 +261,9 @@ export function TableData() {
 
   return (
     <div className="p-4">
-      {/* <button onClick={() => }>show hidden data</button> */}
+      <button className="" onClick={() => handleShowAllData()}>
+        {showHiddenRows ? "Hide again" : "Show all"}
+      </button>
 
       {/* Display the "Field of Interest" as table's Title */}
       {data[0] && (
