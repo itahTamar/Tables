@@ -80,8 +80,9 @@ export async function updateFieldByDataId(req: any, res: any) {
     console.log("at dataControllers/updateFieldByDataId the field:", field); //ok
 
     const { updateData } = req.body;
-
-    if (!field || !updateData)
+    console.log("at dataControllers/updateFieldByDataId the updateData:", updateData); //ok
+//!changed this from !updateData, try it in deferent fields types
+    if (!field || updateData == undefined)
       throw new Error("missing data required field or updateData");
 
     const updateFieldData = { [field]: updateData };

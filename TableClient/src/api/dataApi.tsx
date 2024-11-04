@@ -29,9 +29,9 @@ export const getAllTableRowData = async (serverUrl: string, tableId: string) => 
     }
   }; // work ok
 
-  export const updateCellData = async (serverUrl: string, dataID:string ,field: string, update:string | number | boolean) => {
+  export const updateCellData = async (serverUrl: string, dataID:string ,field: string, updateData:string | number | boolean) => {
     try {
-        const response = await axios.patch(`${serverUrl}/api/data/updateFieldByDataId/"${dataID}"`, {field, update}, //{ withCredentials: true }
+        const response = await axios.patch(`${serverUrl}/api/data/updateFieldByDataId/${dataID}`, {field, updateData}, //{ withCredentials: true }
           );
         console.log("at dataApi/updateCellData the response is:", response);
         
