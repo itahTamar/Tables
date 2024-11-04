@@ -57,7 +57,7 @@ export async function addNewRowData(req: any, res: any) {
     // If the join was successfully saved, respond with the result
     if (response.ok) {
       return res.status(201).json({
-        message: "New data created and linked to table",
+        ok: true,
         data: ok.response,
         tableDataEntry: response.response, // The saved join entry
       });
