@@ -34,16 +34,16 @@ export const getAllTableRowData = async (serverUrl: string, tableId: string) => 
         const response = await axios.patch(`${serverUrl}/api/data/updateFieldByDataId/${dataID}`, {field, updateData}, //{ withCredentials: true }
           );
         console.log("at dataApi/updateCellData the response is:", response);
-        
-        
-        const { ok, results } = response.data;
-
+                
+        const { ok } = response.data;
+        console.log("at dataApi/updateCellData the ok is:", ok);
+  
         if (ok) {
-           return results
+           return ok
         } else {
-            console.error("Error retrieving data:", response.data.error);
+            console.error("response from server is:", ok);
         }
     } catch (error) {
         console.error("Error:", (error as Error).message);
     }
-};
+}; 
