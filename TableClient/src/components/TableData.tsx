@@ -81,6 +81,7 @@ export function TableData() {
   const [loading, setLoading] = useState(false);
   // let [columns, setColumns] = useState<ColumnDef<ITableData>[]>([]);
   const [data, setData] = useState<ITableData[]>([]);
+  const [hiddenData, setHiddenData] = useState<ITableData[]>([]);
   const serverUrl = useContext(ServerContext);
   const { tableId } = useParams();
   if (!tableId) {
@@ -96,7 +97,13 @@ export function TableData() {
       );
       setData(newRows);
     } else {
-      setData(tableData);
+      // Filter the data based on the `visible` field
+      //@ts-ignore
+      const visibleData = tableData.filter((row) => row.visible === true);
+      //@ts-ignore
+      const hiddenData = tableData.filter((row) => row.visible === false);
+      setData(visibleData);
+      setHiddenData(hiddenData);
     }
   };
 
@@ -110,40 +117,47 @@ export function TableData() {
       {
         header: "Details",
         accessorKey: "details",
-        cell: ({ row, getValue }) => (
-          <EditableCell
-            value={getValue() as string}
-            onSave={(newValue) =>
-              handleUpdate(row.original._id, "details", newValue)
-            }
-          />
-        ),
+        // cell: ({ row, getValue }) => (
+        //   <EditableCell
+        //     value={getValue() as string}
+        //     onSave={(newValue) =>
+        //       handleUpdate(row.original._id, "details", newValue)
+        //     }
+        //   />
+        // ),
       },
       {
         header: "Price",
         accessorKey: "price",
-        cell: ({ row, getValue }) => (
-          <EditableCell
-            value={getValue() as number}
-            onSave={(newValue) =>
-              handleUpdate(row.original._id, "price", newValue)
-            }
-          />
-        ),
+        // cell: ({ row, getValue }) => (
+        //   <EditableCell
+        //     value={getValue() as number}
+        //     onSave={(newValue) =>
+        //       handleUpdate(row.original._id, "price", newValue)
+        //     }
+        //   />
+        // ),
       },
       {
         header: "Date Created",
         accessorKey: "dateCreated",
       },
       {
-        header: "Visibility",
+        header: "Hide",
         id: "visibility",
         cell: ({ row }) => (
           <input
             type="checkbox"
+            checked={!row.original.visible}
             onChange={() => {
-              console.log("at TableData/columns/visibility the row.original._id:",row.original._id)
-              console.log("at TableData/columns/visibility the !row.original.visible:",!row.original.visible)
+              console.log(
+                "at TableData/columns/visibility the row.original._id:",
+                row.original._id
+              );
+              console.log(
+                "at TableData/columns/visibility the !row.original.visible:",
+                !row.original.visible
+              );
               handleUpdate(row.original._id, "visible", !row.original.visible);
             }}
           />
@@ -154,7 +168,7 @@ export function TableData() {
     // setColumns(columns);
   );
 
-  const refreshData = () => handelGetAllTableData();
+  // const refreshData = () => handelGetAllTableData();
 
   //the use of the useSkipper hook
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
@@ -165,12 +179,15 @@ export function TableData() {
     value: any
   ) => {
     try {
-      console.log("at tableData/handleUpdate the rowDataOriginalId:", rowDataOriginalId);
+      console.log(
+        "at tableData/handleUpdate the rowDataOriginalId:",
+        rowDataOriginalId
+      );
       console.log("at tableData/handleUpdate the field:", field);
       console.log("at tableData/handleUpdate the value:", value);
 
       if (!rowDataOriginalId || !field || value == undefined)
-          throw new Error("At handleUpdate: fail catching data from cell");
+        throw new Error("At handleUpdate: fail catching data from cell");
 
       const response = await updateCellData(
         serverUrl,
@@ -180,7 +197,10 @@ export function TableData() {
       );
       if (!response)
         throw new Error("At handleUpdate: filed catching response from axios");
-      console.log(response.massage);
+      console.log("the response is:", response);
+      if (response) {
+        handelGetAllTableData();
+      }
     } catch (error) {
       console.error("Error:", (error as Error).message);
     }
@@ -236,7 +256,7 @@ export function TableData() {
         ) : (
           <div>
             {/* Render Filters */}
-            <div className="filters-container">
+            {/* <div className="filters-container">
               {table.getHeaderGroups().map((headerGroup) =>
                 headerGroup.headers.map((header) =>
                   header.column.getCanFilter() ? (
@@ -246,7 +266,7 @@ export function TableData() {
                   ) : null
                 )
               )}
-            </div>
+            </div> */}
 
             <table className="w-full border-collapse border border-gray-300">
               {/* set the table header */}
@@ -357,33 +377,33 @@ export function TableData() {
   );
 }
 
-const EditableCell = ({
-  value,
-  onSave,
-}: {
-  value: any;
-  onSave: (value: any) => void;
-}) => {
-  const [editing, setEditing] = useState(false);
-  const [tempValue, setTempValue] = useState(value);
+// const EditableCell = ({
+//   value,
+//   onSave,
+// }: {
+//   value: any;
+//   onSave: (value: any) => void;
+// }) => {
+//   const [editing, setEditing] = useState(false);
+//   const [tempValue, setTempValue] = useState(value);
 
-  const handleSave = () => {
-    onSave(tempValue);
-    setEditing(false);
-  };
+//   const handleSave = () => {
+//     onSave(tempValue);
+//     setEditing(false);
+//   };
 
-  return editing ? (
-    <input
-      type="text"
-      value={tempValue}
-      onChange={(e) => setTempValue(e.target.value)}
-      onBlur={handleSave}
-      autoFocus
-    />
-  ) : (
-    <span onDoubleClick={() => setEditing(true)}>{value}</span>
-  );
-};
+//   return editing ? (
+//     <input
+//       type="text"
+//       value={tempValue}
+//       onChange={(e) => setTempValue(e.target.value)}
+//       onBlur={handleSave}
+//       autoFocus
+//     />
+//   ) : (
+//     <span onDoubleClick={() => setEditing(true)}>{value}</span>
+//   );
+// };
 
 //filter/search fun
 function Filter({
