@@ -327,7 +327,7 @@ export function TableData() {
 
       <div className="h-2" />
       {/*Browsing between inner table's pages*/}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 justify-center">
         <button
           className="border rounded p-1"
           onClick={() => table.setPageIndex(0)}
