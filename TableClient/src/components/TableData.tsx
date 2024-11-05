@@ -138,35 +138,29 @@ export function TableData() {
       {
         header: "Details",
         accessorKey: "details",
-        // cell: ({ row, getValue }) => (
-        //   <EditableCell
-        //     value={getValue() as string}
-        //     onSave={(newValue) =>
-        //       handleUpdate(row.original._id, "details", newValue)
-        //     }
-        //   />
-        // ),
       },
       {
         header: "Price",
         accessorKey: "price",
-        // cell: ({ row, getValue }) => (
-        //   <EditableCell
-        //     value={getValue() as number}
-        //     onSave={(newValue) =>
-        //       handleUpdate(row.original._id, "price", newValue)
-        //     }
-        //   />
-        // ),
       },
       {
         header: "Date Created",
         accessorKey: "dateCreated",
+        cell: ({ getValue }) => {
+          // Format date as "dd/mm/yy"
+          const dateValue = getValue<Date>();
+          const formattedDate = new Date(dateValue).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: '2-digit',
+          });
+          return formattedDate;
+        },
       },
       {
         header: "Hide",
         id: "visibility",
-        cell: ({ row }) => (
+        cell: ({ row }) => (  //for each cell in the column
           <input
             type="checkbox"
             checked={!row.original.visible}
