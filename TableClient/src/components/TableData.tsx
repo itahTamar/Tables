@@ -17,6 +17,7 @@ import {
 } from "../api/dataApi";
 import { ServerContext } from "../context/ServerUrlContext";
 import { useParams } from "react-router-dom";
+import { GeneralFilter } from "./GeneralFilter";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -124,7 +125,7 @@ export function TableData() {
     //if showHiddenRows == false -> see only visible row
     else {
       setData(visibleData);
-    } 
+    }
   }, [showHiddenRows]);
 
   useEffect(() => {
@@ -278,17 +279,9 @@ export function TableData() {
         ) : (
           <div>
             {/* Render Filters */}
-            {/* <div className="filters-container">
-              {table.getHeaderGroups().map((headerGroup) =>
-                headerGroup.headers.map((header) =>
-                  header.column.getCanFilter() ? (
-                    <div key={header.id} className="filter-item">
-                      <Filter column={header.column} table={table} />
-                    </div>
-                  ) : null
-                )
-              )}
-            </div> */}
+            <div className="flex justify-center pt-4 pb-4 relative">
+              <GeneralFilter table={table} />
+            </div>
 
             <table className="w-full border-collapse border border-gray-300">
               {/* set the table header */}
@@ -428,53 +421,3 @@ export function TableData() {
 // };
 
 //filter/search fun
-function Filter({
-  column,
-  table,
-}: {
-  column: Column<any, any>;
-  table: Table<any>;
-}) {
-  const firstValue = table
-    .getPreFilteredRowModel()
-    .flatRows[0]?.getValue(column.id);
-
-  const columnFilterValue = column.getFilterValue();
-
-  return typeof firstValue === "number" ? (
-    <div className="flex space-x-2">
-      <input
-        type="number"
-        value={(columnFilterValue as [number, number])?.[0] ?? ""}
-        onChange={(e) =>
-          column.setFilterValue((old: [number, number]) => [
-            e.target.value,
-            old?.[1],
-          ])
-        }
-        placeholder={`Min`}
-        className="w-24 border shadow rounded"
-      />
-      <input
-        type="number"
-        value={(columnFilterValue as [number, number])?.[1] ?? ""}
-        onChange={(e) =>
-          column.setFilterValue((old: [number, number]) => [
-            old?.[0],
-            e.target.value,
-          ])
-        }
-        placeholder={`Max`}
-        className="w-24 border shadow rounded"
-      />
-    </div>
-  ) : (
-    <input
-      type="text"
-      value={(columnFilterValue ?? "") as string}
-      onChange={(e) => column.setFilterValue(e.target.value)}
-      placeholder={`Search...`}
-      className="w-36 border shadow rounded"
-    />
-  );
-}
