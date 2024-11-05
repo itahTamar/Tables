@@ -102,9 +102,9 @@ export function TableData() {
       // Filter the data based on the `visible` field
       //@ts-ignore
       const visibleData = tableData.filter((row) => row.visible === true);
-      setData(visibleData);
+      setData(visibleData.reverse());
       setVisibleData(visibleData);
-      setAllData(tableData);
+      setAllData(tableData.reverse());
     }
   };
 
@@ -221,6 +221,18 @@ export function TableData() {
     }
   };
 
+  const handleAddRow = async () => {
+    try {
+      const response = await createNewRowData(serverUrl, tableId)
+      if (!response)
+        throw new Error("At handleAddRow: filed catching response from axios");
+      console.log("the response is:", response);
+      handelGetAllTableData();
+    } catch (error) {
+      console.error("Error:", (error as Error).message);
+    }
+  }
+
   //define a table using "react table library" hook
   const table = useReactTable({
     data,
@@ -275,6 +287,7 @@ export function TableData() {
             {/* Render Filters */}
             <div className="flex justify-center pt-4 pb-4 relative">
               <GeneralFilter table={table} />
+              <button className="ml-4" onClick={() => handleAddRow()}>Add Row</button>
             </div>
 
             <table className="w-full border-collapse border border-gray-300">
