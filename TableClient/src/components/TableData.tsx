@@ -256,13 +256,13 @@ export function TableData() {
 
   return (
     <div className="p-4">
-      <button className="" onClick={() => handleShowAllData()}>
+      <button className="absolute right-4" onClick={() => handleShowAllData()}>
         {showHiddenRows ? "Hide again" : "Show all"}
       </button>
 
       {/* Display the "Field of Interest" as table's Title */}
       {data[0] && (
-        <h1 className="text-2xl font-semibold mb-4">
+        <h1 className="text-2xl font-semibold mb-4 mt-12">
           {data[0].fieldOfInterest}
         </h1>
       )}
