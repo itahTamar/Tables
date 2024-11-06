@@ -291,7 +291,7 @@ export function TableData() {
         {/* back button */}
         <button
           className="top-8 left-16"
-          onClick={() => navigate("/mainTablesPage")}
+          onClick={() => navigate(-1)}
         >
           Back
         </button>
@@ -433,33 +433,3 @@ export function TableData() {
     </div>
   );
 }
-
-// const EditableCell = ({
-//   value,
-//   onSave,
-// }: {
-//   value: any;
-//   onSave: (value: any) => void;
-// }) => {
-//   const [editing, setEditing] = useState(false);
-//   const [tempValue, setTempValue] = useState(value);
-
-//   const handleSave = () => {
-//     onSave(tempValue);
-//     setEditing(false);
-//   };
-
-//   return editing ? (
-//     <input
-//       type="text"
-//       value={tempValue}
-//       onChange={(e) => setTempValue(e.target.value)}
-//       onBlur={handleSave}
-//       autoFocus
-//     />
-//   ) : (
-//     <span onDoubleClick={() => setEditing(true)}>{value}</span>
-//   );
-// };
-
-//filter/search fun
