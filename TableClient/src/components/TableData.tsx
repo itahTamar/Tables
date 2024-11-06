@@ -1,8 +1,6 @@
 import {
-  Column,
   ColumnDef,
   RowData,
-  Table,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -10,13 +8,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   createNewRowData,
   getAllTableRowData,
   updateCellData,
 } from "../api/dataApi";
 import { ServerContext } from "../context/ServerUrlContext";
-import { useParams } from "react-router-dom";
 import { GeneralFilter } from "./GeneralFilter";
 
 declare module "@tanstack/react-table" {
@@ -79,7 +77,8 @@ function useSkipper() {
 }
 
 export function TableData() {
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const [data, setData] = useState<ITableData[]>([]);
   const [visibleData, setVisibleData] = useState<ITableData[]>([]);
@@ -113,6 +112,7 @@ export function TableData() {
         setAllData(tableData.reverse());
       }
     }
+    setLoading(false)
   };
 
   const handleShowAllData = () => {
@@ -287,9 +287,23 @@ export function TableData() {
 
   return (
     <div className="p-4">
-      <button className="absolute right-4" onClick={() => handleShowAllData()}>
-        {showHiddenRows ? "Hide again" : "Show all"}
-      </button>
+      <div className="flex justify-between items-center mb-24 mt-6">
+        {/* back button */}
+        <button
+          className="top-8 left-16"
+          onClick={() => navigate("/mainTablesPage")}
+        >
+          Back
+        </button>
+
+        {/* hide/show button */}
+        <button
+          className=""
+          onClick={() => handleShowAllData()}
+        >
+          {showHiddenRows ? "Hide again" : "Show all"}
+        </button>
+      </div>
 
       {/* Display the "Field of Interest" as table's Title */}
       {data[0] && (
