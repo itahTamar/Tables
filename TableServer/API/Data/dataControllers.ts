@@ -1,4 +1,5 @@
 import jwt from 'jwt-simple';
+import mongoose, { UpdateQuery } from 'mongoose';
 import {
   createAndSaveDataToMongoDB,
   deleteOneDataFromMongoDB,
@@ -143,5 +144,63 @@ export async function deleteRowDataById(req: any, res: any) {
 
   } catch (error) {
     console.error(error, "at dataControllers/deleteRowDataById delete failed");
+  }
+} //work ok
+
+export async function addNewColumn(req: any, res: any){
+  try {
+    const tableId = req.params.tableId
+     if (!tableId) {
+      return res.status(400).json({ error: 'Table ID are required.' });
+    }
+    console.log("at dataControllers/addNewColumn tableId:", tableId)
+
+    const fieldName = req.body.newColumnName
+    if (!fieldName) {
+      return res.status(400).json({ error: 'fieldName are required.' });
+    }
+    console.log("at dataControllers/addNewColumn fieldName:", fieldName)
+    
+    const response = await addFieldToSpecificTableDocuments(tableId, fieldName)
+    if (!response) throw new Error("at dataControllers/addNewColumn failed to add nee column");
+    console.log("at dataControllers/addNewColumn response:", response)
+    
+    res.send({ok: true})
+
+  } catch (error) {
+    res.status(500).json({ ok: false, error: 'Failed to add the field to specific table documents.' });
+  }
+} //work ok
+
+//function to add a new field to specific table's documents in the datas collection
+export async function addFieldToSpecificTableDocuments(
+  tableId: mongoose.Types.ObjectId, // The specific tableId to target
+  fieldName: string, // The new field to add
+): Promise<boolean> {
+  try {
+      console.log("at dataControllers/addFieldToSpecificTableDocuments the tableId:", tableId)
+      console.log("at dataControllers/addFieldToSpecificTableDocuments the fieldName:", fieldName)
+
+    // Step 1: Find all `dataId`s in `tabledatas` linked to the given `tableId`
+    const tableDataRecords = await TableDataModel.find({ tableId }).select('dataId');
+      console.log("at dataControllers/addFieldToSpecificTableDocuments the tableDataRecords:", tableDataRecords)
+
+    //@ts-ignore
+    const dataIds = tableDataRecords.map(record => record.dataId);
+      console.log("at dataControllers/addFieldToSpecificTableDocuments the dataIds:", dataIds)
+
+    // Step 2: Update each `data` document with the new field, filtering by `dataId`
+    const defaultValue = ""
+    const update: UpdateQuery<any> = { $set: { [fieldName as string]: defaultValue } } as unknown as UpdateQuery<any>;
+      console.log("at dataControllers/addFieldToSpecificTableDocuments the update:", update)
+
+    const result = await DataModel.updateMany({ _id: { $in: dataIds } }, update, { writeConcern: { w: "majority" }} ); //set the writeConcern option to enforce an acknowledgment if MongoDB is configured with specific write concerns
+      console.log("at dataControllers/addFieldToSpecificTableDocuments the result:", result)
+    if (!result.acknowledged) throw new Error("at dataControllers/addFieldToSpecificTableDocuments fail to add new filed");
+
+    console.log(`${result.modifiedCount} documents were updated with the field "${fieldName}" for the specified table.`);
+    return true
+  } catch (err) {
+    console.error(`Error updating documents with the field "${fieldName}":`, err);
   }
 } //work ok

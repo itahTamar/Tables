@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 import { TableModel } from "../Table/tableModel";
 
 export interface IDataDocument extends Document {
-  _id: ObjectId
+  _id: ObjectId;
   index: number;
   dateCreated: Date;
   fieldOfInterest: string;
@@ -11,9 +11,11 @@ export interface IDataDocument extends Document {
   dataLink: string;
   price: number;
   visible: boolean;
+  [key: string]: any; //allows any additional field
 }
 
 export interface ITableDataDocument extends Document {
+  _id: mongoose.Types.ObjectId;
   tableId: ObjectId;
   dataId: ObjectId;
 }
@@ -42,7 +44,7 @@ export class Data {
     details = "",
     dataLink = "",
     price = 0,
-    visible = true
+    visible = true,
   }: {
     index: number;
     dateCreated: Date;
@@ -62,19 +64,22 @@ export class Data {
   }
 }
 
-export const DataSchema = new Schema({
-  index: Number,
-  dateCreated: {
-    type: Date,
-    default: Date.now, //set the current date when a data is created
-    required: true,
+export const DataSchema = new Schema(
+  {
+    index: Number,
+    dateCreated: {
+      type: Date,
+      default: Date.now, //set the current date when a data is created
+      required: true,
+    },
+    fieldOfInterest: String,
+    details: String,
+    dataLink: String,
+    price: Number,
+    visible: Boolean,
   },
-  fieldOfInterest: String,
-  details: String,
-  dataLink: String,
-  price: Number,
-  visible: Boolean,
-});
+  { strict: false }  //allow any field in the schema
+);
 
 // Pre-save hook to auto-increment index
 DataSchema.pre<IDataDocument>("save", async function (next) {
