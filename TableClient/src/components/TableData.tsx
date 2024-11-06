@@ -98,6 +98,8 @@ export function TableData() {
         Array.from({ length: 3 }, () => createNewRowData(serverUrl, tableId))
       );
       setData(newRows);
+      setVisibleData(newRows);
+      setAllData(newRows);
     } else {
       // Filter the data based on the `visible` field
       //@ts-ignore
@@ -136,8 +138,16 @@ export function TableData() {
   const columns = React.useMemo<ColumnDef<ITableData>[]>(
     () => [
       {
+        header: "No.",
+        cell: ({ row }) => row.index+1,
+      },
+      {
         header: "Details",
         accessorKey: "details",
+      },
+      {
+        header: "Links",
+        accessorKey: "dataLink",
       },
       {
         header: "Price",
@@ -149,18 +159,23 @@ export function TableData() {
         cell: ({ getValue }) => {
           // Format date as "dd/mm/yy"
           const dateValue = getValue<Date>();
-          const formattedDate = new Date(dateValue).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: '2-digit',
-          });
+          const formattedDate = new Date(dateValue).toLocaleDateString(
+            "en-GB",
+            {
+              day: "2-digit",
+              month: "2-digit",
+              year: "2-digit",
+            }
+          );
           return formattedDate;
         },
       },
       {
         header: "Hide",
         id: "visibility",
-        cell: ({ row }) => (  //for each cell in the column
+        cell: (
+          { row } //for each cell in the column
+        ) => (
           <input
             type="checkbox"
             checked={!row.original.visible}
@@ -180,7 +195,6 @@ export function TableData() {
       },
     ],
     []
-    // setColumns(columns);
   );
 
   // const refreshData = () => handelGetAllTableData();
@@ -223,7 +237,7 @@ export function TableData() {
 
   const handleAddRow = async () => {
     try {
-      const response = await createNewRowData(serverUrl, tableId)
+      const response = await createNewRowData(serverUrl, tableId);
       if (!response)
         throw new Error("At handleAddRow: filed catching response from axios");
       console.log("the response is:", response);
@@ -231,7 +245,7 @@ export function TableData() {
     } catch (error) {
       console.error("Error:", (error as Error).message);
     }
-  }
+  };
 
   //define a table using "react table library" hook
   const table = useReactTable({
@@ -287,7 +301,9 @@ export function TableData() {
             {/* Render Filters */}
             <div className="flex justify-center pt-4 pb-4 relative">
               <GeneralFilter table={table} />
-              <button className="ml-4" onClick={() => handleAddRow()}>Add Row</button>
+              <button className="ml-4" onClick={() => handleAddRow()}>
+                Add Row
+              </button>
             </div>
 
             <table className="w-full border-collapse border border-gray-300">
