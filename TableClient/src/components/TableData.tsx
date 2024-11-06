@@ -94,6 +94,7 @@ export function TableData() {
     const tableData = await getAllTableRowData(serverUrl, tableId);
 
     if (tableData.length === 0) {
+      //if the table is empty, start it with 3 new rows
       const newRows = await Promise.all(
         Array.from({ length: 3 }, () => createNewRowData(serverUrl, tableId))
       );
@@ -104,9 +105,13 @@ export function TableData() {
       // Filter the data based on the `visible` field
       //@ts-ignore
       const visibleData = tableData.filter((row) => row.visible === true);
-      setData(visibleData.reverse());
-      setVisibleData(visibleData);
-      setAllData(tableData.reverse());
+      if (showHiddenRows) {
+        setData(tableData.reverse());
+      } else {
+        setData(visibleData.reverse());
+        setVisibleData(visibleData);
+        setAllData(tableData.reverse());
+      }
     }
   };
 
@@ -139,7 +144,7 @@ export function TableData() {
     () => [
       {
         header: "No.",
-        cell: ({ row }) => row.index+1,
+        cell: ({ row }) => row.index + 1,
       },
       {
         header: "Details",
