@@ -4,32 +4,38 @@ import mongoose from "mongoose";
 // Define the User interface
 export interface ITable extends Document {
   fieldOfInterest: string;
-  dateCreated: string;
+  dateCreated: Date;
   creator: string;
+  fieldsOrder: string[];
 }
 export class Table {
   fieldOfInterest: string;
-  dateCreated: string;
+  dateCreated: Date;
   creator: string;
+  fieldsOrder: string[];
 
   constructor({
     fieldOfInterest,
     creator,
+    fieldsOrder,
   }: {
     fieldOfInterest: string;
     creator: string;
+    fieldsOrder: string[];
   }) {
     this.fieldOfInterest = fieldOfInterest;
-    this.dateCreated = new Date().toISOString(); // Current time in ISO format
+    this.dateCreated = new Date();
     this.creator = creator;
+    this.fieldsOrder = fieldsOrder;
   }
 }
 
 //define a schema (It is like interface in typescript)
 export const tableSchema = new mongoose.Schema<ITable>({
   fieldOfInterest: { type: String, required: true, unique: true },
-  dateCreated: { type: String },
+  dateCreated: { type: Date, default: Date.now }, //set the current date
   creator: String,
+  fieldsOrder: [String],
 });
 
 // Create the TableModel and extend it with custom methods
