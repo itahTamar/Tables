@@ -113,7 +113,7 @@ export async function getAllTables(req: any, res: any) {
     console.log("getAllTables function");
     const dataDB = await getAllDataFromMongoDB<any>(TableModel);
     console.log("At getAllTables dataDB:", dataDB);
-    res.send({ data: dataDB });
+    res.send({ data: dataDB }); //send to client the tables information: id, fieldOdInterest, creator, fieldsOrder, dataCreated
   } catch (error) {
     console.error(error);
   }
