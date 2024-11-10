@@ -17,7 +17,7 @@ export class Table {
   constructor({
     fieldOfInterest,
     creator,
-    fieldsOrder,
+    fieldsOrder = ["index", "dateCreated", "details", "dataLink", "price"],
   }: {
     fieldOfInterest: string;
     creator: string;
@@ -35,7 +35,10 @@ export const tableSchema = new mongoose.Schema<ITable>({
   fieldOfInterest: { type: String, required: true, unique: true },
   dateCreated: { type: Date, default: Date.now }, //set the current date
   creator: String,
-  fieldsOrder: [String],
+  fieldsOrder: {
+    type: [String],
+    default: ["index", "dateCreated", "details", "dataLink", "price"],
+  },
 });
 
 // Create the TableModel and extend it with custom methods

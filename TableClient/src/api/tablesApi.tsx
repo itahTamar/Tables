@@ -23,8 +23,9 @@ export const addNewTable = async (
       creator,
     });
     console.log("at tablesApi/addNewTable the response is:", response);
-    if (!response.data.data.ok) throw new Error("No response in addNewTable");
-    return response.data.data.ok;
+    console.log("at tablesApi/addNewTable the response.data.ok is:", response.data.ok);
+    if (!response.data.ok) throw new Error("No response in addNewTable");
+    return response.data.ok;
   } catch (error) {
     console.error("Error addNewTable:", error);
     return [];

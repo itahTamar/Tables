@@ -160,7 +160,17 @@ export async function addNewColumn(req: any, res: any){
       return res.status(400).json({ error: 'fieldName are required.' });
     }
     console.log("at dataControllers/addNewColumn fieldName:", fieldName)
-    
+
+    const newFieldsOrderArr = req.params.newFieldsOrderArr 
+    if (!newFieldsOrderArr) {
+      return res.status(400).json({ error: 'newFieldsOrderArr are required.' });
+    }
+    console.log("at dataControllers/addNewColumn newFieldsOrderArr:", newFieldsOrderArr)
+
+    //add the new field to the table fieldsOrder array at the correct index
+    const updateTableFieldsOrder = await findOneAndUpdateDataOnMongoDB(TableModel, {filter: "fieldsOrder"}, newFieldsOrderArr)
+    if (!updateTableFieldsOrder.ok) throw new Error("t dataControllers/addNewColumn failed to update nee newFieldsOrderArr");
+      
     const response = await addFieldToSpecificTableDocuments(tableId, fieldName)
     if (!response) throw new Error("at dataControllers/addNewColumn failed to add nee column");
     console.log("at dataControllers/addNewColumn response:", response)

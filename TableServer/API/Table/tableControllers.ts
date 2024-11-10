@@ -26,8 +26,8 @@ export async function addNewTable(req: any, res: any) {
         "At tableControllers/addTable missing fieldOfInterest and/or creator"
       );
 
-    const isExist = isTableExist(fieldOfInterest)  
-    if (isExist) res.send({ok: false, massage: "Table Exist in DB"})
+    const isExist = await isTableExist(fieldOfInterest)  
+    if (isExist) return res.send({ok: false, massage: "Table Exist in DB"})
     
     // Create the new Table document
     const newTable = new TableModel({ fieldOfInterest, creator });
@@ -46,7 +46,7 @@ export async function addNewTable(req: any, res: any) {
 
     res.send({ ok: true });
   } catch (error) {
-    console.error("Error in addNewRowData:", error);
+    console.error("Error in addNewTable:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 } //work ok
