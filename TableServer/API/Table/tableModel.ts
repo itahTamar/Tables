@@ -17,7 +17,7 @@ export class Table {
   constructor({
     fieldOfInterest,
     creator,
-    fieldsOrder = ["index", "dateCreated", "details", "dataLink", "price"],
+    fieldsOrder = [ "details", "dataLink", "price", "dateCreated"],
   }: {
     fieldOfInterest: string;
     creator: string;

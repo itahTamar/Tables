@@ -88,6 +88,16 @@ export function TableData() {
   if (!tableId) {
     throw new Error("TableId is undefined");
   }
+  const {fieldsOrder} = useParams();
+  if (!fieldsOrder) {
+    throw new Error("fieldsOrder is undefined");
+  }
+  console.log("at TableData the fieldsOrder:", fieldsOrder);
+    // Convert fieldsOrder back into an array
+    const fieldsOrderArray = fieldsOrder.split(",");
+
+    console.log("at TableData the fieldsOrder array:", fieldsOrderArray);
+    
   console.log("at TableData the showHiddenRows:", showHiddenRows);
   const handelGetAllTableData = async () => {
     const tableData = await getAllTableRowData(serverUrl, tableId);
@@ -139,68 +149,60 @@ export function TableData() {
     handelGetAllTableData();
   }, []);
 
-  //build up the table columns header that can be changed
-  const columns = React.useMemo<ColumnDef<ITableData>[]>(
-    () => [
-      {
-        header: "No.",
-        cell: ({ row }) => row.index + 1,
+  // Define column configuration for each possible field
+  const columnDefinitions: Record<string, ColumnDef<ITableData>> = {
+    details: {
+      header: "Details",
+      accessorKey: "details",
+    },
+    dataLink: {
+      header: "Links",
+      accessorKey: "dataLink",
+    },
+    price: {
+      header: "Price",
+      accessorKey: "price",
+    },
+  };
+
+// Build up the table columns based on fieldsOrder and add "No." and "visibility" columns
+const columns = React.useMemo<ColumnDef<ITableData>[]>(() => {
+  const orderedColumns = fieldsOrderArray.map((field) => columnDefinitions[field]).filter(Boolean);
+
+  return [
+    {
+      header: "No.",
+      cell: ({ row }) => row.index + 1,
+    },
+    ...orderedColumns,
+    {
+      header: "Date Created",
+      accessorKey: "dateCreated",
+      cell: ({ getValue }) => {
+        const dateValue = getValue<Date>();
+        const formattedDate = new Date(dateValue).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+        });
+        return formattedDate;
       },
-      {
-        header: "Details",
-        accessorKey: "details",
-      },
-      {
-        header: "Links",
-        accessorKey: "dataLink",
-      },
-      {
-        header: "Price",
-        accessorKey: "price",
-      },
-      {
-        header: "Date Created",
-        accessorKey: "dateCreated",
-        cell: ({ getValue }) => {
-          // Format date as "dd/mm/yy"
-          const dateValue = getValue<Date>();
-          const formattedDate = new Date(dateValue).toLocaleDateString(
-            "en-GB",
-            {
-              day: "2-digit",
-              month: "2-digit",
-              year: "2-digit",
-            }
-          );
-          return formattedDate;
-        },
-      },
-      {
-        header: "Hide",
-        id: "visibility",
-        cell: (
-          { row } //for each cell in the column
-        ) => (
-          <input
-            type="checkbox"
-            checked={!row.original.visible}
-            onChange={() => {
-              console.log(
-                "at TableData/columns/visibility the row.original._id:",
-                row.original._id
-              );
-              console.log(
-                "at TableData/columns/visibility the !row.original.visible:",
-                !row.original.visible
-              );
-              handleUpdate(row.original._id, "visible", !row.original.visible);
-            }}
-          />
-        ),
-      },
-    ],
-    []
-  );
+    },
+    {
+      header: "Hide",
+      id: "visibility",
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          checked={!row.original.visible}
+          onChange={() => {
+            handleUpdate(row.original._id, "visible", !row.original.visible);
+          }}
+        />
+      ),
+    },
+  ];
+}, [fieldsOrderArray]);
 
   // const refreshData = () => handelGetAllTableData();
 
