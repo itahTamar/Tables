@@ -97,11 +97,12 @@ export function TableData() {
   }
   console.log("at TableData the fieldsOrder:", fieldsOrder);
   // Convert fieldsOrder back into an array
-  const fieldsOrderArray = fieldsOrder.split(",");
-
+  // const fieldsOrderArray = fieldsOrder.split(",");
+  const [fieldsOrderArray, setFieldsOrderArray] = useState(fieldsOrder.split(","));
+  const [newColumnCount, setNewColumnCount] = useState(0); // Counter for unique accessKey of every new column
   console.log("at TableData the fieldsOrder array:", fieldsOrderArray);
-
   console.log("at TableData the showHiddenRows:", showHiddenRows);
+
   const handelGetAllTableData = async () => {
     const tableData = await getAllTableRowData(serverUrl, tableId);
 
@@ -168,12 +169,16 @@ export function TableData() {
     },
   };
 
-  // Add new column to `columnDefinitions`
-  columnDefinitions.newColumn = {
-    header: " ",
-    accessorKey: "newColumn",
-    cell: ({ row }) => row.original.newColumn || "Default Value",
-  };
+  // Dynamically add new column definitions for each new column with a unique accessorKey
+  fieldsOrderArray.forEach((field) => {
+    if (field.startsWith("newColumn")) {
+      columnDefinitions[field] = {
+        header: " ", // Initially empty header for new columns
+        accessorKey: field,
+        cell: ({ row }) => row.original.newColumn || " ",
+      };
+    }
+  });
 
   // Build up the table columns based on fieldsOrder and add "No." and "visibility" columns
   const columns = React.useMemo<ColumnDef<ITableData>[]>(() => {
@@ -269,19 +274,18 @@ export function TableData() {
     }
   };
 
-  const handleAddNewColumn = async (position: number) => {
-    try {
-      console.log("At handleAddNewColumn the position is:", position);
-      const response = await addNewColumn(serverUrl, tableId, position);
-      if (!response)
-        throw new Error(
-          "At handleAddNewColumn: filed catching response from axios"
-        );
-      console.log("the response is:", response);
-      handelGetAllTableData();
-    } catch (error) {
-      console.error("Error:", (error as Error).message);
-    }
+  const handleAddNewColumn = async (index: number) => {
+    const newColumnKey = `newColumn${newColumnCount}`; // Generate unique key
+    // Insert the newColumn at the specified position in the fieldsOrderArray
+      const updatedFieldsOrderArray = [
+        ...fieldsOrderArray.slice(0, index + 1),
+        // "newColumn",
+        newColumnKey,
+        ...fieldsOrderArray.slice(index + 1),
+      ];
+      
+      setNewColumnCount(newColumnCount + 1); // Increment counter for next unique key  
+      setFieldsOrderArray(updatedFieldsOrderArray);
   };
 
   //define a table using "react table library" hook
