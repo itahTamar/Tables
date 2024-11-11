@@ -10,12 +10,14 @@ import {
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  addNewColumn,
   createNewRowData,
   getAllTableRowData,
   updateCellData,
 } from "../api/dataApi";
 import { ServerContext } from "../context/ServerUrlContext";
 import { GeneralFilter } from "./GeneralFilter";
+import "../style/tableData.css";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -32,6 +34,7 @@ interface ITableData {
   dataLink: string;
   price: number;
   visible: boolean;
+  newColumn?: string; //add the ability to add new column to the table
 }
 
 // Give our default column cell renderer editing superpowers!
@@ -88,16 +91,16 @@ export function TableData() {
   if (!tableId) {
     throw new Error("TableId is undefined");
   }
-  const {fieldsOrder} = useParams();
+  const { fieldsOrder } = useParams();
   if (!fieldsOrder) {
     throw new Error("fieldsOrder is undefined");
   }
   console.log("at TableData the fieldsOrder:", fieldsOrder);
-    // Convert fieldsOrder back into an array
-    const fieldsOrderArray = fieldsOrder.split(",");
+  // Convert fieldsOrder back into an array
+  const fieldsOrderArray = fieldsOrder.split(",");
 
-    console.log("at TableData the fieldsOrder array:", fieldsOrderArray);
-    
+  console.log("at TableData the fieldsOrder array:", fieldsOrderArray);
+
   console.log("at TableData the showHiddenRows:", showHiddenRows);
   const handelGetAllTableData = async () => {
     const tableData = await getAllTableRowData(serverUrl, tableId);
@@ -122,7 +125,7 @@ export function TableData() {
         setAllData(tableData.reverse());
       }
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const handleShowAllData = () => {
@@ -165,44 +168,56 @@ export function TableData() {
     },
   };
 
-// Build up the table columns based on fieldsOrder and add "No." and "visibility" columns
-const columns = React.useMemo<ColumnDef<ITableData>[]>(() => {
-  const orderedColumns = fieldsOrderArray.map((field) => columnDefinitions[field]).filter(Boolean);
+  // Add new column to `columnDefinitions`
+  columnDefinitions.newColumn = {
+    header: " ",
+    accessorKey: "newColumn",
+    cell: ({ row }) => row.original.newColumn || "Default Value",
+  };
 
-  return [
-    {
-      header: "No.",
-      cell: ({ row }) => row.index + 1,
-    },
-    ...orderedColumns,
-    {
-      header: "Date Created",
-      accessorKey: "dateCreated",
-      cell: ({ getValue }) => {
-        const dateValue = getValue<Date>();
-        const formattedDate = new Date(dateValue).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "2-digit",
-        });
-        return formattedDate;
+  // Build up the table columns based on fieldsOrder and add "No." and "visibility" columns
+  const columns = React.useMemo<ColumnDef<ITableData>[]>(() => {
+    const orderedColumns = fieldsOrderArray
+      .map((field) => columnDefinitions[field])
+      .filter(Boolean);
+
+    return [
+      {
+        header: "No.",
+        cell: ({ row }) => row.index + 1,
       },
-    },
-    {
-      header: "Hide",
-      id: "visibility",
-      cell: ({ row }) => (
-        <input
-          type="checkbox"
-          checked={!row.original.visible}
-          onChange={() => {
-            handleUpdate(row.original._id, "visible", !row.original.visible);
-          }}
-        />
-      ),
-    },
-  ];
-}, [fieldsOrderArray]);
+      ...orderedColumns,
+      {
+        header: "Date Created",
+        accessorKey: "dateCreated",
+        cell: ({ getValue }) => {
+          const dateValue = getValue<Date>();
+          const formattedDate = new Date(dateValue).toLocaleDateString(
+            "en-GB",
+            {
+              day: "2-digit",
+              month: "2-digit",
+              year: "2-digit",
+            }
+          );
+          return formattedDate;
+        },
+      },
+      {
+        header: "Hide",
+        id: "visibility",
+        cell: ({ row }) => (
+          <input
+            type="checkbox"
+            checked={!row.original.visible}
+            onChange={() => {
+              handleUpdate(row.original._id, "visible", !row.original.visible);
+            }}
+          />
+        ),
+      },
+    ];
+  }, [fieldsOrderArray]);
 
   // const refreshData = () => handelGetAllTableData();
 
@@ -254,6 +269,21 @@ const columns = React.useMemo<ColumnDef<ITableData>[]>(() => {
     }
   };
 
+  const handleAddNewColumn = async (position: number) => {
+    try {
+      console.log("At handleAddNewColumn the position is:", position);
+      const response = await addNewColumn(serverUrl, tableId, position);
+      if (!response)
+        throw new Error(
+          "At handleAddNewColumn: filed catching response from axios"
+        );
+      console.log("the response is:", response);
+      handelGetAllTableData();
+    } catch (error) {
+      console.error("Error:", (error as Error).message);
+    }
+  };
+
   //define a table using "react table library" hook
   const table = useReactTable({
     data,
@@ -291,18 +321,12 @@ const columns = React.useMemo<ColumnDef<ITableData>[]>(() => {
     <div className="p-4">
       <div className="flex justify-between items-center mb-24 mt-6">
         {/* back button */}
-        <button
-          className="top-8 left-16"
-          onClick={() => navigate(-1)}
-        >
+        <button className="top-8 left-16" onClick={() => navigate(-1)}>
           Back
         </button>
 
         {/* hide/show button */}
-        <button
-          className=""
-          onClick={() => handleShowAllData()}
-        >
+        <button className="" onClick={() => handleShowAllData()}>
           {showHiddenRows ? "Hide again" : "Show all"}
         </button>
       </div>
@@ -328,20 +352,34 @@ const columns = React.useMemo<ColumnDef<ITableData>[]>(() => {
             </div>
 
             <table className="w-full border-collapse border border-gray-300">
-              {/* set the table header */}
+              {/* set the table header with hidden + buttons */}
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id} className="border-b border-gray-300">
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className="p-2 border-r border-gray-300 bg-gray-100 text-left"
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </th>
+                    {headerGroup.headers.map((header, index) => (
+                      <React.Fragment key={header.id}>
+                        <th
+                          // key={header.id}
+                          className="p-2 border-r border-gray-300 bg-gray-100 text-left"
+                        >
+                          {/* Display Column Header */}
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+
+                          {/* Conditionally render "+" button for specific columns only */}
+                          {header.id !== "dateCreated" &&
+                            header.id !== "visibility" && (
+                              <button
+                                className="plus-button"
+                                onClick={() => handleAddNewColumn(index)}
+                              >
+                                +
+                              </button>
+                            )}
+                        </th>
+                      </React.Fragment>
                     ))}
                   </tr>
                 ))}

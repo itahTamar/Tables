@@ -75,12 +75,12 @@ export const updateCellData = async (
 export const addNewColumn = async (
   serverUrl: string,
   tableId: string,
-  newColumnName: string
+  position: number  //the position of the new field 
 ) => {
   try {
     const response = await axios.patch(
       `${serverUrl}/api/data/addNewColumn/${tableId}`,
-      { newColumnName } //{ withCredentials: true }
+      { position } //{ withCredentials: true }
     );
     console.log("at dataApi/addNewColumn the response is:", response);
 
