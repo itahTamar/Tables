@@ -75,12 +75,14 @@ export const updateCellData = async (
 export const addNewColumn = async (
   serverUrl: string,
   tableId: string,
-  position: number  //the position of the new field 
+  newColumnName: string,
+  newFieldsOrderArr: string[]  //the position of the new field 
 ) => {
   try {
+    console.log("at dataApi/addNewColumn the newFieldsOrderArr:", newFieldsOrderArr)
     const response = await axios.patch(
       `${serverUrl}/api/data/addNewColumn/${tableId}`,
-      { position } //{ withCredentials: true }
+      { newFieldsOrderArr, newColumnName } //{ withCredentials: true }
     );
     console.log("at dataApi/addNewColumn the response is:", response);
 
@@ -95,4 +97,4 @@ export const addNewColumn = async (
   } catch (error) {
     console.error("Error:", (error as Error).message);
   }
-};
+}; //work ok

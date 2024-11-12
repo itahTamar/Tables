@@ -6,7 +6,7 @@ const router = express.Router();
 router
 .post('/addNewRowData/:tableId', addNewRowData)
 .patch('/updateFieldByDataId/:dataID', updateFieldByDataId)
-.patch('/addNewColumn/:tableId/:newFieldsOrderArr', addNewColumn)
+.patch('/addNewColumn/:tableId', addNewColumn)
 .delete('/deleteRowDataById/:dataID', deleteRowDataById)
 
 export default router;

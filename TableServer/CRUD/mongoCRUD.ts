@@ -142,6 +142,7 @@ export const findOneAndUpdateDataOnMongoDB = async <T extends Document>(
   update: Record<string, any>  // Fields to update - work on multiple fields
 ) => {
   try {
+    console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB");
     console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB the modelName", modelName);
     console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB the filter", filter);
     console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB the update", update);

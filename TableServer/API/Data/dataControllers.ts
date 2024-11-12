@@ -153,22 +153,22 @@ export async function addNewColumn(req: any, res: any){
      if (!tableId) {
       return res.status(400).json({ error: 'Table ID are required.' });
     }
-    console.log("at dataControllers/addNewColumn tableId:", tableId)
+    console.log("at dataControllers/addNewColumn tableId:", tableId) //ok
 
     const fieldName = req.body.newColumnName
     if (!fieldName) {
       return res.status(400).json({ error: 'fieldName are required.' });
     }
-    console.log("at dataControllers/addNewColumn fieldName:", fieldName)
+    console.log("at dataControllers/addNewColumn fieldName:", fieldName) //ok
 
-    const newFieldsOrderArr = req.params.newFieldsOrderArr 
+    const newFieldsOrderArr = req.body.newFieldsOrderArr 
     if (!newFieldsOrderArr) {
       return res.status(400).json({ error: 'newFieldsOrderArr are required.' });
     }
-    console.log("at dataControllers/addNewColumn newFieldsOrderArr:", newFieldsOrderArr)
+    console.log("at dataControllers/addNewColumn newFieldsOrderArr:", newFieldsOrderArr) //ok
 
     //add the new field to the table fieldsOrder array at the correct index
-    const updateTableFieldsOrder = await findOneAndUpdateDataOnMongoDB(TableModel, {filter: "fieldsOrder"}, newFieldsOrderArr)
+    const updateTableFieldsOrder = await findOneAndUpdateDataOnMongoDB(TableModel, {_id: tableId}, {fieldsOrder: newFieldsOrderArr})
     if (!updateTableFieldsOrder.ok) throw new Error("t dataControllers/addNewColumn failed to update nee newFieldsOrderArr");
       
     const response = await addFieldToSpecificTableDocuments(tableId, fieldName)
