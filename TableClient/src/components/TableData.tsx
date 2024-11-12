@@ -21,7 +21,11 @@ import "../style/tableData.css";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
-    updateData: (rowIndex: number, field: string, value: unknown) => void;
+    updateData: (
+      rowIndex: number | null,
+      field: string,
+      value: unknown
+    ) => void;
   }
 }
 
@@ -39,6 +43,27 @@ interface ITableData {
 
 // Give our default column cell renderer editing superpowers!
 const defaultColumn: Partial<ColumnDef<ITableData>> = {
+  // header: ({ column, table }) => {
+  //   // Editable header cell
+  //   const [headerValue, setHeaderValue] = React.useState(column.id);
+
+  //   // When the input is blurred, we'll call our table meta's updateData function
+  //   const onBlur = () => {
+  //     table.options.meta?.updateData(null, column.id, headerValue);
+  //   };
+
+  //    // If the initialValue is changed external, sync it up with our state
+  //    React.useEffect(() => {
+  //     setHeaderValue(headerValue);
+  //   }, [headerValue]);
+  //   return (
+  //     <input
+  //       value={headerValue as string}
+  //       onChange={(e) => setHeaderValue(e.target.value)}
+  //       onBlur={onBlur}
+  //     />
+  //   );
+  // },
   cell: ({ getValue, row: { index }, column: { id }, table }) => {
     const initialValue = getValue();
     // We need to keep and update the state of the cell normally
@@ -96,12 +121,15 @@ export function TableData() {
     throw new Error("fieldsOrder is undefined");
   }
   console.log("at TableData the fieldsOrder:", fieldsOrder);
-  // Convert fieldsOrder back into an array
-  // const fieldsOrderArray = fieldsOrder.split(",");
-  const [fieldsOrderArray, setFieldsOrderArray] = useState(fieldsOrder.split(","));
+  const [fieldsOrderArray, setFieldsOrderArray] = useState(
+    fieldsOrder.split(",")
+  ); // Convert fieldsOrder back into an array and save it in a state
   const [newColumnCount, setNewColumnCount] = useState(0); // Counter for unique accessKey of every new column
   console.log("at TableData the fieldsOrder array:", fieldsOrderArray);
   console.log("at TableData the showHiddenRows:", showHiddenRows);
+  const [editableHeaders, setEditableHeaders] = useState<
+    Record<string, string>
+  >({}); // track editable column headers
 
   const handelGetAllTableData = async () => {
     const tableData = await getAllTableRowData(serverUrl, tableId);
@@ -153,7 +181,7 @@ export function TableData() {
     handelGetAllTableData();
   }, []);
 
-  // Define column configuration for each possible field
+  // Define column configuration for each some field
   const columnDefinitions: Record<string, ColumnDef<ITableData>> = {
     details: {
       header: "Details",
@@ -169,11 +197,31 @@ export function TableData() {
     },
   };
 
+  const handleHeaderChange = (key: string, newHeader: string) => {
+    setEditableHeaders((prevHeaders) => ({
+      ...prevHeaders,
+      [key]: newHeader,
+    }));
+  };
+  
   // Dynamically add new column definitions for each new column with a unique accessorKey
   fieldsOrderArray.forEach((field) => {
     if (field.startsWith("newColumn")) {
       columnDefinitions[field] = {
-        header: " ", // Initially empty header for new columns
+        header: () => (
+          <input
+            type="text"
+            value={editableHeaders[field] || " "}
+            onChange={(e) => handleHeaderChange(field, e.target.value)}
+            onBlur={() =>
+              console.log(
+                `at fieldsOrderArray.forEach the New header for field: ${field} is: ${
+                  editableHeaders[field] || "none"
+                }`
+              )
+            }
+          />
+        ),
         accessorKey: field,
         cell: ({ row }) => row.original.newColumn || " ",
       };
@@ -277,16 +325,19 @@ export function TableData() {
   const handleAddNewColumn = async (index: number) => {
     const newColumnKey = `newColumn${newColumnCount}`; // Generate unique key
     // Insert the newColumn at the specified position in the fieldsOrderArray
-      const updatedFieldsOrderArray = [
-        ...fieldsOrderArray.slice(0, index + 1),
-        // "newColumn",
-        newColumnKey,
-        ...fieldsOrderArray.slice(index + 1),
-      ];
-      
-      setNewColumnCount(newColumnCount + 1); // Increment counter for next unique key  
-      setFieldsOrderArray(updatedFieldsOrderArray);
+    const updatedFieldsOrderArray = [
+      ...fieldsOrderArray.slice(0, index + 1),
+      newColumnKey,
+      ...fieldsOrderArray.slice(index + 1),
+    ];
+
+    setNewColumnCount(newColumnCount + 1); // Increment counter for next unique key
+    setFieldsOrderArray(updatedFieldsOrderArray);
   };
+
+  useEffect(() => {
+    console.log("Editable headers updated:", editableHeaders);
+}, [editableHeaders]);
 
   //define a table using "react table library" hook
   const table = useReactTable({
@@ -301,21 +352,21 @@ export function TableData() {
     // Table Meta allow to pass arbitrary data or fun' to the table and store metadata about the table and its data.
     meta: {
       updateData: (rowIndex, field, value) => {
-        //updating the data in the table by setting a new value for a specific column and row
-        setData((old) =>
-          old.map((row, index) => {
-            if (index === rowIndex) {
-              handleUpdate(row._id, field, value); //handling sending the update data to the server for DB-saving
-              return {
-                ...old[rowIndex]!,
-                //Take the value at the rowIndex index from the old array,
-                // and use it as is, without checking if it's null or undefined.
-                [field]: value,
-              };
-            }
-            return row;
-          })
-        );
+          //updating the cell data in the table by setting a new value for a specific column and row
+          setData((old) =>
+            old.map((row, index) => {
+              if (index === rowIndex) {
+                handleUpdate(row._id, field, value); //handling sending the update data to the server for DB-saving
+                return {
+                  ...old[rowIndex]!,
+                  //Take the value at the rowIndex index from the old array,
+                  // and use it as is, without checking if it's null or undefined.
+                  [field]: value,
+                };
+              }
+              return row;
+            })
+          );
       },
     },
     debugTable: true,
