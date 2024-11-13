@@ -6,7 +6,7 @@ import ForgotPassword from "../components/ForgotPassword"
 import OTPInput from "../components/OTPInput"
 import UpdateUserDetails from "../components/UpdateUserDetails"
 import MainTablesPage from "../view/MainTablesPage"
-import { TableData } from "../components/TableData"
+// import { TableData } from "../components/TableData"
 import { TableDataCopyTest } from "../components/TableDataCopyTest"
 
 export const router = createBrowserRouter([
@@ -18,6 +18,6 @@ export const router = createBrowserRouter([
     {path: "/updateUserDetails", element: <UpdateUserDetails/>},
     {path: "/mainTablesPage", element: <MainTablesPage/>},
     // {path: "/table/:tableId/:fieldsOrder", element: <TableData/>},
-    {path: "/table/:tableId/:fieldsOrder", element: <TableDataCopyTest/>},
+    {path: "/table/:tableId", element: <TableDataCopyTest/>},
 
 ])

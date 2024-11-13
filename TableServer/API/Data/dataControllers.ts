@@ -169,13 +169,14 @@ export async function addNewColumn(req: any, res: any){
 
     //add the new field to the table fieldsOrder array at the correct index
     const updateTableFieldsOrder = await findOneAndUpdateDataOnMongoDB(TableModel, {_id: tableId}, {fieldsOrder: newFieldsOrderArr})
-    if (!updateTableFieldsOrder.ok) throw new Error("t dataControllers/addNewColumn failed to update nee newFieldsOrderArr");
+    if (!updateTableFieldsOrder.ok) throw new Error("at dataControllers/addNewColumn failed to update newFieldsOrderArr");
+    console.log("at dataControllers/addNewColumn updateTableFieldsOrder:", updateTableFieldsOrder)
       
     const response = await addFieldToSpecificTableDocuments(tableId, fieldName)
     if (!response) throw new Error("at dataControllers/addNewColumn failed to add nee column");
     console.log("at dataControllers/addNewColumn response:", response)
     
-    res.send({ok: true})
+    res.send({updateTableFieldsOrder}) // sent: { ok, response=all table details, massage}
 
   } catch (error) {
     res.status(500).json({ ok: false, error: 'Failed to add the field to specific table documents.' });

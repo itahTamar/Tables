@@ -8,7 +8,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   addNewColumn,
   createNewRowData,
@@ -38,7 +38,7 @@ interface ITableData {
   dataLink: string;
   price: number;
   visible: boolean;
-  newColumn?: string; //add the ability to add new column to the table
+  [key: string]: any; // Allows for any additional fields dynamically
 }
 
 // Give our default column cell renderer editing superpowers!
@@ -106,26 +106,30 @@ function useSkipper() {
 
 export function TableDataCopyTest() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const [data, setData] = useState<ITableData[]>([]);
   const [visibleData, setVisibleData] = useState<ITableData[]>([]);
   const [allData, setAllData] = useState<ITableData[]>([]);
   const serverUrl = useContext(ServerContext);
+  const [fieldsOrderArray, setFieldsOrderArray] = useState<string[]>([]);
+  const [newColumnCount, setNewColumnCount] = useState(0); // Counter for unique accessKey of every new column
+  const [newColumnName, setNewColumnName] = useState<string>(""); //save the last added column name
+
   const { tableId } = useParams();
   if (!tableId) {
     throw new Error("TableId is undefined");
   }
-  const { fieldsOrder } = useParams();
-  if (!fieldsOrder) {
-    throw new Error("fieldsOrder is undefined");
-  }
-  console.log("at TableData the fieldsOrder:", fieldsOrder);
-  const [fieldsOrderArray, setFieldsOrderArray] = useState(fieldsOrder.split(",")); // Convert fieldsOrder back into an array and save it in a state
-  const [newColumnCount, setNewColumnCount] = useState(0); // Counter for unique accessKey of every new column
-  console.log("at TableData the fieldsOrder array:", fieldsOrderArray);
-  console.log("at TableData the showHiddenRows:", showHiddenRows);
-  const [newColumnName, setNewColumnName] = useState<string>("") //save the last added column name
+
+  useEffect(() => {
+    const fieldsOrder = location.state?.fieldsOrder;
+    if (!fieldsOrder)
+      throw new Error(
+        "at TableData failed to get fieldsOrder from location state"
+      );
+    setFieldsOrderArray(fieldsOrder);
+  }, []);
 
   const handelGetAllTableData = async () => {
     const tableData = await getAllTableRowData(serverUrl, tableId);
@@ -158,11 +162,6 @@ export function TableDataCopyTest() {
   };
 
   useEffect(() => {
-    console.log(
-      "at TableData/handleShowAllData/useEffect the showHiddenRows:",
-      showHiddenRows
-    );
-
     //if showHiddenRows == true -> see all row
     if (showHiddenRows) {
       setData(allData);
@@ -177,45 +176,51 @@ export function TableDataCopyTest() {
     handelGetAllTableData();
   }, []);
 
-  // Define column configuration for each some field
-  const columnDefinitions: Record<string, ColumnDef<ITableData>> = {
-    details: {
-      header: "Details",
-      accessorKey: "details",
-    },
-    dataLink: {
-      header: "Links",
-      accessorKey: "dataLink",
-    },
-    price: {
-      header: "Price",
-      accessorKey: "price",
-    },
-  };
+  console.log("at TableData the tableId:", tableId);
+  console.log("at TableData the fieldsOrderArray:", fieldsOrderArray);
 
-  // Dynamically add new column definitions for each new column with a unique accessorKey
-  fieldsOrderArray.forEach((field) => {
-    if (field.startsWith("newColumn")) {
-      columnDefinitions[field] = {
-        //   header: () => (
-        //     <input
-        //       type="text"
-        //       value={field || " "} //show the "newColumn"+num
-        //       onChange={(e) => handleRenameHeader(field, e.target.value)}
-        //       onBlur={() =>
-        //         console.log(
-        //           `at fieldsOrderArray.forEach the New header for field: ${field} is: ${
-        //             field || "none"
-        //           }`
-        //         )
-        //       }
-        //     />
-        //   ),
-        accessorKey: field,
-        cell: ({ row }) => row.original.newColumn || " ",
-      };
-    }
-  });
+  // Define column configuration for each some field
+  const columnDefinitions = React.useMemo(() => {
+    const definitions: Record<string, ColumnDef<ITableData>> = {
+      // Default fields with fixed configuration
+      details: {
+        header: "Details",
+        accessorKey: "details",
+      },
+      dataLink: {
+        header: "Links",
+        accessorKey: "dataLink",
+      },
+      price: {
+        header: "Price",
+        accessorKey: "price",
+      },
+    };
+
+    fieldsOrderArray.forEach((field) => {
+      // Skip adding "index" and "dateCreated" fields to column definitions
+      if (field === "index" || field === "dateCreated") return;
+
+      if (field.startsWith("newColumn")) {
+        definitions[field] = {
+          ...defaultColumn,
+          accessorKey: field,
+          cell: ({ row }) => row.original[field] || " ",
+        };
+      } else {
+        if (!definitions[field]) {
+          // Add dynamic columns based on fieldsOrderArray
+          definitions[field] = {
+            header: field,
+            accessorKey: field,
+            cell: ({ row }) => row.original[field] || " ",
+          };
+        }
+      }
+    });
+
+    return definitions;
+  }, [fieldsOrderArray]);
 
   // Build up the table columns based on fieldsOrder and add "No." and "visibility" columns
   const columns = React.useMemo<ColumnDef<ITableData>[]>(() => {
@@ -259,7 +264,7 @@ export function TableDataCopyTest() {
         ),
       },
     ];
-  }, [fieldsOrderArray]);
+  }, [columnDefinitions, fieldsOrderArray]); // Make sure columnDefinitions is a dependency here
 
   //the use of the useSkipper hook
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
@@ -309,6 +314,7 @@ export function TableDataCopyTest() {
     }
   };
 
+  //first stage in the addColumn process - adding the column in front-end only
   const handleAddNewColumn = async (index: number) => {
     const newColumnKey = `newColumn${newColumnCount}`; // Generate unique key
     // Insert the newColumn at the specified position in the fieldsOrderArray
@@ -321,25 +327,37 @@ export function TableDataCopyTest() {
     setNewColumnCount(newColumnCount + 1); // Increment counter for next unique key
     setFieldsOrderArray(updatedFieldsOrderArray);
   };
-
-  const handleAddNewColumnToDB = async (tableId: string, newFieldsOrderArray: string[], newColumnName: string) => {
+  //second stage in the addColumn process - adding the column in back-end and DB - this happens only after rename the column's header
+  const handleAddNewColumnToDB = async (
+    tableId: string,
+    newFieldsOrderArray: string[],
+    newColumnName: string
+  ) => {
     try {
-        console.log("At handleAddNewColumnToDB the newFieldsOrderArray is:", newFieldsOrderArray);
+      const response = await addNewColumn(
+        serverUrl,
+        tableId,
+        newColumnName,
+        newFieldsOrderArray
+      );
+      if (!response)
+        throw new Error(
+          "At handleAddNewColumnToDB: filed catching response from axios"
+        );
+      console.log("At handleAddNewColumnToDB the response is:", response);
+      const fieldsOrder = response.fieldsOrder;
+      console.log("At handleAddNewColumnToDB the fieldsOrder is:", fieldsOrder);
 
-        const response = await addNewColumn(serverUrl, tableId, newColumnName, newFieldsOrderArray);
-        if (!response)
-          throw new Error("At handleAddNewColumnToDB: filed catching response from axios");
-        console.log("At handleAddNewColumnToDB the response is:", response);
-        handelGetAllTableData();
-      } catch (error) {
-        console.error("Error:", (error as Error).message);
-      }
-  }
-
+      setFieldsOrderArray(fieldsOrder);
+      handelGetAllTableData();
+    } catch (error) {
+      console.error("Error:", (error as Error).message);
+    }
+  };
+  // happens only after rename the column's header
   useEffect(() => {
-    console.log("at tableData after set fields order the FieldsOrderArray is:",fieldsOrderArray)
-
-    handleAddNewColumnToDB(tableId, fieldsOrderArray, newColumnName)
+    if (newColumnName != "")
+      handleAddNewColumnToDB(tableId, fieldsOrderArray, newColumnName);
   }, [newColumnName]);
 
   //define a table using "react table library" hook
@@ -360,7 +378,7 @@ export function TableDataCopyTest() {
           setFieldsOrderArray((oldHeaders) =>
             oldHeaders.map((header) => (header === field ? value : header))
           );
-          setNewColumnName(value)
+          setNewColumnName(value);
         } else {
           // Update row data
           setData((old) =>

@@ -84,13 +84,15 @@ export const addNewColumn = async (
       `${serverUrl}/api/data/addNewColumn/${tableId}`,
       { newFieldsOrderArr, newColumnName } //{ withCredentials: true }
     );
-    console.log("at dataApi/addNewColumn the response is:", response);
+    console.log("at dataApi/addNewColumn the response is:", response); //get: updateTableFieldsOrder{ ok, response:{_id,fieldOfInterest,creator,fieldsOrder, dateCreated}, massage}
 
-    const { ok } = response.data;
+    const { ok } = response.data.updateTableFieldsOrder;
     console.log("at dataApi/addNewColumn the ok is:", ok);
+    const {fieldsOrder} = response.data.updateTableFieldsOrder.response;
+    console.log("at dataApi/addNewColumn the fieldsOrder is:", fieldsOrder);
 
     if (ok) {
-      return ok;
+      return {ok, fieldsOrder };
     } else {
       console.error("response from server is:", ok);
     }

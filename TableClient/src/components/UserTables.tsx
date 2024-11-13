@@ -30,7 +30,7 @@ const UserTables: React.FC = () => {
   };
 
   const handleCardClick = (tableId: string, fieldsOrder: string[]) => {
-    navigate(`/table/${tableId}/${fieldsOrder}`); // Navigate to table detail
+    navigate(`/table/${tableId}`, { state: { fieldsOrder: fieldsOrder } }); // Navigate to table detail
   };
 
   return (
