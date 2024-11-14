@@ -34,7 +34,7 @@ export class Data {
   fieldOfInterest: string;
   details: string;
   dataLink: string;
-  price: number;
+  price: number | string;
   visible: boolean;
 
   constructor({
@@ -43,7 +43,7 @@ export class Data {
     fieldOfInterest,
     details = "",
     dataLink = "",
-    price = 0,
+    price = "",
     visible = true,
   }: {
     index: number;
@@ -51,7 +51,7 @@ export class Data {
     fieldOfInterest: string;
     details?: string;
     dataLink?: string;
-    price?: number;
+    price?: number | string;
     visible?: boolean;
   }) {
     this.index = index;
