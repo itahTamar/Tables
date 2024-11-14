@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
     {path: "/resetPassword", element: <ResetPassword/>},
     {path: "/updateUserDetails", element: <UpdateUserDetails/>},
     {path: "/mainTablesPage", element: <MainTablesPage/>},
-    // {path: "/table/:tableId/:fieldsOrder", element: <TableData/>},
+    // {path: "/table/:tableId", element: <TableData/>},
     {path: "/table/:tableId", element: <TableDataCopyTest/>},
 
 ])

@@ -76,7 +76,7 @@ export const addNewColumn = async (
   serverUrl: string,
   tableId: string,
   newColumnName: string,
-  newFieldsOrderArr: string[]  //the position of the new field 
+  newFieldsOrderArr: string[]  
 ) => {
   try {
     console.log("at dataApi/addNewColumn the newFieldsOrderArr:", newFieldsOrderArr)
@@ -100,3 +100,34 @@ export const addNewColumn = async (
     console.error("Error:", (error as Error).message);
   }
 }; //work ok
+
+//update column rename
+export const renameColumn = async (
+  serverUrl: string,
+  tableId: string,
+  renameColumnName: string,
+  oldFieldName: string,
+  newFieldsOrderArr: string[]  
+) => {
+  try {
+    console.log("at dataApi/renameColumn the newFieldsOrderArr:", newFieldsOrderArr)
+    const response = await axios.patch(
+      `${serverUrl}/api/data/renameColumn/${tableId}`,
+      { newFieldsOrderArr, renameColumnName, oldFieldName } //{ withCredentials: true }
+    );
+    console.log("at dataApi/renameColumn the response is:", response); //get: updateTableFieldsOrder{ ok, response:{_id,fieldOfInterest,creator,fieldsOrder, dateCreated}, massage}
+
+    const { ok } = response.data.updateTableFieldsOrder;
+    console.log("at dataApi/renameColumn the ok is:", ok);
+    const {fieldsOrder} = response.data.updateTableFieldsOrder.response;
+    console.log("at dataApi/renameColumn the fieldsOrder is:", fieldsOrder);
+
+    if (ok) {
+      return {ok, fieldsOrder };
+    } else {
+      console.error("response from server is:", ok);
+    }
+  } catch (error) {
+    console.error("Error:", (error as Error).message);
+  }
+};

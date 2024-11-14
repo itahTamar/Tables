@@ -13,11 +13,13 @@ import {
   addNewColumn,
   createNewRowData,
   getAllTableRowData,
+  renameColumn,
   updateCellData,
 } from "../api/dataApi";
 import { ServerContext } from "../context/ServerUrlContext";
 import { GeneralFilter } from "./GeneralFilter";
 import "../style/tableData.css";
+import { TableContext } from "../context/tableContext";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -116,6 +118,13 @@ export function TableDataCopyTest() {
   const [fieldsOrderArray, setFieldsOrderArray] = useState<string[]>([]);
   const [newColumnCount, setNewColumnCount] = useState(0); // Counter for unique accessKey of every new column
   const [newColumnName, setNewColumnName] = useState<string>(""); //save the last added column name
+  const [renameColumnName, setRenameColumnName] = useState<string>(""); //save the last added column name
+  const [oldFieldName, setOldFieldName] = useState<string>("")
+  const tableContext = useContext(TableContext);
+  if (!tableContext) {
+    throw new Error("TableContext must be used within a TableProvider");
+  }
+  const { updateTableFieldsOrder } = tableContext;
 
   const { tableId } = useParams();
   if (!tableId) {
@@ -184,15 +193,39 @@ export function TableDataCopyTest() {
     const definitions: Record<string, ColumnDef<ITableData>> = {
       // Default fields with fixed configuration
       details: {
-        header: "Details",
+        header: () => (
+          <input
+            type="text"
+            value="Details" // Hardcoded or dynamic text you want to show in the header
+            onChange={(e) => {
+              table.options.meta?.updateData(null, "details", e.target.value); // Update header dynamically
+            }}
+          />
+        ),
         accessorKey: "details",
       },
       dataLink: {
-        header: "Links",
+        header: () => (
+          <input
+            type="text"
+            value="Links" // Hardcoded or dynamic text you want to show in the header
+            onChange={(e) => {
+              table.options.meta?.updateData(null, "dataLink", e.target.value); // Update header dynamically
+            }}
+          />
+        ),
         accessorKey: "dataLink",
       },
       price: {
-        header: "Price",
+        header: () => (
+          <input
+            type="text"
+            value="Price" // Hardcoded or dynamic text you want to show in the header
+            onChange={(e) => {
+              table.options.meta?.updateData(null, "price", e.target.value); // Update header dynamically
+            }}
+          />
+        ),
         accessorKey: "price",
       },
     };
@@ -205,15 +238,61 @@ export function TableDataCopyTest() {
         definitions[field] = {
           ...defaultColumn,
           accessorKey: field,
-          cell: ({ row }) => row.original[field] || " ",
+          header: () => (
+            <input
+              type="text"
+              value={field} // Assuming the field name itself as the header text
+              onChange={(e) => {
+                table.options.meta?.updateData(null, field, e.target.value); // Update header dynamically
+              }}
+            />
+          ),
+          cell: ({ row, column }) => {
+            const value = row.original[field] || " ";
+            return (
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => {
+                  table.options.meta?.updateData(
+                    row.index,
+                    column.id,
+                    e.target.value
+                  );
+                }}
+              />
+            );
+          },
         };
       } else {
         if (!definitions[field]) {
-          // Add dynamic columns based on fieldsOrderArray
           definitions[field] = {
-            header: field,
+            header: () => (
+              <input
+                type="text"
+                value={field} // Assuming the field name itself as the header text
+                onChange={(e) => {
+                  table.options.meta?.updateData(null, field, e.target.value); // Update header dynamically
+                }}
+              />
+            ),
             accessorKey: field,
-            cell: ({ row }) => row.original[field] || " ",
+            cell: ({ row, column }) => {
+              const value = row.original[field] || " ";
+              return (
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => {
+                    table.options.meta?.updateData(
+                      row.index,
+                      column.id,
+                      e.target.value
+                    );
+                  }}
+                />
+              );
+            },
           };
         }
       }
@@ -319,9 +398,9 @@ export function TableDataCopyTest() {
     const newColumnKey = `newColumn${newColumnCount}`; // Generate unique key
     // Insert the newColumn at the specified position in the fieldsOrderArray
     const updatedFieldsOrderArray = [
-      ...fieldsOrderArray.slice(0, index + 1),
+      ...fieldsOrderArray.slice(0, index + 2),
       newColumnKey,
-      ...fieldsOrderArray.slice(index + 1),
+      ...fieldsOrderArray.slice(index + 2),
     ];
 
     setNewColumnCount(newColumnCount + 1); // Increment counter for next unique key
@@ -349,6 +428,7 @@ export function TableDataCopyTest() {
       console.log("At handleAddNewColumnToDB the fieldsOrder is:", fieldsOrder);
 
       setFieldsOrderArray(fieldsOrder);
+      handleUpdateFieldsOrder(fieldsOrder);
       handelGetAllTableData();
     } catch (error) {
       console.error("Error:", (error as Error).message);
@@ -359,6 +439,44 @@ export function TableDataCopyTest() {
     if (newColumnName != "")
       handleAddNewColumnToDB(tableId, fieldsOrderArray, newColumnName);
   }, [newColumnName]);
+
+  useEffect(() => {
+    if (renameColumnName != "")
+      handleRenameColumnName(tableId, renameColumnName, oldFieldName, fieldsOrderArray);
+  }, [renameColumnName]);
+
+  const handleRenameColumnName = async (
+    tableId: string,
+    renameColumnName: string,
+    oldFieldName: string,
+    newFieldsOrderArr: string[]
+  ) => {
+    try {
+      const response = await renameColumn(
+        serverUrl,
+        tableId,
+        renameColumnName,
+        oldFieldName,
+        newFieldsOrderArr
+      );
+      if (!response)
+        throw new Error(
+          "At handleRenameColumnName: filed catching response from axios"
+        );
+      console.log("At handleRenameColumnName the response is:", response);
+      const fieldsOrder = response.fieldsOrder;
+      console.log("At handleRenameColumnName the fieldsOrder is:", fieldsOrder);
+
+      setFieldsOrderArray(fieldsOrder);
+      handelGetAllTableData();
+    } catch (error) {
+      console.error("Error:", (error as Error).message);
+    }
+  };
+
+  const handleUpdateFieldsOrder = (newFieldsOrder: string[]) => {
+    updateTableFieldsOrder(tableId, newFieldsOrder);
+  };
 
   //define a table using "react table library" hook
   const table = useReactTable({
@@ -375,10 +493,22 @@ export function TableDataCopyTest() {
       updateData: (rowIndex: number | null, field: string, value: any) => {
         if (rowIndex === null) {
           // Update the header
-          setFieldsOrderArray((oldHeaders) =>
-            oldHeaders.map((header) => (header === field ? value : header))
-          );
-          setNewColumnName(value);
+          if (field.startsWith("newColumn")) {
+            setFieldsOrderArray((oldHeaders) =>
+              oldHeaders.map((header) =>
+                header === field ? value : header
+              )
+            );
+            setNewColumnName(value);
+          } else {
+            setFieldsOrderArray((oldHeaders) =>
+              oldHeaders.map((header) =>
+                header === field ? value : header
+              )
+            );
+            setRenameColumnName(value);
+            setOldFieldName(field)
+          }
         } else {
           // Update row data
           setData((old) =>

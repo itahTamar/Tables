@@ -82,7 +82,7 @@ export async function updateFieldByDataId(req: any, res: any) {
 
     const { updateData } = req.body;
     console.log("at dataControllers/updateFieldByDataId the updateData:", updateData); //ok
-//!changed this from !updateData, try it in deferent fields types
+//!changed this from (!updateData), need to try it in deferent fields types
     if (!field || updateData == undefined)
       throw new Error("missing data required field or updateData");
 
@@ -183,6 +183,49 @@ export async function addNewColumn(req: any, res: any){
   }
 } //work ok
 
+export async function renameColumn(req: any, res: any){
+  try {
+    const tableId = req.params.tableId
+     if (!tableId) {
+      return res.status(400).json({ error: 'Table ID are required.' });
+    }
+    console.log("at dataControllers/addNewColumn tableId:", tableId)
+
+    const renameColumnName = req.body.renameColumnName
+    if (!renameColumnName) {
+      return res.status(400).json({ error: 'renameColumnName are required.' });
+    }
+    console.log("at dataControllers/addNewColumn renameColumnName:", renameColumnName)
+
+    const oldFieldName = req.body.oldFieldName
+    if (!oldFieldName) {
+      return res.status(400).json({ error: 'oldFieldName are required.' });
+    }
+    console.log("at dataControllers/addNewColumn oldFieldName:", oldFieldName)
+
+    const newFieldsOrderArr = req.body.newFieldsOrderArr 
+    if (!newFieldsOrderArr) {
+      return res.status(400).json({ error: 'newFieldsOrderArr are required.' });
+    }
+    console.log("at dataControllers/addNewColumn newFieldsOrderArr:", newFieldsOrderArr)
+
+    //update the new field name at the table fieldsOrder array
+    const updateTableFieldsOrder = await findOneAndUpdateDataOnMongoDB(TableModel, {_id: tableId}, {fieldsOrder: newFieldsOrderArr})
+    if (!updateTableFieldsOrder.ok) throw new Error("at dataControllers/addNewColumn failed to update newFieldsOrderArr");
+    console.log("at dataControllers/addNewColumn updateTableFieldsOrder:", updateTableFieldsOrder)
+      
+    const response = await renameFieldInSpecificTableDocuments(tableId, oldFieldName, renameColumnName)
+    if (!response) throw new Error("at dataControllers/addNewColumn failed to add nee column");
+    console.log("at dataControllers/addNewColumn response:", response)
+    
+    res.send({updateTableFieldsOrder}) // sent: { ok, response=all table details, massage}
+
+  } catch (error) {
+    res.status(500).json({ ok: false, error: 'Failed to add the field to specific table documents.' });
+  }
+}
+
+//help functions:
 //function to add a new field to specific table's documents in the datas collection
 export async function addFieldToSpecificTableDocuments(
   tableId: mongoose.Types.ObjectId, // The specific tableId to target
@@ -215,3 +258,49 @@ export async function addFieldToSpecificTableDocuments(
     console.error(`Error updating documents with the field "${fieldName}":`, err);
   }
 } //work ok
+
+export async function renameFieldInSpecificTableDocuments(
+  tableId: mongoose.Types.ObjectId, // The specific tableId to target
+  oldFieldName: string, // The existing field to rename
+  newFieldName: string // The new field name
+): Promise<boolean> {
+  try {
+    console.log("at dataControllers/renameFieldInSpecificTableDocuments the tableId:", tableId);
+    console.log("at dataControllers/renameFieldInSpecificTableDocuments the oldFieldName:", oldFieldName);
+    console.log("at dataControllers/renameFieldInSpecificTableDocuments the newFieldName:", newFieldName);
+
+    // Step 1: Find all `dataId`s in `tabledatas` linked to the given `tableId`
+    const tableDataRecords = await TableDataModel.find({ tableId }).select('dataId');
+    console.log("at dataControllers/renameFieldInSpecificTableDocuments the tableDataRecords:", tableDataRecords);
+
+    // Extract the `dataId`s from the records
+    //@ts-ignore
+    const dataIds = tableDataRecords.map(record => record.dataId);
+    console.log("at dataControllers/renameFieldInSpecificTableDocuments the dataIds:", dataIds);
+
+    // Step 2: Update each `data` document by copying data from `oldFieldName` to `newFieldName`
+    const update: UpdateQuery<any> = {
+      $set: { [newFieldName]: `$${oldFieldName}` }
+    };
+    const renameResult = await DataModel.updateMany(
+      { _id: { $in: dataIds } },
+      [update], // Use aggregation pipeline to perform field copy
+      { writeConcern: { w: "majority" } }
+    );
+    console.log("at dataControllers/renameFieldInSpecificTableDocuments rename result:", renameResult);
+
+    // Step 3: Remove the `oldFieldName` field from each document
+    const unsetResult = await DataModel.updateMany(
+      { _id: { $in: dataIds } },
+      { $unset: { [oldFieldName]: "" } } as UpdateQuery<any>,
+      { writeConcern: { w: "majority" } }
+    );
+    console.log("at dataControllers/renameFieldInSpecificTableDocuments unset result:", unsetResult);
+
+    console.log(`Field "${oldFieldName}" was successfully renamed to "${newFieldName}" for ${renameResult.modifiedCount} documents in the specified table.`);
+    return true;
+  } catch (err) {
+    console.error(`Error renaming field "${oldFieldName}" to "${newFieldName}":`, err);
+    return false;
+  }
+}

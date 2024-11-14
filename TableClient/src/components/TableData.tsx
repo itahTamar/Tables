@@ -18,6 +18,7 @@ import {
 import { ServerContext } from "../context/ServerUrlContext";
 import { GeneralFilter } from "./GeneralFilter";
 import "../style/tableData.css";
+import { TableContext } from "../context/tableContext";
 
 declare module "@tanstack/react-table" {
   interface TableMeta<TData extends RowData> {
@@ -104,7 +105,7 @@ function useSkipper() {
   return [shouldSkip, skip] as const;
 }
 
-export function TableDataCopyTest() {
+export function TableData() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
@@ -116,12 +117,17 @@ export function TableDataCopyTest() {
   const [fieldsOrderArray, setFieldsOrderArray] = useState<string[]>([]);
   const [newColumnCount, setNewColumnCount] = useState(0); // Counter for unique accessKey of every new column
   const [newColumnName, setNewColumnName] = useState<string>(""); //save the last added column name
+  const tableContext = useContext(TableContext);
+  if (!tableContext) {
+    throw new Error("TableContext must be used within a TableProvider");
+  }
+  const { updateTableFieldsOrder } = tableContext;
 
   const { tableId } = useParams();
   if (!tableId) {
     throw new Error("TableId is undefined");
   }
-
+ 
   useEffect(() => {
     const fieldsOrder = location.state?.fieldsOrder;
     if (!fieldsOrder)
@@ -205,7 +211,19 @@ export function TableDataCopyTest() {
         definitions[field] = {
           ...defaultColumn,
           accessorKey: field,
-          cell: ({ row }) => row.original[field] || " ",
+          cell: ({ row, column }) => {
+            const value = row.original[field] || " ";
+            return (
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => {
+                  // Use the meta.updateData function to update the data when the input changes
+                  table.options.meta?.updateData(row.index, column.id, e.target.value);
+                }}
+              />
+            );
+          },
         };
       } else {
         if (!definitions[field]) {
@@ -319,9 +337,9 @@ export function TableDataCopyTest() {
     const newColumnKey = `newColumn${newColumnCount}`; // Generate unique key
     // Insert the newColumn at the specified position in the fieldsOrderArray
     const updatedFieldsOrderArray = [
-      ...fieldsOrderArray.slice(0, index + 1),
+      ...fieldsOrderArray.slice(0, index + 2),
       newColumnKey,
-      ...fieldsOrderArray.slice(index + 1),
+      ...fieldsOrderArray.slice(index + 2),
     ];
 
     setNewColumnCount(newColumnCount + 1); // Increment counter for next unique key
@@ -349,6 +367,7 @@ export function TableDataCopyTest() {
       console.log("At handleAddNewColumnToDB the fieldsOrder is:", fieldsOrder);
 
       setFieldsOrderArray(fieldsOrder);
+      handleUpdateFieldsOrder(fieldsOrder)
       handelGetAllTableData();
     } catch (error) {
       console.error("Error:", (error as Error).message);
@@ -359,6 +378,10 @@ export function TableDataCopyTest() {
     if (newColumnName != "")
       handleAddNewColumnToDB(tableId, fieldsOrderArray, newColumnName);
   }, [newColumnName]);
+
+  const handleUpdateFieldsOrder = (newFieldsOrder: string[]) => {
+    updateTableFieldsOrder(tableId, newFieldsOrder);
+  };
 
   //define a table using "react table library" hook
   const table = useReactTable({
