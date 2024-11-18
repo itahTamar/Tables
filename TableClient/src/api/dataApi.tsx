@@ -69,7 +69,7 @@ export const updateCellData = async (
   } catch (error) {
     console.error("Error:", (error as Error).message);
   }
-};
+}; //work ok
 
 //add new field to table's data
 export const addNewColumn = async (
@@ -130,4 +130,4 @@ export const renameColumn = async (
   } catch (error) {
     console.error("Error:", (error as Error).message);
   }
-};
+}; //work ok

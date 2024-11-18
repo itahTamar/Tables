@@ -5,7 +5,7 @@ import {
   deleteRowDataById,
   renameColumn,
   updateFieldByDataId,
-} from "./dataControllers";
+} from "./rowControllers";
 const router = express.Router();
 
 router

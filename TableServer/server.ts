@@ -28,9 +28,13 @@ import connectionMongo from "./DBConnection/mongoDB";
 import userRoute from "./API/User/userRoute";
 app.use("/api/users", userRoute);
 
-// get router from dataModel
-import dataRoutes  from "./API/Data/dataRoutes";
-app.use("/api/data", dataRoutes);
+// get router from rowModel
+import rowRoutes  from "./API/Row/rowRoutes";
+app.use("/api/data", rowRoutes);
+
+// get router from columnModel
+import columnRoutes  from "./API/Row/rowRoutes";
+app.use("/api/column", columnRoutes);
 
 import tableRoutes from "./API/Table/tableRoutes";
 app.use("/api/tables", tableRoutes)

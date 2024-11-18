@@ -6,7 +6,8 @@ import {
   getOneDataFromMongoDB,
   saveDataToMongoDB,
 } from "../../CRUD/mongoCRUD";
-import { DataModel, TableDataModel } from "../Data/dataModel";
+import { TableColumnModel } from "../Column/columnModel";
+import { DataModel, TableDataModel } from "../Row/rowModel";
 import { TableModel } from "./tableModel";
 import jwt from "jwt-simple";
 
@@ -52,7 +53,7 @@ export async function addNewTable(req: any, res: any) {
 } //work ok
 
 // get all table data
-export async function getAllTableRowData(req: any, res: any) {
+export async function getAllTableRowsAndColumns(req: any, res: any) {
   try {
     const tableID = req.params.tableId;
 
@@ -62,23 +63,23 @@ export async function getAllTableRowData(req: any, res: any) {
       });
     }
 
-    const tableRowData = await getAllDataFromMongoDB(TableDataModel, {
-      tableId: tableID,
-    });
-    if (!tableRowData.ok) throw new Error(tableRowData.error);
-    console.log(
-      "At tableControllers/tableRowData the tableRowData:",
-      tableRowData
-    );
+    // const tableColumnsData = await getAllDataFromMongoDB(TableColumnModel, {
+    //   tableId: tableID,
+    // });
+    // if (!tableRowData.ok) throw new Error(tableRowData.error);
+    // console.log(
+    //   "At tableControllers/tableRowData the tableRowData:",
+    //   tableRowData
+    // );
 
     //@ts-ignore
-    const tableRowDataArray: ITableDataDocument[] = tableRowData.response;
-    console.log(
-      "At tableControllers/tableRowData the tableRowDataArray:",
-      tableRowDataArray
-    );
+    // const tableRowDataArray: ITableDataDocument[] = tableRowData.response;
+    // console.log(
+    //   "At tableControllers/tableRowData the tableRowDataArray:",
+    //   tableRowDataArray
+    // );
 
-    const allTableRowDataArray = await tableRowDataArray.map((e) =>
+    const allTableColumnArray = await tableColumnArray.map((e) =>
       getOneDataFromJoinCollectionInMongoDB(DataModel, e.dataId)
     );
     console.log(

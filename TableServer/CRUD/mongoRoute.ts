@@ -1,5 +1,5 @@
 import express from 'express'
-import { getAllData } from '../API/Data/dataControllers';
+import { getAllData } from '../API/Row/rowControllers';
 import { isEmailExist } from '../API/User/userCont';
 
 const router = express.Router();

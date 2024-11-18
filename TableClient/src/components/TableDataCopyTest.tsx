@@ -142,11 +142,11 @@ export function TableDataCopyTest() {
 
   const handelGetAllTableData = async () => {
     const tableData = await getAllTableRowData(serverUrl, tableId);
-
-    if (tableData.length === 0) {
+  console.log("at handelGetAllTableData the tableData.length:", tableData.length)  
+    if (tableData.length < 1) {
       //if the table is empty, start it with 3 new rows
       const newRows = await Promise.all(
-        Array.from({ length: 3 }, () => createNewRowData(serverUrl, tableId))
+        Array.from({ length: 2 }, () => createNewRowData(serverUrl, tableId))
       );
       setData(newRows);
       setVisibleData(newRows);
@@ -472,7 +472,7 @@ export function TableDataCopyTest() {
     } catch (error) {
       console.error("Error:", (error as Error).message);
     }
-  };
+  }; 
 
   const handleUpdateFieldsOrder = (newFieldsOrder: string[]) => {
     updateTableFieldsOrder(tableId, newFieldsOrder);
@@ -491,6 +491,7 @@ export function TableDataCopyTest() {
     // Table Meta allow to pass arbitrary data or fun' to the table and store metadata about the table and its data.
     meta: {
       updateData: (rowIndex: number | null, field: string, value: any) => {
+        
         if (rowIndex === null) {
           // Update the header
           if (field.startsWith("newColumn")) {

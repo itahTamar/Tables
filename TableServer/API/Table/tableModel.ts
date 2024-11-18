@@ -3,39 +3,39 @@ import mongoose from "mongoose";
 
 // Define the User interface
 export interface ITable extends Document {
-  fieldOfInterest: string;
+  columnOfInterest: string;
   dateCreated: Date;
   creator: string;
-  fieldsOrder: string[];
+  columnsOrder: string[];
 }
 export class Table {
-  fieldOfInterest: string;
+  columnOfInterest: string;
   dateCreated: Date;
   creator: string;
-  fieldsOrder: string[];
+  columnsOrder: string[];
 
   constructor({
-    fieldOfInterest,
+    columnOfInterest,
     creator,
-    fieldsOrder = [ "details", "dataLink", "price", "dateCreated"],
+    columnsOrder = [ "details", "dataLink", "price", "dateCreated"],
   }: {
-    fieldOfInterest: string;
+    columnOfInterest: string;
     creator: string;
-    fieldsOrder: string[];
+    columnsOrder: string[];
   }) {
-    this.fieldOfInterest = fieldOfInterest;
+    this.columnOfInterest = columnOfInterest;
     this.dateCreated = new Date();
     this.creator = creator;
-    this.fieldsOrder = fieldsOrder;
+    this.columnsOrder = columnsOrder;
   }
 }
 
 //define a schema (It is like interface in typescript)
 export const tableSchema = new mongoose.Schema<ITable>({
-  fieldOfInterest: { type: String, required: true, unique: true },
+  columnOfInterest: { type: String, required: true, unique: true },
   dateCreated: { type: Date, default: Date.now }, //set the current date
   creator: String,
-  fieldsOrder: {
+  columnsOrder: {
     type: [String],
     default: ["index", "dateCreated", "details", "dataLink", "price"],
   },

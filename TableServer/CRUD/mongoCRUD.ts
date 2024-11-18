@@ -1,6 +1,7 @@
 import mongoose, { Model, Document } from "mongoose";
 import { ObjectId } from "mongodb";
-import { ITableDataDocument, MyJoinCollection } from "../API/Data/dataModel";
+import { ITableColumnDocument, MyJoinTCCollection } from "../API/Column/columnModel";
+import { IColumnCellDocument, MyJoinCRCollection } from "../API/Row/rowModel";
 export interface JoinDocument {
   item1ID: ObjectId;
   item2ID: ObjectId;
@@ -26,10 +27,10 @@ export const saveDataToMongoDB = async (data: any) => {
 
 //only for join collection
 export const createAndSaveDataToMongoDB = async <
-  T extends MyDocument<ITableDataDocument>>(
-  modelName: Model<MyJoinCollection<T>>,
+  T extends MyDocument<ITableColumnDocument> | MyDocument<IColumnCellDocument>>(
+  modelName: Model<MyJoinTCCollection<T> | MyJoinCRCollection<T>>,
   library1Name: string, // name of first library (e.g: tableId)
-  library2Name: string, // name of second library (e,g: allDataId)
+  library2Name: string, // name of second library (e,g: columnId)
   item1ID: ObjectId, // object from first library 
   item2ID: ObjectId // object from second library 
 ) => {
@@ -214,3 +215,4 @@ export const deleteManyDataFromMongoDB = async <T extends Document>(
     return { ok: false, error: error.message };
   }
 }; //work ok
+
