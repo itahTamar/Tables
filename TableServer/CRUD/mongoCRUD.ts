@@ -26,7 +26,7 @@ export const saveDataToMongoDB = async (data: any) => {
 }; //work ok
 
 //only for join collection
-export const createAndSaveDataToMongoDB = async <
+export const createAndSaveJoinDataToMongoDB = async <
   T extends MyDocument<ITableColumnDocument> | MyDocument<IColumnCellDocument>>(
   modelName: Model<MyJoinTCCollection<T> | MyJoinCRCollection<T>>,
   library1Name: string, // name of first library (e.g: tableId)

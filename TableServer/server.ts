@@ -29,12 +29,8 @@ import userRoute from "./API/User/userRoute";
 app.use("/api/users", userRoute);
 
 // get router from rowModel
-import rowRoutes  from "./API/Row/rowRoutes";
-app.use("/api/data", rowRoutes);
-
-// get router from columnModel
-import columnRoutes  from "./API/Row/rowRoutes";
-app.use("/api/column", columnRoutes);
+import cellRoutes  from "./API/Cell/cellRoutes";
+app.use("/api/cell", cellRoutes);
 
 import tableRoutes from "./API/Table/tableRoutes";
 app.use("/api/tables", tableRoutes)

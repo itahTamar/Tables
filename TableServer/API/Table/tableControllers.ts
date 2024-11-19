@@ -6,10 +6,7 @@ import {
   getOneDataFromMongoDB,
   saveDataToMongoDB,
 } from "../../CRUD/mongoCRUD";
-import { TableColumnModel } from "../Column/columnModel";
-import { DataModel, TableDataModel } from "../Row/rowModel";
-import { TableModel } from "./tableModel";
-import jwt from "jwt-simple";
+import { TableModel } from "./newTableModel";
 
 // add table
 export async function addNewTable(req: any, res: any) {
