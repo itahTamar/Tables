@@ -1,0 +1,2 @@
+branch from 18.11.24
+this is the branch were I try to change the structure of the DB.
