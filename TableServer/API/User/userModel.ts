@@ -1,4 +1,4 @@
-import { Document, Model, Schema, model } from 'mongoose';
+import { Document, Model, ObjectId, Schema, model } from 'mongoose';
 import mongoose from 'mongoose';
 
 // Define the User interface
@@ -10,7 +10,6 @@ export interface IUser extends Document {
 export class User {
   password: string;
   role: string;
-  id: string;
   email: string;
 
   constructor({ userName, password}: { userName: string, password: string }) {
@@ -33,10 +32,10 @@ export const userSchema = new mongoose.Schema<IUser>({
 
 // Create the UserModel and extend it with custom methods
 export interface IUserModel extends Model<IUser> {
-  findOneAndUpdateDataOnMongoDB(filter: Record<string, any>, update: Record<string, any>): Promise<any>;
+  updateDataOnMongoDB(filter: Record<string, any>, update: Record<string, any>): Promise<any>;
 }
 
-export const UserModel = model<IUser, IUserModel>("users", userSchema)
+export const UserModel: IUserModel = model<IUser, IUserModel>("users", userSchema)
 
 export const users: User[] = [];
 

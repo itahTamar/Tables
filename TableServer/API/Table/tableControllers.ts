@@ -1,39 +1,45 @@
 import {
+  addDataToMongoDB,
+  addFieldToSchemaAndMongoDB,
+  deleteFieldFromSchemaAndMongoDB,
   deleteManyDataFromMongoDB,
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
-  getOneDataFromJoinCollectionInMongoDB,
   getOneDataFromMongoDB,
-  saveDataToMongoDB,
-} from "../../CRUD/mongoCRUD";
-import { TableModel } from "./newTableModel";
+  updateDataOnMongoDB,
+} from "../../mongoCRUD/mongoCRUD";
+import { CellModel, TableCellModel } from "../Cell/cellModel";
+import { isItemExist } from "../helpFunctions";
+import { getAllTablesCells } from "../TableCell/tableCellControllers";
+import { TableModel } from "./tableModel";
 
+//!create
 // add table
-export async function addNewTable(req: any, res: any) {
+export async function addTable(req: any, res: any) {
   try {
     console.log("addNewTable():");
-    const { fieldOfInterest, creator } = req.body;
+    const { tableName } = req.body;
     console.log(
-      "At tableControllers/addTable the fieldOfInterest:",
-      fieldOfInterest
+      "At tableControllers/addTable the tableName:",
+      tableName
     );
-    console.log("At tableControllers/addTable the creator:", creator);
 
-    if (!fieldOfInterest || !creator)
+    if (!tableName)
       throw new Error(
-        "At tableControllers/addTable missing fieldOfInterest and/or creator"
+        "At tableControllers/addTable missing tableName"
       );
 
-    const isExist = await isTableExist(fieldOfInterest)  
-    if (isExist) return res.send({ok: false, massage: "Table Exist in DB"})
-    
+    //@ts-ignore
+    const isExist = await isItemExist(TableModel, {tableName});
+    if (isExist) return res.send({ ok: false, massage: "Table Exist in DB" });
+
     // Create the new Table document
-    const newTable = new TableModel({ fieldOfInterest, creator });
+    const newTable = new TableModel({ tableName });
 
     console.log("At tableControllers/addTable the newTable:", newTable);
 
     // Save the new Table to MongoDB
-    const response = await saveDataToMongoDB(newTable);
+    const response = await addDataToMongoDB(newTable);
     console.log("At tableControllers/addTable the response:", response);
     if (!response.ok)
       throw new Error(
@@ -47,63 +53,39 @@ export async function addNewTable(req: any, res: any) {
     console.error("Error in addNewTable:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-} //work ok
+} //
 
-// get all table data
-export async function getAllTableRowsAndColumns(req: any, res: any) {
+export async function addTableField(req: any, res: any) {
   try {
-    const tableID = req.params.tableId;
+    const { fieldName } = req.body.fieldName;
+    if (!fieldName) throw new Error("At addUserField no fieldName found");
 
-    if (!tableID) {
-      return res.status(400).json({
-        message: "table data from cookie are not found in cookie",
-      });
-    }
-
-    // const tableColumnsData = await getAllDataFromMongoDB(TableColumnModel, {
-    //   tableId: tableID,
-    // });
-    // if (!tableRowData.ok) throw new Error(tableRowData.error);
-    // console.log(
-    //   "At tableControllers/tableRowData the tableRowData:",
-    //   tableRowData
-    // );
-
-    //@ts-ignore
-    // const tableRowDataArray: ITableDataDocument[] = tableRowData.response;
-    // console.log(
-    //   "At tableControllers/tableRowData the tableRowDataArray:",
-    //   tableRowDataArray
-    // );
-
-    const allTableColumnArray = await tableColumnArray.map((e) =>
-      getOneDataFromJoinCollectionInMongoDB(DataModel, e.dataId)
-    );
-    console.log(
-      "At tableControllers/tableRowData the allTableRowDataArray:",
-      allTableRowDataArray
-    );
-
-    const allTableRowData = await Promise.all(
-      allTableRowDataArray.map(async (promise) => await promise)
-    );
-    console.log(
-      "At tableControllers/tableRowData the allTableRowData:",
-      allTableRowData
-    );
-
-    const extractedResponses = allTableRowData.map((e) => e.response);
-    console.log(
-      "At tableControllers/tableRowData the extractedResponses:",
-      extractedResponses
-    );
-
-    res.send({ ok: true, rowsData: extractedResponses });
+    await addFieldToSchemaAndMongoDB(TableModel, fieldName, " ");
+    res.send({ ok: true, massage: "documents were updated with the field" });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ ok: false, error: error.message });
+    res.send({ error });
   }
-} //work ok
+} //
+
+//!read
+//get one table
+export async function getTable(req: any, res: any) {
+  try {
+    const tableId = req.params.tableId;
+    if (!tableId) throw new Error("at getTable no tableId found");
+
+    const table = await getOneDataFromMongoDB(TableModel, tableId);
+
+    if (table.ok) {
+      res.send(table.response); //return the table data
+    } else {
+      res.send(table.ok); //return false
+    }
+  } catch (error) {
+    console.error(error);
+  }
+} //
 
 // get all tables (for all users!)
 export async function getAllTables(req: any, res: any) {
@@ -117,27 +99,62 @@ export async function getAllTables(req: any, res: any) {
   }
 } //work ok
 
-// delete table
+//!update
+export async function updateTableFieldsValue(req: any, res: any) {
+  try {
+    const { oldValues, newValues } = req.body;
+    if (!oldValues || !newValues) throw new Error("please fill all");
+    console.log("At updateTableFieldValue the oldValues:", oldValues);
+    console.log("At updateTableFieldValue the newValues:", newValues);
+
+    const updatedTable = await updateDataOnMongoDB(
+      TableModel,
+      { filter: oldValues }, //search the doc by the oldValue
+      {
+        //update the newValues
+        update: newValues,
+      }
+    );
+    console.log("At updateTableFieldValue the updatedTable:", updatedTable);
+
+    res.send({ ok: true, updatedTable });
+  } catch (error) {
+    console.error(error);
+    res.send({ error });
+  }
+} //
+
+//!delete
+//delete all table records (table, cells, tableCell)
 export async function deleteTable(req: any, res: any) {
   try {
     const tableID = req.params.tableId;
-    const fieldOfInterest = req.params.fieldOfInterest;
 
-    if (!tableID || !fieldOfInterest) {
+    if (!tableID) {
       return res.status(400).json({
         message: "at deleteTable - not found params",
       });
     }
+
+    const tableCells = await getAllTablesCells(tableID, res);
+    if (!tableCells.ok) throw new Error("failed getting table's cells");
+    console.log(
+      "At tableControllers/deleteTable the tableCells is:",
+      tableCells
+    );
+
     const ok =
-      (await deleteOneDataFromMongoDB(TableDataModel, tableID)) &&
+      (await deleteManyDataFromMongoDB(TableCellModel, tableID)) &&
       (await deleteOneDataFromMongoDB(TableModel, tableID));
 
-    const ok2 = await deleteManyDataFromMongoDB(DataModel, fieldOfInterest)
+    const ok2 = await tableCells.map((e) =>
+      deleteOneDataFromMongoDB(CellModel, e.cellId)
+    );
 
     if (ok && ok2.ok) {
       res.send({
         ok: true,
-        massage: "the table and data and the join deleted from DB",
+        massage: "the table and her cell and the join deleted from DB",
       });
     } else {
       res.send({
@@ -148,20 +165,20 @@ export async function deleteTable(req: any, res: any) {
   } catch (error) {
     console.error(error, "at tableControllers/deleteTable - deleted failed");
   }
-} //work ok
+} //
 
-export async function isTableExist(fieldOfInterest) {
+export async function deleteTableField(req: any, res: any) {
   try {
-    console.log("isTableExist function");
-    console.log("At isTableExist fieldOfInterest:", fieldOfInterest);
-    const dataDB = await getOneDataFromMongoDB<any>(TableModel, {
-      fieldOfInterest: fieldOfInterest,
+    const { fieldName } = req.body.fieldName;
+    if (!fieldName) throw new Error("At addUserField no fieldName found");
+
+    await deleteFieldFromSchemaAndMongoDB(TableModel, fieldName);
+    res.send({
+      ok: true,
+      massage: "field successfully deleted from all documents",
     });
-    console.log("At isTableExist dataDB:", dataDB);
-    console.log("At isTableExist dataDB.ok:", dataDB.ok);
-    return dataDB.ok;
   } catch (error) {
     console.error(error);
-    return error;
+    res.send({ error });
   }
-} //work ok
+} //

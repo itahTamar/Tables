@@ -1,3 +1,5 @@
+//! Do not use this function (it works) because it causes severe disruptions in the DB
+
 import mongoose, { Model, Schema, UpdateQuery } from 'mongoose';
 
 export async function renameFieldInSchemaAndDB<T>(
@@ -38,5 +40,3 @@ export async function renameFieldInSchemaAndDB<T>(
     console.error(`Error renaming field from "${String(oldFieldName)}" to "${String(newFieldName)}":`, err);
   }
 }
-
-//! Do not use this function (it works) because it causes severe disruptions in the DB

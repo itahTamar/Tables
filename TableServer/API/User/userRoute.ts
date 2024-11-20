@@ -1,12 +1,12 @@
 import express from 'express'
-import { registerUser, login, resetPassword, updateUserDetails, deleteUser  } from './userCont';
+import { addUser, connectUser, deleteUser, resetUserPassword, updateUserFieldValue  } from './userCont';
 const router = express.Router();
 
 router
-    .post('/login',login)
-    .post("/register", registerUser)
-    .post("/resetPassword", resetPassword)
-    .patch("/updateUserDetails", updateUserDetails)
+    .post('/login',connectUser)
+    .post("/register", addUser)
+    .post("/resetPassword", resetUserPassword)
+    .patch("/updateUserDetails", updateUserFieldValue)
     .delete("/deleteUser", deleteUser)
   
 export default router;

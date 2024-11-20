@@ -6,7 +6,7 @@ const connectionMongo = mongoose
   .connect(mongodb_uri)
   .then(() => {
     console.info("MongoDB connected");
-    // addFieldToUsers("role", "user");  //update my user DB with a new field
+    // addFieldToSchemaAndMongoDB("field's name", "value");  //update a collection DB with a new field
   })
   .catch((err) => {
     console.error(err);
