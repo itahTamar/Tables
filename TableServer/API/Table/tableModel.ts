@@ -14,7 +14,6 @@ export class Table {
     tableName,
   }: {
     tableName: string;
-    creator: string;
   }) {
     this.tableName = tableName;
     this.dateCreated = new Date();

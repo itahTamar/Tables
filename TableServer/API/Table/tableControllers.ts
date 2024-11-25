@@ -8,9 +8,10 @@ import {
   getOneDataFromMongoDB,
   updateDataOnMongoDB,
 } from "../../mongoCRUD/mongoCRUD";
-import { CellModel, TableCellModel } from "../Cell/cellModel";
+import { CellModel } from "../Cell/cellModel";
 import { isItemExist } from "../helpFunctions";
-import { getAllTablesCells } from "../TableCell/tableCellControllers";
+import { getAllTablesColumns } from "./Column/TablesColumns/tablesColumnControllers";
+import { TableColumnModel } from "./Column/TablesColumns/tablesColumnModel";
 import { TableModel } from "./tableModel";
 
 //!create
@@ -136,7 +137,7 @@ export async function deleteTable(req: any, res: any) {
       });
     }
 
-    const tableCells = await getAllTablesCells(tableID, res);
+    const tableCells = await getAllTablesColumns(tableID, res);
     if (!tableCells.ok) throw new Error("failed getting table's cells");
     console.log(
       "At tableControllers/deleteTable the tableCells is:",
@@ -144,7 +145,7 @@ export async function deleteTable(req: any, res: any) {
     );
 
     const ok =
-      (await deleteManyDataFromMongoDB(TableCellModel, tableID)) &&
+      (await deleteManyDataFromMongoDB(TableColumnModel, tableID)) &&
       (await deleteOneDataFromMongoDB(TableModel, tableID));
 
     const ok2 = await tableCells.map((e) =>
