@@ -126,7 +126,7 @@ export const getOneDataFromMongoDB = async <T extends Document>(
 }; //work ok
 
 //!update:
-//find and update - can pass multiple fields for updating.
+//find one document and update - can pass multiple fields for updating.
 export const updateDataOnMongoDB = async <T extends Document>(
   modelName: Model<T>, // Generic model passed to the function
   filter: Record<string, any>, // Filter criterion (e.g., email, ID, etc.) - how to find the document

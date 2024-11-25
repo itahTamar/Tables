@@ -23,7 +23,7 @@ interface UserTableDocument extends Document {
 //add Column to table
 export async function addUsersTable(req: any, res: any) {
   try {
-    const userID = req.params.tableId;
+    const userID = req.params.userID;
 
     if (!userID) {
       return res.status(400).json({

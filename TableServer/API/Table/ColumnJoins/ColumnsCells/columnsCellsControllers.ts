@@ -12,9 +12,9 @@ import { ColumnsCellsModel } from "./columnsCellsModel";
 //add Cell to Column
 export async function addColumnsCell(req: any, res: any) {
   try {
-    const ColumnID = req.params.ColumnId;
+    const columnID = req.params.columnID;
 
-    if (!ColumnID) {
+    if (!columnID) {
       return res.status(400).json({
         message: "Column data from cookie are not found in cookie",
       });
@@ -27,7 +27,7 @@ export async function addColumnsCell(req: any, res: any) {
     const response1 = await addDataToMongoDB(newCell)
 
     //create the new join document
-    const newJoin = new ColumnsCellsModel(ColumnID, newCell._id)
+    const newJoin = new ColumnsCellsModel(columnID, newCell._id)
     console.log("At addColumnsCell the newJoin:", newJoin);
 
     const response2 = await addDataToMongoDB(newJoin)
@@ -44,19 +44,19 @@ export async function addColumnsCell(req: any, res: any) {
 } //
 
 //!read
-// get all
+// get all 
 export async function getAllColumnsCells(req: any, res: any) {
   try {
-    const ColumnID = req.params.ColumnId;
+    const columnID = req.params.columnID;
 
-    if (!ColumnID) {
+    if (!columnID) {
       return res.status(400).json({
         message: "Column data from cookie are not found in cookie",
       });
     }
     //get the join data
     const ColumnCellsData = await getAllDataFromMongoDB(ColumnsCellsModel, {
-      ColumnId: ColumnID,
+      columnID: columnID,
     });
     if (!ColumnCellsData.ok) throw new Error(ColumnCellsData.error);
     console.log(
@@ -105,22 +105,22 @@ export async function getAllColumnsCells(req: any, res: any) {
 //delete the Column's Cells and join - An empty Column remains
 export async function deleteColumnsCells(req: any, res: any) {
   try {
-    const ColumnID = req.params.ColumnId;
+    const columnID = req.params.columnID;
 
-    if (!ColumnID) {
+    if (!columnID) {
       return res.status(400).json({
         message: "at deleteColumn - not found params",
       });
     }
 
-    const ColumnCells = await getAllColumnsCells(ColumnID, res);
+    const ColumnCells = await getAllColumnsCells(columnID, res);
     if (!ColumnCells.ok) throw new Error("failed getting Column's Cells");
     console.log(
       "At ColumnControllers/deleteColumn the ColumnCells is:",
       ColumnCells
     );
 
-    const ok = await deleteManyDataFromMongoDB(ColumnsCellsModel, ColumnID);
+    const ok = await deleteManyDataFromMongoDB(ColumnsCellsModel, columnID);
 
     const ok2 = await ColumnCells.map((e) =>
       deleteOneDataFromMongoDB(CellModel, e.CellId)

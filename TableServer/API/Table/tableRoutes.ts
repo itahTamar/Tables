@@ -1,10 +1,13 @@
 import  express  from 'express';
-import { addTable, deleteTable, getAllTables } from './tableControllers';
+import { addTable, addTableField, deleteTable, deleteTableField, getTable, updateTableFieldsValue } from './tableControllers';
 const router = express.Router();
 
 router
-.post('/addNewTable', addTable)
-.get('/getAllTables', getAllTables)
+.post('/addTable', addTable)
+.post('/addTableField',addTableField)
+.get('/getTable/:tableId',getTable)
+.patch('/updateTableFieldsValue/tableID:',updateTableFieldsValue)
 .delete('/deleteTable/:tableId/:fieldOfInterest', deleteTable)
+.delete('/deleteTableField',deleteTableField)
 
 export default router;

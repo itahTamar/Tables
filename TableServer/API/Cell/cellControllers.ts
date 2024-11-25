@@ -8,10 +8,11 @@ import {
     getOneDataFromMongoDB,
     updateDataOnMongoDB,
   } from "../../mongoCRUD/mongoCRUD";
-  import { CellModel } from "../Cell/cellModel";
+  import { CellModel } from "./cellModel";
+import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCellsModel";
   
   //!create
-  // add cell with no connection (no join)
+  // add cell with no connection (no join) - useless
   export async function addCell(req: any, res: any) {
     try {
       console.log("addCell:");
@@ -36,7 +37,7 @@ import {
       console.error("Error in addCell:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  } //
+  } // not in use
   
   export async function addCellField(req: any, res: any) {
     try {
@@ -70,7 +71,7 @@ import {
     }
   } //
   
-  // get all cells (from all DB!)
+  // get all cells (from all DB!) - useless
   export async function getAllCells(req: any, res: any) {
     try {
       console.log("getAllCells function");
@@ -80,75 +81,77 @@ import {
     } catch (error) {
       console.error(error);
     }
-  } //
+  } // not in use
   
   //!update
   export async function updateCellFieldsValue(req: any, res: any) {
     try {
-      const { oldValues, newValues } = req.body;
-      if (!oldValues || !newValues) throw new Error("please fill all");
-      console.log("At updateCellFieldsValue the oldValues:", oldValues);
-      console.log("At updateCellFieldsValue the newValues:", newValues);
+      const dataID = req.params.cellID;
+      if (!dataID) throw new Error("no Data id in params updateData");
+      console.log("at dataControllers/updateFieldByDataId the DataID:", dataID);
   
-      const updatedCell = await updateDataOnMongoDB(
-        CellModel,
-        { filter: oldValues }, //search the doc by the oldValue
-        {
-          //update the newValues
-          update: newValues,
-        }
+      const { field } = req.body;
+      console.log("at dataControllers/updateFieldByDataId the field:", field); //ok
+  
+      const { updateData } = req.body;
+      console.log("at dataControllers/updateFieldByDataId the updateData:", updateData); //ok
+      if (!field || updateData == undefined)
+        throw new Error("missing data required field or updateData");
+  
+      const updateFieldData = { [field]: updateData };
+      console.log(
+        "at dataControllers/updateFieldByDataId the updateFieldData:",
+        updateFieldData
       );
-      console.log("At updateCellFieldsValue the updatedCell:", updatedCell);
   
-      res.send({ ok: true, updatedCell });
+      //find the Data in DB by Data_id and update the require field
+      const DataExistAndUpdate = await updateDataOnMongoDB(
+        CellModel,
+        { _id: dataID },
+        updateFieldData
+      );
+      console.log(
+        "at dataControllers/updateFieldByDataId the DataExistAndUpdate",
+        DataExistAndUpdate
+      );
+      res.send(DataExistAndUpdate);
     } catch (error) {
       console.error(error);
-      res.send({ error });
+      res.status(500).send({ error: error.message });
     }
   } //
   
   //!delete
-  //delete cell and its join by id
+  //delete cell and its join by id -useless
   export async function deleteCell(req: any, res: any) {
-    // try {
-    //   const cellID = req.params.cellId;
+    try {
+      const cellID = req.params.cellId;
   
-    //   if (!cellID) {
-    //     return res.status(400).json({
-    //       message: "at deleteCell - not found params",
-    //     });
-    //   }
+      if (!cellID) {
+        return res.status(400).json({
+          message: "at deleteCell - not found params",
+        });
+      }
   
-    //   const tableCells = await getAllTablesCells(tableID, res);
-    //   if (!tableCells.ok) throw new Error("failed getting table's cells");
-    //   console.log(
-    //     "At deleteCell the tableCells is:",
-    //     tableCells
-    //   );
-  
-    //   const ok =
-    //     (await deleteManyDataFromMongoDB(TableCellModel, tableID)) &&
-    //     (await deleteOneDataFromMongoDB(TableModel, tableID));
-  
-    //   const ok2 = await tableCells.map((e) =>
-    //     deleteOneDataFromMongoDB(CellModel, e.cellId)
-    //   );
-  
-    //   if (ok && ok2.ok) {
-    //     res.send({
-    //       ok: true,
-    //       massage: "the table and her cell and the join deleted from DB",
-    //     });
-    //   } else {
-    //     res.send({
-    //       ok: false,
-    //       massage: "problem in deleted table or data or join from DB",
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error(error, "at tableControllers/deleteTable - deleted failed");
-    // }
-  } //
+      const ok =
+        (await deleteOneDataFromMongoDB(ColumnsCellsModel, cellID)) &&
+        (await deleteOneDataFromMongoDB(CellModel, cellID));
+    
+      if (ok) {
+        res.send({
+          ok: true,
+          massage: "the cell and it join deleted from DB",
+        });
+      } else {
+        res.send({
+          ok: false,
+          massage: "problem in deleted table or data or join from DB",
+        });
+      }
+    } catch (error) {
+      console.error(error, "at tableControllers/deleteTable - deleted failed");
+    }
+  } // not in use
   
   export async function deleteCellsField(req: any, res: any) {
     try {

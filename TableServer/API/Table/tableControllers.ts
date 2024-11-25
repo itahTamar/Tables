@@ -10,8 +10,8 @@ import {
 } from "../../mongoCRUD/mongoCRUD";
 import { CellModel } from "../Cell/cellModel";
 import { isItemExist } from "../helpFunctions";
-import { getAllTablesColumns } from "./Column/TablesColumns/tablesColumnControllers";
-import { TableColumnModel } from "./Column/TablesColumns/tablesColumnModel";
+import { getAllTablesColumns } from "./ColumnJoins/TablesColumns/tablesColumnControllers";
+import { TableColumnModel } from "./ColumnJoins/TablesColumns/tablesColumnModel";
 import { TableModel } from "./tableModel";
 
 //!create
@@ -56,6 +56,7 @@ export async function addTable(req: any, res: any) {
   }
 } //
 
+//add new field to all table's documents
 export async function addTableField(req: any, res: any) {
   try {
     const { fieldName } = req.body.fieldName;
@@ -88,7 +89,7 @@ export async function getTable(req: any, res: any) {
   }
 } //
 
-// get all tables (for all users!)
+// get all tables (for all users!) - useless
 export async function getAllTables(req: any, res: any) {
   try {
     console.log("getAllTables function");
@@ -98,30 +99,43 @@ export async function getAllTables(req: any, res: any) {
   } catch (error) {
     console.error(error);
   }
-} //work ok
+} //not in use
 
 //!update
 export async function updateTableFieldsValue(req: any, res: any) {
   try {
-    const { oldValues, newValues } = req.body;
-    if (!oldValues || !newValues) throw new Error("please fill all");
-    console.log("At updateTableFieldValue the oldValues:", oldValues);
-    console.log("At updateTableFieldValue the newValues:", newValues);
+    const dataID = req.params.tableID;
+    if (!dataID) throw new Error("no Data id in params updateData");
+    console.log("at dataControllers/updateFieldByDataId the DataID:", dataID);
 
-    const updatedTable = await updateDataOnMongoDB(
-      TableModel,
-      { filter: oldValues }, //search the doc by the oldValue
-      {
-        //update the newValues
-        update: newValues,
-      }
+    const { field } = req.body;
+    console.log("at dataControllers/updateFieldByDataId the field:", field); //ok
+
+    const { updateData } = req.body;
+    console.log("at dataControllers/updateFieldByDataId the updateData:", updateData); //ok
+    if (!field || updateData == undefined)
+      throw new Error("missing data required field or updateData");
+
+    const updateFieldData = { [field]: updateData };
+    console.log(
+      "at dataControllers/updateFieldByDataId the updateFieldData:",
+      updateFieldData
     );
-    console.log("At updateTableFieldValue the updatedTable:", updatedTable);
 
-    res.send({ ok: true, updatedTable });
+    //find the Data in DB by Data_id and update the require field
+    const DataExistAndUpdate = await updateDataOnMongoDB(
+      TableModel,
+      { _id: dataID },
+      updateFieldData
+    );
+    console.log(
+      "at dataControllers/updateFieldByDataId the DataExistAndUpdate",
+      DataExistAndUpdate
+    );
+    res.send(DataExistAndUpdate);
   } catch (error) {
     console.error(error);
-    res.send({ error });
+    res.status(500).send({ error: error.message });
   }
 } //
 

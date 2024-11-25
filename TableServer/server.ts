@@ -24,23 +24,32 @@ app.use(cookieParser())
 import connectionMongo from "./DBConnection/mongoDB";
 
 //API routes
-// get router from usersRouter
-import userRoute from "./API/User/userRoute";
-app.use("/api/users", userRoute);
+import userRoutes from "./API/User/userRoutes";
+app.use("/api/users", userRoutes);
 
-// get router from rowModel
+import usersTablesRoutes from "./API/UsersTables/usersTablesRoutes";
+app.use("/api/usersTables", usersTablesRoutes);
+
 import cellRoutes  from "./API/Cell/cellRoutes";
 app.use("/api/cell", cellRoutes);
 
 import tableRoutes from "./API/Table/tableRoutes";
 app.use("/api/tables", tableRoutes)
 
+import columnsCellsRoutes from "./API/Table/ColumnJoins/ColumnsCells/columnsCellsRoutes";
+app.use("/api/columnsCells", columnsCellsRoutes)
+
+import tablesColumnsRoutes from "./API/Table/ColumnJoins/TablesColumns/tablesColumnsRoutes";
+app.use("/api/TablesColumns", tablesColumnsRoutes)
+
 // Route for sending recovery email
-import { isEmailExist } from "./API/User/userCont";
+import { isItemExist } from "./API/helpFunctions";
+import { UserModel } from "./API/User/userModel";
 app.post("/send_recovery_email", async (req: Request, res: Response) => {
   try { 
     const email = req.body.recipient_email
-    const emailExists = await isEmailExist(email);  // Await the async function
+    //@ts-ignore
+    const emailExists = await isItemExist(UserModel,email);  // Await the async function
     if (emailExists) {
       sendEmail(req.body)
       .then((response) => res.send(response))
