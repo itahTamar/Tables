@@ -1,6 +1,6 @@
-const router = express.Router();
-import { express } from 'express';
+import express from 'express';
 import { addCellField, deleteCellsField, getCell, updateCellFieldsValue } from './cellControllers';
+const router = express.Router();
 
 router
   .post('/addCellField',addCellField)

@@ -10,6 +10,7 @@ import {
 } from "../../mongoCRUD/mongoCRUD";
 import { isItemExist } from "../helpFunctions";
 import { UserModel } from "./userModel";
+import mongoose from "mongoose";
 
 const { JWT_SECRET } = process.env;
 const secret = JWT_SECRET;
@@ -50,9 +51,10 @@ export const addUser = async (req: any, res: any) => {
   }
 }; //work ok
 
+//add new field to all users
 export async function addUserField(req: any, res: any) {
   try {
-    const { fieldName } = req.body.fieldName;
+    const fieldName = req.body.fieldName;
     if (!fieldName) throw new Error("At addUserField no fieldName found");
 
     await addFieldToSchemaAndMongoDB(UserModel, fieldName, " ");
@@ -61,13 +63,13 @@ export async function addUserField(req: any, res: any) {
     console.error(error);
     res.send({ error });
   }
-} //
+} //work ok
 
 //!read
 //get one user
 export async function getUser(req: any, res: any) {
   try {
-    const userId = req.params.userId;
+    const userId = new mongoose.Types.ObjectId(String(req.params.userId));
     if (!userId) throw new Error("at getUser no userId found");
 
     const user = await getOneDataFromMongoDB(UserModel, userId);
@@ -80,7 +82,7 @@ export async function getUser(req: any, res: any) {
   } catch (error) {
     console.error(error);
   }
-} //
+} //work ok
 
 // get all users
 export async function getAllUsers(req: any, res: any) {
@@ -92,34 +94,37 @@ export async function getAllUsers(req: any, res: any) {
   } catch (error) {
     console.error(error);
   }
-} //
+} //not in use
 
 //!update 
 export async function updateUserFieldsValue(req: any, res: any) {
   try {
-    const { oldValues, newValues } = req.body;
-    if (!oldValues || !newValues) throw new Error("please fill all");
-    console.log("At updateUserFieldsValue the oldValues:", oldValues);
-    console.log("At updateUserFieldsValue the newValues:", newValues);
+    const userID = req.params.userID;
+    if (!userID) throw new Error("no word id in params updateWord");
+    console.log("at updateUserFieldsValue the userID:", userID);
 
-    const updatedTable = await updateDataOnMongoDB(
-      UserModel,
-      { filter: oldValues }, //search the doc by the oldValue
-      {
-        //update the newValues
-        update: newValues,
-      }
-    );
-    console.log("At updateUserFieldsValue the updatedTable:", updatedTable);
+    const { field } = req.body;
+    console.log("at updateUserFieldsValue the field:", field); //ok
 
-    res.send({ ok: true, updatedTable });
+    const { updateData } = req.body;
+
+    if (!field || !updateData) throw new Error("missing data required field or updateData");
+
+    const update = {[field]: updateData}
+    console.log("at updateUserFieldsValue the update:", update);
+    
+    //find the word in DB by word_id and update the require field
+    const newUpdated = await updateDataOnMongoDB(UserModel, { _id: userID }, update)
+    console.log("at updateUserFieldsValue the newUpdated", newUpdated)
+      res.send(newUpdated); 
   } catch (error) {
     console.error(error);
-    res.send({ error });
+    res.status(500).send({ error: error.message });
   }
-} //
+} // work ok
 
 //!delete
+//delete user by email and password
 export async function deleteUser(req: any, res: any) {
   try {
     const { email, password } = req.body;
@@ -146,10 +151,11 @@ export async function deleteUser(req: any, res: any) {
   }
 } //work ok
 
+//delete field from all users
 export async function deleteUserField(req: any, res: any) {
   try {
-    const { fieldName } = req.body.fieldName;
-    if (!fieldName) throw new Error("At addUserField no fieldName found");
+    const fieldName = req.body.fieldName;
+    if (!fieldName) throw new Error("At deleteUserField no fieldName found");
 
     await deleteFieldFromSchemaAndMongoDB(UserModel, fieldName);
     res.send({
@@ -160,7 +166,7 @@ export async function deleteUserField(req: any, res: any) {
     console.error(error);
     res.send({ error });
   }
-} //
+} //work ok
 
 //! uniq functions for users
 //update email and password 

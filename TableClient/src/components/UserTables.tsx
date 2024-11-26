@@ -23,14 +23,14 @@ const UserTables: React.FC = () => {
     } else {
       setFilteredTables(
         tables.filter((table) =>
-          table.fieldOfInterest.toLowerCase().includes(results[0].toLowerCase())
+          table.tableName.toLowerCase().includes(results[0].toLowerCase())
         )
       );
     }
   };
 
-  const handleCardClick = (tableId: string, fieldsOrder: string[]) => {
-    navigate(`/table/${tableId}`, { state: { fieldsOrder: fieldsOrder } }); // Navigate to table detail
+  const handleCardClick = (tableId: string) => {
+    navigate(`/table/${tableId}`); // Navigate to table detail
   };
 
   return (
@@ -43,10 +43,10 @@ const UserTables: React.FC = () => {
         {(filteredTables.length > 0 ? filteredTables : tables).map((table) => (
           <div
             key={table._id}
-            onClick={() => handleCardClick(table._id, table.fieldsOrder)}
+            onClick={() => handleCardClick(table._id)}
             className="border border-gray-300 p-4 rounded-lg cursor-pointer text-center"
           >
-            <h3>{table.fieldOfInterest}</h3>
+            <h3>{table.tableName}</h3>
           </div>
         ))}
       </div>

@@ -7,13 +7,13 @@ export async function isItemExist<T extends Document>(
     item: Partial<T>
   ): Promise<boolean> {
     try {
-      console.log("isDataExist function");
-      console.log("At isDataExist item:", item);
+      console.log("isItemExist function");
+      console.log("At isItemExist item:", item);
       const dataDB = await getOneDataFromMongoDB<any>(modelName, {
         filterCriteria: item,
       });
-      console.log("At isDataExist dataDB:", dataDB);
-      console.log("At isDataExist dataDB.ok:", dataDB.ok);
+      console.log("At isItemExist dataDB:", dataDB);
+      console.log("At isItemExist dataDB.ok:", dataDB.ok);
       return dataDB.ok;
     } catch (error) {
       console.error(error);
@@ -21,4 +21,3 @@ export async function isItemExist<T extends Document>(
     }
   }
 
-  

@@ -31,7 +31,7 @@ import usersTablesRoutes from "./API/UsersTables/usersTablesRoutes";
 app.use("/api/usersTables", usersTablesRoutes);
 
 import cellRoutes  from "./API/Cell/cellRoutes";
-app.use("/api/cell", cellRoutes);
+app.use("/api/cells", cellRoutes);
 
 import tableRoutes from "./API/Table/tableRoutes";
 app.use("/api/tables", tableRoutes)

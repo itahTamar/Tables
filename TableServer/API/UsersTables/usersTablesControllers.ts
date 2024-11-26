@@ -6,7 +6,7 @@ import {
   getAllDataFromMongoDB,
   getOneJoinDataFromMongoDB,
 } from "../../mongoCRUD/mongoCRUD";
-import { UsersTablesModel } from "./usersTAblesModel";
+import { UsersTablesModel } from "./usersTablesModel";
 import { TableModel } from "../Table/tableModel";
 
 let ObjectId = require("mongoose").Types.ObjectId;
@@ -20,7 +20,7 @@ interface UserTableDocument extends Document {
 
 
 //!create
-//add Column to table
+//add table to user
 export async function addUsersTable(req: any, res: any) {
   try {
     const userID = req.params.userID;

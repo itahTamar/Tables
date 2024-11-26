@@ -1,9 +1,7 @@
 
 export interface RowData {
     _id: string;
-    fieldOfInterest: string;
-    creator: string;
-    fieldsOrder: string[];
+    tableName: string;
     __v: number;
   }
   

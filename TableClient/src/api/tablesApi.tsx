@@ -15,13 +15,10 @@ export const fetchTables = async (serverUrl: string) => {
 export const addNewTable = async (
   serverUrl: string,
   tableSubject: string,
-  creator: string
 ) => {
   try {
-    const response = await axios.post(`${serverUrl}/api/tables/addNewTable`, {
-      fieldOfInterest: tableSubject,
-      creator,
-    });
+    const response = await axios.post(`${serverUrl}/api/tables/addTable`, {
+      tableName: tableSubject });
     console.log("at tablesApi/addNewTable the response is:", response);
     console.log("at tablesApi/addNewTable the response.data.ok is:", response.data.ok);
     if (!response.data.ok) throw new Error("No response in addNewTable");

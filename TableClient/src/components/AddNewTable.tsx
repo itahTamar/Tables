@@ -10,7 +10,6 @@ interface AddTableProps {
 
 const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
   const [tableSubject, setTableSubject] = useState<string>("");
-  const [creator, setCreator] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const serverUrl = useContext(ServerContext);
   const tableContext = useContext(TableContext);
@@ -19,7 +18,7 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
   }
   const { setTables } = tableContext
   const handleAddTable = async () => {
-    if (!tableSubject || !creator) {
+    if (!tableSubject) {
       setMessage("Please fill in both fields.");
       return;
     }
@@ -34,11 +33,10 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
         }
       };
 
-    const success = await addNewTable(serverUrl, tableSubject, creator);
+    const success = await addNewTable(serverUrl, tableSubject);
     if (success) {
       setMessage("Table added successfully!");
       setTableSubject("");
-      setCreator("");
       handleGetAllUserTables()
       onClose()
     } else {
@@ -55,13 +53,7 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
         onChange={(e) => setTableSubject(e.target.value)}
         className="border border-black m-2 rounded-2xl w-50 indent-4"
       />
-      <input
-        type="text"
-        placeholder="Your Name"
-        value={creator}
-        onChange={(e) => setCreator(e.target.value)}
-        className="border border-black m-2 rounded-2xl w-50 indent-4"
-      />
+
       <button onClick={handleAddTable} className="add-button">
         ADD
       </button>

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {
   addDataToMongoDB,
   addFieldToSchemaAndMongoDB,
@@ -31,8 +32,8 @@ export async function addTable(req: any, res: any) {
       );
 
     //@ts-ignore
-    const isExist = await isItemExist(TableModel, {tableName});
-    if (isExist) return res.send({ ok: false, massage: "Table Exist in DB" });
+    // const isExist = await isItemExist(TableModel, {tableName});
+    // if (isExist) return res.send({ ok: false, massage: "Table Exist in DB" });
 
     // Create the new Table document
     const newTable = new TableModel({ tableName });
@@ -54,7 +55,7 @@ export async function addTable(req: any, res: any) {
     console.error("Error in addNewTable:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-} //
+} // work ok
 
 //add new field to all table's documents
 export async function addTableField(req: any, res: any) {
@@ -74,7 +75,7 @@ export async function addTableField(req: any, res: any) {
 //get one table
 export async function getTable(req: any, res: any) {
   try {
-    const tableId = req.params.tableId;
+    const tableId = new mongoose.Types.ObjectId(String(req.params.tableId));
     if (!tableId) throw new Error("at getTable no tableId found");
 
     const table = await getOneDataFromMongoDB(TableModel, tableId);
@@ -87,7 +88,7 @@ export async function getTable(req: any, res: any) {
   } catch (error) {
     console.error(error);
   }
-} //
+} //work ok
 
 // get all tables (for all users!) - useless
 export async function getAllTables(req: any, res: any) {
