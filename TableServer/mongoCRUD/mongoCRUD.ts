@@ -234,9 +234,10 @@ export const deleteManyDataFromMongoDB = async <T extends Document>(
 export async function deleteFieldFromSchemaAndMongoDB<T>(
   modelName: Model<T>,
   FieldName: keyof T,
-): Promise<void> {
+): Promise<boolean> {
   try {
     if (!FieldName) throw new Error("must receive the field name for delete");
+    console.log("at deleteFieldFromSchemaAndMongoDB the FieldName:", FieldName)
     if (FieldName in modelName.schema.paths) {
       //Remove the field from the schema and documents
       modelName.schema.remove(FieldName as string); // Remove from schema
@@ -244,17 +245,18 @@ export async function deleteFieldFromSchemaAndMongoDB<T>(
         $unset: { [FieldName as string]: "" },
       } as unknown as UpdateQuery<T>;
       await modelName.updateMany({}, unsetUpdate); // Remove from documents
-
       console.log(
         `Field "${String(FieldName)}" successfully deleted from all documents.`
       );
+      return true
     } else {
       console.log(`"${String(FieldName)}" field do not exist`)
+      return false
     }
   } catch (err) {
     console.error(`Error deleting field from "${String(FieldName)}":`, err);
   }
-}
+} //!not working good - don't know where the error
 
 //**for join collection:
 //!create:

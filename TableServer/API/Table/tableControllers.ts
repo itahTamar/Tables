@@ -60,7 +60,7 @@ export async function addTable(req: any, res: any) {
 //add new field to all table's documents
 export async function addTableField(req: any, res: any) {
   try {
-    const { fieldName } = req.body.fieldName;
+    const fieldName = req.body.fieldName;
     if (!fieldName) throw new Error("At addUserField no fieldName found");
 
     await addFieldToSchemaAndMongoDB(TableModel, fieldName, " ");
@@ -69,7 +69,7 @@ export async function addTableField(req: any, res: any) {
     console.error(error);
     res.send({ error });
   }
-} //
+} //work ok
 
 //!read
 //get one table
@@ -100,7 +100,7 @@ export async function getAllTables(req: any, res: any) {
   } catch (error) {
     console.error(error);
   }
-} //not in use
+} //work ok - not for use
 
 //!update
 export async function updateTableFieldsValue(req: any, res: any) {
@@ -110,10 +110,10 @@ export async function updateTableFieldsValue(req: any, res: any) {
     console.log("at dataControllers/updateFieldByDataId the DataID:", dataID);
 
     const { field } = req.body;
-    console.log("at dataControllers/updateFieldByDataId the field:", field); //ok
+    console.log("at dataControllers/updateFieldByDataId the field:", field); 
 
     const { updateData } = req.body;
-    console.log("at dataControllers/updateFieldByDataId the updateData:", updateData); //ok
+    console.log("at dataControllers/updateFieldByDataId the updateData:", updateData); 
     if (!field || updateData == undefined)
       throw new Error("missing data required field or updateData");
 
@@ -138,7 +138,7 @@ export async function updateTableFieldsValue(req: any, res: any) {
     console.error(error);
     res.status(500).send({ error: error.message });
   }
-} //
+} //work ok
 
 //!delete
 //delete all table records (table, cells, tableCell)
@@ -185,16 +185,26 @@ export async function deleteTable(req: any, res: any) {
 
 export async function deleteTableField(req: any, res: any) {
   try {
-    const { fieldName } = req.body.fieldName;
-    if (!fieldName) throw new Error("At addUserField no fieldName found");
+    const fieldName = req.body.fieldName;
+    if (!fieldName) throw new Error("At deleteTableField no fieldName found");
+    console.log("at deleteTableField the fieldName:", fieldName)
 
-    await deleteFieldFromSchemaAndMongoDB(TableModel, fieldName);
-    res.send({
+    const fieldsDeleted = await deleteFieldFromSchemaAndMongoDB(TableModel, fieldName);
+    console.log("at deleteTableField the fieldsDeleted:", fieldsDeleted)
+    if (fieldsDeleted){
+       res.send({
       ok: true,
       massage: "field successfully deleted from all documents",
     });
+    } else {
+      res.send({
+        ok: false,
+        massage: "field do not found in documents",
+      });
+    }
+   
   } catch (error) {
     console.error(error);
     res.send({ error });
   }
-} //
+} //?

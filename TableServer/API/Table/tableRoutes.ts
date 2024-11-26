@@ -4,11 +4,11 @@ const router = express.Router();
 
 router
 .post('/addTable', addTable)  //work
-.post('/addTableField',addTableField)
+.post('/addTableField',addTableField) //work
 .get('/getTable/:tableId',getTable) //work
-.get('/getAllTables',getAllTables)
-.patch('/updateTableFieldsValue/tableID:',updateTableFieldsValue)
+.get('/getAllTables',getAllTables) //work
+.patch('/updateTableFieldsValue/:tableID',updateTableFieldsValue) //work
 .delete('/deleteTable/:tableId/:fieldOfInterest', deleteTable)
-.delete('/deleteTableField',deleteTableField)
-
+.delete('/deleteTableField',deleteTableField) //?
+ 
 export default router;

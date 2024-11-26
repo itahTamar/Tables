@@ -166,7 +166,7 @@ export async function deleteUserField(req: any, res: any) {
     console.error(error);
     res.send({ error });
   }
-} //work ok
+} //?
 
 //! uniq functions for users
 //update email and password 
