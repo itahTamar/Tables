@@ -10,19 +10,22 @@ import {
   } from "../../mongoCRUD/mongoCRUD";
   import { CellModel } from "./cellModel";
 import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCellsModel";
+import mongoose from "mongoose";
   
   //!create
-  // add cell with no connection (no join) - useless
+  // add cell with no connection (no join) 
   export async function addCell(req: any, res: any) {
     try {
       console.log("addCell:");
       
       // Create the new Cell document
-      const newCell = new CellModel();
+      const newCell = new CellModel({
+        rowIndex: 0, //! Replace with the appropriate logic for setting rowIndex
+      });
   
       console.log("At addCell the newCell:", newCell);
   
-      // Save the new Table to MongoDB
+      // Save the new Cell to MongoDB
       const response = await addDataToMongoDB(newCell);
       console.log("At addCell the response:", response);
       if (!response.ok)
@@ -30,18 +33,18 @@ import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCell
           "at addCell Fails to save the Table in Table-db"
         );
       const cellId = response.response._id;
-      console.log("At addCell the tableId is:", cellId);
+      console.log("At addCell the cellId is:", cellId);
   
-      res.send({ ok: true });
+      res.send({ ok: true, response });
     } catch (error) {
       console.error("Error in addCell:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  } // not in use
+  } // work ok
   
   export async function addCellField(req: any, res: any) {
     try {
-      const { fieldName } = req.body.fieldName;
+      const fieldName = req.body.fieldName;
       if (!fieldName) throw new Error("At addUserField no fieldName found");
   
       await addFieldToSchemaAndMongoDB(CellModel, fieldName, " ");
@@ -50,13 +53,13 @@ import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCell
       console.error(error);
       res.send({ error });
     }
-  } //
+  } // work ok
   
   //!read
   //get one cell by id
   export async function getCell(req: any, res: any) {
     try {
-      const cellId = req.params.cellId;
+      const cellId = new mongoose.Types.ObjectId(String(req.params.cellId));
       if (!cellId) throw new Error("at getCell no cellId found");
   
       const cell = await getOneDataFromMongoDB(CellModel, cellId);
@@ -69,7 +72,7 @@ import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCell
     } catch (error) {
       console.error(error);
     }
-  } //
+  } // work ok
   
   // get all cells (from all DB!) - useless
   export async function getAllCells(req: any, res: any) {
@@ -81,12 +84,12 @@ import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCell
     } catch (error) {
       console.error(error);
     }
-  } // not in use
+  } // work ok - not in use
   
   //!update
   export async function updateCellFieldsValue(req: any, res: any) {
     try {
-      const dataID = req.params.cellID;
+      const dataID = req.params.cellId;
       if (!dataID) throw new Error("no Data id in params updateData");
       console.log("at dataControllers/updateFieldByDataId the DataID:", dataID);
   
@@ -119,7 +122,7 @@ import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCell
       console.error(error);
       res.status(500).send({ error: error.message });
     }
-  } //
+  } //work ok
   
   //!delete
   //delete cell and its join by id -useless
@@ -135,7 +138,7 @@ import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCell
   
       const ok =
         (await deleteOneDataFromMongoDB(ColumnsCellsModel, cellID)) &&
-        (await deleteOneDataFromMongoDB(CellModel, cellID));
+        (await deleteOneDataFromMongoDB(CellModel, {_id: cellID}));
     
       if (ok) {
         res.send({
@@ -151,7 +154,7 @@ import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCell
     } catch (error) {
       console.error(error, "at tableControllers/deleteTable - deleted failed");
     }
-  } // not in use
+  } //work ok - not in use
   
   export async function deleteCellsField(req: any, res: any) {
     try {

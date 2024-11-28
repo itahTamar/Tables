@@ -11,12 +11,12 @@ import {
 const router = express.Router();
 
 router
-  .post("/addCell", addCell)
-  .post("/addCellField", addCellField)
-  .get("/getCell/:cellId", getCell)
-  .get("/getAllCells", getAllCells)
-  .patch("/updateCellFieldsValue/:cellId", updateCellFieldsValue)
+  .post("/addCell", addCell) //work
+  .post("/addCellField", addCellField) //work
+  .get("/getCell/:cellId", getCell) //work
+  .get("/getAllCells", getAllCells) //work
+  .patch("/updateCellFieldsValue/:cellId", updateCellFieldsValue) //work
   .delete("/deleteCellsField", deleteCellsField)
-  .delete("/deleteCell/:cellId", deleteCell);
+  .delete("/deleteCell/:cellId", deleteCell); //work
 
 export default router;

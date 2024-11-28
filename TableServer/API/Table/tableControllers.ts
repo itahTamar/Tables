@@ -14,6 +14,7 @@ import { isItemExist } from "../helpFunctions";
 import { getAllTablesColumns } from "./ColumnJoins/TablesColumns/tablesColumnControllers";
 import { TableColumnModel } from "./ColumnJoins/TablesColumns/tablesColumnModel";
 import { TableModel } from "./tableModel";
+import { getAllColumnsCells } from "./ColumnJoins/ColumnsCells/columnsCellsControllers";
 
 //!create
 // add table
@@ -152,7 +153,14 @@ export async function deleteTable(req: any, res: any) {
       });
     }
 
-    const tableCells = await getAllTablesColumns(tableID, res);
+    const tableColumns = await getAllTablesColumns(tableID, res);
+    if (!tableColumns.ok) throw new Error("failed getting table's cells");
+    console.log(
+      "At tableControllers/deleteTable the tableCOlumns is:",
+      tableColumns
+    ); 
+
+    const tableCells = await tableColumns.map((e) => getAllColumnsCells(e.columnID, res));
     if (!tableCells.ok) throw new Error("failed getting table's cells");
     console.log(
       "At tableControllers/deleteTable the tableCells is:",
@@ -160,11 +168,11 @@ export async function deleteTable(req: any, res: any) {
     );
 
     const ok =
-      (await deleteManyDataFromMongoDB(TableColumnModel, tableID)) &&
-      (await deleteOneDataFromMongoDB(TableModel, tableID));
+      (await deleteManyDataFromMongoDB(TableColumnModel, {_id: tableID})) &&
+      (await deleteOneDataFromMongoDB(TableModel, {_id: tableID}));
 
     const ok2 = await tableCells.map((e) =>
-      deleteOneDataFromMongoDB(CellModel, e.cellId)
+      deleteOneDataFromMongoDB(CellModel, {_id: e.cellId})
     );
 
     if (ok && ok2.ok) {

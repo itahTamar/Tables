@@ -18,7 +18,7 @@ export class Cell {
     visible = true,
   }: {
     rowIndex: number;
-    visible?: boolean;
+    visible: boolean;
   }) {
     this.rowIndex = rowIndex;
     this.visible = visible;
@@ -28,19 +28,20 @@ export class Cell {
 export const CellSchema = new Schema(
   {
     rowIndex: Number,
-    visible: Boolean,
+    visible: { type: Boolean, default: true },
   },
   { strict: false }  //allow any field in the schema
 );
 
-// Pre-save hook to auto-increment index - create new mongo-index for the cell index field
-CellSchema.pre<ICellDocument>("save", async function (next) {
-  if (this.isNew) {
-    const lastCell = await CellModel.findOne().sort({ index: -1 });
-    this.rowIndex = lastCell ? lastCell.rowIndex + 1 : 1;
-  }
-  next();
-});
+// give a new number for every added cell at rowIndex field (count up) 
+//!need to check how it works with the columns
+// CellSchema.pre<ICellDocument>("save", async function (next) {
+//   if (this.isNew) {
+//     const lastCell = await CellModel.findOne().sort({ index: -1 });
+//     this.rowIndex = lastCell ? lastCell.rowIndex + 1 : 1;
+//   }
+//   next();
+// });
 
 export const CellModel: Model<ICellDocument> = model<ICellDocument>(
   "Cells",
