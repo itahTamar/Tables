@@ -20,7 +20,8 @@ app.use(cors(corsOptions))
 //middleware for using parser
 app.use(cookieParser())
 
-import connectionMongo from "./DBConnection/mongooseMongoDBConnection";
+// import connectionMongo from "./DBConnection/mongooseMongoDBConnection";
+import { connectToDatabase } from "./mongoDB/nativeDriver/nativeMongiDBConnection";
 
 //API routes
 import userRoutes from "./API/User/userRoutes";
@@ -44,7 +45,6 @@ app.use("/api/TablesColumns", tablesColumnsRoutes)
 // Route for sending recovery email
 import { isItemExist } from "./API/helpFunctions";
 import { UserModel } from "./API/User/userModel";
-import { connectToDatabase } from "./DBConnection/nativeMongoDBConnection";
 app.post("/send_recovery_email", async (req: Request, res: Response) => {
   try { 
     const email = req.body.recipient_email
@@ -70,7 +70,7 @@ const connectToMongoDB = async () => {
     // await connectionMongo;
 
     //with native driver
-    await connectToDatabase;
+    await connectToDatabase();
   } catch (err) {
     console.error(err);
     process.exit(1); // Exit the process with a non-zero code
@@ -91,3 +91,34 @@ connectToMongoDB()
   .catch((err) => {
     console.error(err);
   });
+
+
+
+  //test the native drive mongoDB CRUD
+import { createDocument, deleteDocument, readDocuments, updateDocument, updateDocuments } from "./mongoDB/nativeDriver/nativeMongoDBCRUD";
+import { ObjectId } from 'mongodb';
+import { getParsedCommandLineOfConfigFile } from "typescript";
+  // CREATE
+const newUser = {
+  name: 'MS.John Doe',
+  email: 'MSjohn.doe@example.com',
+  age: 25,
+  active: true
+};
+// createDocument('users', newUser);
+
+// READ
+// const objectId = new ObjectId('674d9b52d06b972fe55237c4');
+// readDocuments('users', { _id: objectId });
+
+// UPDATE
+// updateDocument('users', { email: 'john.doe@example.com' }, { age: 35 });
+const filter = { age: { $gte: 20 } };  // Example filter to select documents with age >= 30
+const updateDoc = {            
+  age: 17
+};
+
+// updateDocuments('users', filter, updateDoc)
+
+// DELETE
+// deleteDocument('users', { email: 'john.doe@example.com' });

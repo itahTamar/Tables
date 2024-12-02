@@ -1,4 +1,4 @@
-import { connectToDatabase } from "../../DBConnection/nativeMongoDBConnection";
+import { connectToDatabase } from "./nativeMongiDBConnection";
 import { Db } from "mongodb";
 
 // CREATE: Insert a document into a collection
@@ -14,7 +14,7 @@ export async function createDocument(collectionName, document) {
     console.error("Error inserting document:", error);
     return false;
   }
-}
+} //work ok
 
 // READ: Find documents with optional filtering and sorting
 export async function readDocuments(collectionName, query = {}, sort = {}) {
@@ -28,9 +28,9 @@ export async function readDocuments(collectionName, query = {}, sort = {}) {
   } catch (error) {
     console.error("Error reading documents:", error);
   }
-}
+} //work ok
 
-// UPDATE: Update a document based on a filter
+// UPDATE: Update one document based on a filter
 export async function updateDocument(collectionName, filter, updateDoc) {
   const db: Db = await connectToDatabase();
   const collection = db.collection(collectionName);
@@ -41,7 +41,27 @@ export async function updateDocument(collectionName, filter, updateDoc) {
   } catch (error) {
     console.error("Error updating document:", error);
   }
-}
+} //work ok
+
+// UPDATE: Update multiple documents based on a filter
+export async function updateDocuments(collectionName: string, filter: object, updateDoc: object) {
+  const db = await connectToDatabase();  // Get the database connection
+  const collection = db.collection(collectionName);  // Get the collection
+
+  try {
+    // Use updateMany to update all documents that match the filter
+    // you can pass multiple fields inside a single $set object to update multiple fields in a single update operation
+    const result = await collection.updateMany(filter, { $set: updateDoc });
+
+    console.log(`Matched ${result.matchedCount} document(s)`);
+    console.log(`Modified ${result.modifiedCount} document(s)`);
+
+    return result;
+  } catch (error) {
+    console.error('Error updating documents:', error);
+    throw error;
+  }
+} //work ok
 
 // DELETE: Delete a document based on a filter
 export async function deleteDocument(collectionName, filter) {
@@ -54,4 +74,4 @@ export async function deleteDocument(collectionName, filter) {
   } catch (error) {
     console.error("Error deleting document:", error);
   }
-}
+} //work ok
