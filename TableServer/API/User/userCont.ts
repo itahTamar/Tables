@@ -7,7 +7,7 @@ import {
   getAllDataFromMongoDB,
   getOneDataFromMongoDB,
   updateDataOnMongoDB,
-} from "../../mongoCRUD/mongoCRUD";
+} from "../../mongoCRUD/withMongoose/mongoCRUD";
 import { isItemExist } from "../helpFunctions";
 import { UserModel } from "./userModel";
 import mongoose from "mongoose";

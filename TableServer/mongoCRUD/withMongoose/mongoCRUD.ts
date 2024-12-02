@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 import {
   IJoinDataObjectDocument,
   MyJoinDataObjectCollection,
-} from "../API/general/joinDataObjectModel";
+} from "../../API/general/joinDataObjectModel";
 export interface JoinDocument {
   item1ID: ObjectId;
   item2ID: ObjectId;

@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import mongoose, { ConnectOptions } from 'mongoose';
 import cookieParser from 'cookie-parser';
 // import {addFieldToUsers} from './API/users/updateUserDB'
 import cors from 'cors'
@@ -21,7 +20,7 @@ app.use(cors(corsOptions))
 //middleware for using parser
 app.use(cookieParser())
 
-import connectionMongo from "./DBConnection/mongoDB";
+import connectionMongo from "./DBConnection/mongooseMongoDBConnection";
 
 //API routes
 import userRoutes from "./API/User/userRoutes";
@@ -45,6 +44,7 @@ app.use("/api/TablesColumns", tablesColumnsRoutes)
 // Route for sending recovery email
 import { isItemExist } from "./API/helpFunctions";
 import { UserModel } from "./API/User/userModel";
+import { connectToDatabase } from "./DBConnection/nativeMongoDBConnection";
 app.post("/send_recovery_email", async (req: Request, res: Response) => {
   try { 
     const email = req.body.recipient_email
@@ -66,7 +66,11 @@ app.post("/send_recovery_email", async (req: Request, res: Response) => {
 // Connect to MongoDB
 const connectToMongoDB = async () => {
   try {
-    await connectionMongo;
+    //with mongoose
+    // await connectionMongo;
+
+    //with native driver
+    await connectToDatabase;
   } catch (err) {
     console.error(err);
     process.exit(1); // Exit the process with a non-zero code
