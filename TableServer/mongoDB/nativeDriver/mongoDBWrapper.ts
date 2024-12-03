@@ -62,7 +62,10 @@ class MongoDBWrapper {
   } //work ok
 
   // READ: Find one document by a query
-  static async read(collectionName: string, query: object): Promise<object | null> {
+  static async read(
+    collectionName: string,
+    query: object
+  ): Promise<object | null> {
     this.ensureConnected();
     const collection: Collection = this.db!.collection(collectionName);
     try {
@@ -73,11 +76,15 @@ class MongoDBWrapper {
       console.error("Error finding document:", err);
       return null;
     }
-  }
+  } //work ok
 
   // READ: Find documents with optional filtering and sorting
-  static async readDocuments(collectionName: string, query: object = {}, sort = {}) {
-    this.ensureConnected();;
+  static async readDocuments(
+    collectionName: string,
+    query: object = {},
+    sort = {}
+  ) {
+    this.ensureConnected();
     const collection: Collection = this.db!.collection(collectionName);
 
     try {
@@ -110,7 +117,7 @@ class MongoDBWrapper {
       console.error("Error updating document:", err);
       throw err;
     }
-  }
+  } //work ok - not returning the updated document 
 
   // UPDATE: Update multiple documents based on a filter
   static async updateDocuments(
@@ -137,9 +144,14 @@ class MongoDBWrapper {
   }
 
   // DELETE: Delete a document from a collection
-  static async delete(collectionName: string, query: object): Promise<DeleteResult> {
+  static async delete(
+    collectionName: string,
+    query: object
+  ): Promise<DeleteResult> {
     this.ensureConnected();
     const collection: Collection = this.db!.collection(collectionName);
+    console.log("At MongoDBWrapper/delete the query is:", query);
+
     try {
       const result: DeleteResult = await collection.deleteOne(query);
       console.log(`Deleted ${result.deletedCount} document(s)`);
@@ -148,7 +160,7 @@ class MongoDBWrapper {
       console.error("Error deleting document:", err);
       throw err;
     }
-  }
+  } //work ok
 
   // DELETE: Delete several documents from a collection
   static async deleteDocuments(

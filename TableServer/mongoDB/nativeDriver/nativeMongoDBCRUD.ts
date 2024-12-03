@@ -67,7 +67,6 @@ export async function updateDocuments(collectionName: string, filter: object, up
 export async function deleteDocument(collectionName, filter) {
   const db: Db = await connectToDatabase();
   const collection = db.collection(collectionName);
-
   try {
     const result = await collection.deleteOne(filter);
     console.log("Deleted document count:", result.deletedCount);

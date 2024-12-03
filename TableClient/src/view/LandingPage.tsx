@@ -15,10 +15,10 @@ const LandingPage = () => {
   return (
       <div className="landingPage-container">
         <div className="tempDiv">
-          <button className="m-4" onClick={() => {DocumentAPIWrapper.add(serverUrl,"users", { name: "John Doe", email: "johndoe@example.com" })}}>Add Doc</button>
-          <button className="m-4">Delete Doc</button>
-          <button className="m-4">Update Doc</button>
-          <button className="m-4">Get Doc</button>
+          <button className="m-4" onClick={() => {DocumentAPIWrapper.add(serverUrl,"users", { name: "Jon Dohe", email: "jonadohe@example.com", age:56, gander: "mail" })}}>Add Doc</button>
+          <button className="m-4" onClick={()=>{DocumentAPIWrapper.delete(serverUrl, "users", {_id: "674efa05dc0b8b3434b5606c"})}}>Delete Doc</button>
+          <button className="m-4" onClick={()=>{DocumentAPIWrapper.update(serverUrl, "users", {_id: "674d9b778111770d12e59198"}, {age: 70})}}>Update Doc</button>
+          <button className="m-4" onClick={()=>{DocumentAPIWrapper.get(serverUrl, "users", {_id: "674d9b778111770d12e59198"})}}>Get Doc</button>
         </div>
 
         <h1 className="text-7xl mb-20 font-bold mt-16">Tables</h1>
