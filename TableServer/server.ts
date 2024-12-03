@@ -43,6 +43,9 @@ app.use("/api/columnsCells", columnsCellsRoutes)
 import tablesColumnsRoutes from "./API/Table/ColumnJoins/TablesColumns/tablesColumnsRoutes";
 app.use("/api/TablesColumns", tablesColumnsRoutes)
 
+import docRouter from "./API/Docs/docRouter";
+app.use("/api/doc", docRouter)
+
 // Route for sending recovery email
 import { isItemExist } from "./API/helpFunctions";
 import { UserModel } from "./API/User/userModel";

@@ -59,7 +59,7 @@ class MongoDBWrapper {
       console.error("Error inserting document:", err);
       return null;
     }
-  }
+  } //work ok
 
   // READ: Find one document by a query
   static async read(collectionName: string, query: object): Promise<object | null> {
