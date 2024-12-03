@@ -5,7 +5,7 @@ import {
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
   getOneJoinDataFromMongoDB,
-} from "../../mongoCRUD/withMongoose/mongoCRUD";
+} from "../../mongoDB/mongoose/mongoCRUD/withMongoose/mongoCRUD";
 import { UsersTablesModel } from "./usersTablesModel";
 import { TableModel } from "../Table/tableModel";
 

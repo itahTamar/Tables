@@ -8,21 +8,13 @@ import {
 } from "mongodb";
 
 class MongoDBWrapper {
-  // Private properties for the MongoDB client and the database connection
-  private uri: string;
-  private dbName: string;
-  private client: MongoClient | null;
-  private db: Db | null;
-
-  constructor(uri: string, dbName: string) {
-    this.uri = process.env.MONGO_URL;
-    this.dbName = "testNativeDriverDatabase"; //! Replace when you want to create/connect to new/existing database
-    this.client = null;
-    this.db = null;
-  }
+  private static uri: string = process.env.MONGO_URL;
+  private static dbName: string = "testNativeDriverDatabase"; //! Replace when you want to create/connect to new/existing database
+  private static client: MongoClient | null = null;
+  private static db: Db | null = null;
 
   // Connect to MongoDB
-  async connect(): Promise<Db> {
+  static async connect(): Promise<Db> {
     if (!this.client) {
       this.client = new MongoClient(this.uri);
     }
@@ -33,23 +25,31 @@ class MongoDBWrapper {
       return this.db; // Return the database connection
     } catch (err) {
       console.error("Error connecting to MongoDB:", err);
+      throw err;
     }
   }
 
   // Close the connection
-  async close(): Promise<void> {
+  static async close(): Promise<void> {
     if (this.client) {
       await this.client.close();
       console.log("Connection closed");
     }
   }
 
+  // Ensure the database is connected
+  private static ensureConnected(): void {
+    if (!this.db) {
+      throw new Error("Database not connected");
+    }
+  }
+
   // CREATE: Insert a document into a collection
-  async create(
+  static async create(
     collectionName: string,
     document: object
   ): Promise<InsertOneResult | null> {
-    if (!this.db) throw new Error("Database not connected");
+    this.ensureConnected();
     const collection: Collection = this.db.collection(collectionName);
     try {
       const result: InsertOneResult = await collection.insertOne(document);
@@ -62,9 +62,9 @@ class MongoDBWrapper {
   }
 
   // READ: Find one document by a query
-  async read(collectionName: string, query: object): Promise<object | null> {
-    if (!this.db) throw new Error("Database not connected");
-    const collection: Collection = this.db.collection(collectionName);
+  static async read(collectionName: string, query: object): Promise<object | null> {
+    this.ensureConnected();
+    const collection: Collection = this.db!.collection(collectionName);
     try {
       const result: object | null = await collection.findOne(query);
       console.log("Document found:", result);
@@ -76,9 +76,9 @@ class MongoDBWrapper {
   }
 
   // READ: Find documents with optional filtering and sorting
-  async readDocuments(collectionName: string, query: object = {}, sort = {}) {
-    if (!this.db) throw new Error("Database not connected");
-    const collection: Collection = this.db.collection(collectionName);
+  static async readDocuments(collectionName: string, query: object = {}, sort = {}) {
+    this.ensureConnected();;
+    const collection: Collection = this.db!.collection(collectionName);
 
     try {
       const documents = await collection.find(query).sort(sort).toArray();
@@ -86,17 +86,18 @@ class MongoDBWrapper {
       return documents;
     } catch (error) {
       console.error("Error reading documents:", error);
+      throw error;
     }
   }
 
   // UPDATE: Update a document in a collection
-  async update(
+  static async update(
     collectionName: string,
     query: object,
     update: object
   ): Promise<UpdateResult> {
-    if (!this.db) throw new Error("Database not connected");
-    const collection: Collection = this.db.collection(collectionName);
+    this.ensureConnected();
+    const collection: Collection = this.db!.collection(collectionName);
     try {
       const result: UpdateResult = await collection.updateOne(query, {
         $set: update,
@@ -112,13 +113,13 @@ class MongoDBWrapper {
   }
 
   // UPDATE: Update multiple documents based on a filter
-  async updateDocuments(
+  static async updateDocuments(
     collectionName: string,
     filter: object,
     updateDoc: object
   ) {
-    if (!this.db) throw new Error("Database not connected");
-    const collection: Collection = this.db.collection(collectionName);
+    this.ensureConnected();
+    const collection: Collection = this.db!.collection(collectionName);
 
     try {
       // Use updateMany to update all documents that match the filter
@@ -136,9 +137,9 @@ class MongoDBWrapper {
   }
 
   // DELETE: Delete a document from a collection
-  async delete(collectionName: string, query: object): Promise<DeleteResult> {
-    if (!this.db) throw new Error("Database not connected");
-    const collection: Collection = this.db.collection(collectionName);
+  static async delete(collectionName: string, query: object): Promise<DeleteResult> {
+    this.ensureConnected();
+    const collection: Collection = this.db!.collection(collectionName);
     try {
       const result: DeleteResult = await collection.deleteOne(query);
       console.log(`Deleted ${result.deletedCount} document(s)`);
@@ -150,14 +151,14 @@ class MongoDBWrapper {
   }
 
   // DELETE: Delete several documents from a collection
-  async deleteDocuments(
+  static async deleteDocuments(
     collectionName: string,
     query: object
   ): Promise<DeleteResult> {
-    if (!this.db) throw new Error("Database not connected");
-    const collection: Collection = this.db.collection(collectionName);
+    this.ensureConnected();
+    const collection: Collection = this.db!.collection(collectionName);
     try {
-      const result: DeleteResult = await collection.deleteMany(query); 
+      const result: DeleteResult = await collection.deleteMany(query);
       console.log(`Deleted ${result.deletedCount} document(s)`);
       return result;
     } catch (err) {

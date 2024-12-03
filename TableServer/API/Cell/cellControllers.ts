@@ -7,7 +7,7 @@ import {
     getAllDataFromMongoDB,
     getOneDataFromMongoDB,
     updateDataOnMongoDB,
-  } from "../../mongoCRUD/withMongoose/mongoCRUD";
+  } from "../../mongoDB/mongoose/mongoCRUD/withMongoose/mongoCRUD";
   import { CellModel } from "./cellModel";
 import { ColumnsCellsModel } from "../Table/ColumnJoins/ColumnsCells/columnsCellsModel";
 import mongoose from "mongoose";

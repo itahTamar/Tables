@@ -1,5 +1,5 @@
 import { Model } from "mongoose";
-import { getOneDataFromMongoDB } from "../mongoCRUD/withMongoose/mongoCRUD";
+import { getOneDataFromMongoDB } from "../mongoDB/mongoose/mongoCRUD/withMongoose/mongoCRUD";
 
 //help functions:
 export async function isItemExist<T extends Document>(

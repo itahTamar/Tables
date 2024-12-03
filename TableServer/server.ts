@@ -21,7 +21,8 @@ app.use(cors(corsOptions))
 app.use(cookieParser())
 
 // import connectionMongo from "./DBConnection/mongooseMongoDBConnection";
-import { connectToDatabase } from "./mongoDB/nativeDriver/nativeMongiDBConnection";
+// import { connectToDatabase } from "./mongoDB/nativeDriver/nativeMongiDBConnection";
+import { MongoDBWrapper } from "./mongoDB/nativeDriver/mongoDBWrapper";
 
 //API routes
 import userRoutes from "./API/User/userRoutes";
@@ -70,7 +71,10 @@ const connectToMongoDB = async () => {
     // await connectionMongo;
 
     //with native driver
-    await connectToDatabase();
+    // await connectToDatabase();
+
+    //with wrapper
+    await MongoDBWrapper.connect()
   } catch (err) {
     console.error(err);
     process.exit(1); // Exit the process with a non-zero code
@@ -95,16 +99,16 @@ connectToMongoDB()
 
 
   //test the native drive mongoDB CRUD
-import { createDocument, deleteDocument, readDocuments, updateDocument, updateDocuments } from "./mongoDB/nativeDriver/nativeMongoDBCRUD";
-import { ObjectId } from 'mongodb';
-import { getParsedCommandLineOfConfigFile } from "typescript";
+// import { createDocument, deleteDocument, readDocuments, updateDocument, updateDocuments } from "./mongoDB/nativeDriver/nativeMongoDBCRUD";
+// import { ObjectId } from 'mongodb';
+// import { getParsedCommandLineOfConfigFile } from "typescript";
   // CREATE
-const newUser = {
-  name: 'MS.John Doe',
-  email: 'MSjohn.doe@example.com',
-  age: 25,
-  active: true
-};
+// const newUser = {
+//   name: 'MS.John Doe',
+//   email: 'MSjohn.doe@example.com',
+//   age: 25,
+//   active: true
+// };
 // createDocument('users', newUser);
 
 // READ
@@ -113,10 +117,10 @@ const newUser = {
 
 // UPDATE
 // updateDocument('users', { email: 'john.doe@example.com' }, { age: 35 });
-const filter = { age: { $gte: 20 } };  // Example filter to select documents with age >= 30
-const updateDoc = {            
-  age: 17
-};
+// const filter = { age: { $gte: 20 } };  // Example filter to select documents with age >= 30
+// const updateDoc = {            
+//   age: 17
+// };
 
 // updateDocuments('users', filter, updateDoc)
 

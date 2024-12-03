@@ -6,8 +6,8 @@ import {
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
   getOneDataFromMongoDB,
-  updateDataOnMongoDB,
-} from "../../mongoCRUD/withMongoose/mongoCRUD";
+  updateDataOnMongoDB
+} from "../../mongoDB/mongoose/mongoCRUD/withMongoose/mongoCRUD";
 import { isItemExist } from "../helpFunctions";
 import { UserModel } from "./userModel";
 import mongoose from "mongoose";

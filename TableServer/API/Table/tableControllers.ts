@@ -8,7 +8,7 @@ import {
   getAllDataFromMongoDB,
   getOneDataFromMongoDB,
   updateDataOnMongoDB,
-} from "../../mongoCRUD/withMongoose/mongoCRUD";
+} from "../../mongoDB/mongoose/mongoCRUD/withMongoose/mongoCRUD";
 import { CellModel } from "../Cell/cellModel";
 import { isItemExist } from "../helpFunctions";
 import { getAllTablesColumns } from "./ColumnJoins/TablesColumns/tablesColumnControllers";

@@ -4,7 +4,7 @@ import {
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
   getOneJoinDataFromMongoDB,
-} from "../../../../mongoCRUD/withMongoose/mongoCRUD";
+} from "../../../../mongoDB/mongoose/mongoCRUD/withMongoose/mongoCRUD";
 import { CellModel } from "../../../Cell/cellModel";
 import { ColumnsCellsModel } from "./columnsCellsModel";
 
