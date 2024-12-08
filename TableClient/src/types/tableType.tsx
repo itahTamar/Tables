@@ -6,5 +6,5 @@ export interface TableData {
     __v: number;
   }
   
-  export type Table = TableData[]; // Define Table as an array of RowData
+  export type Table = TableData[]; // Define Table as an array of TableData
   

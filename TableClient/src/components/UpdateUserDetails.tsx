@@ -65,7 +65,7 @@ export default function UpdateUserDetails() {
       if (password === confirmPassword) {
         const data = { newUserName, newEmail, password };
         if (!data) throw new Error("update detail failed - no userName, email or password");
-        const response = await updateUserDetails({ serverUrl, userName: newUserName, email: newEmail, password });
+        const response = await updateUserDetails({ serverUrl, email: newEmail, password });
         if (!response) throw new Error("register failed from server");
         alert("User details updated successfully");
         navigate("/userPage");

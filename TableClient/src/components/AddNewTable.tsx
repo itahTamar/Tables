@@ -3,12 +3,12 @@ import { ServerContext } from "../context/ServerUrlContext";
 import "../style/buttons.css";
 import { TableContext } from "../context/tableContext";
 import { DocumentAPIWrapper } from "../api/docApi";
-import { useGetAllUserTables } from "./tablesHelpsComponents";
+import { useGetAllUserTables } from "./useGetComponents";
 
 interface AddTableProps {
   onClose: () => void;
 }
-
+ //add one table cell to table collection
 const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
   const [tableSubject, setTableSubject] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -19,6 +19,7 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
     throw new Error("TableContext must be used within a TableProvider");
   }
   const { tables } = tableContext;
+
   const handleAddTable = async () => {
     if (!tableSubject) {
       setMessage("Please fill in both fields.");

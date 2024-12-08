@@ -26,3 +26,27 @@ export function useGetAllUserTables() {
 
   return handleGetAllUserTables;
 } //work ok
+
+export function useGetAllTablesColumns() {
+  const serverUrl = useContext(ServerContext);
+  const tableContext = useContext(TableContext);
+
+  if (!tableContext) {
+    throw new Error("TableContext must be used within a TableProvider");
+  }
+  const { setColumns } = tableContext;
+
+  const handleGetAllTablesColumns = async () => {
+    try {
+      const columnsData = await DocumentAPIWrapper.get(serverUrl, "tables", {
+        type: "column",
+      });
+      if (!columnsData) throw new Error("No columns found.");
+      setColumns(columnsData);
+    } catch (error) {
+      console.error("Error fetching tables columns:", error);
+    }
+  };
+
+  return handleGetAllTablesColumns;
+}

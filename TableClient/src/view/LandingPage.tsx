@@ -4,7 +4,7 @@ import "../style/buttons.css";
 import "../style/landingPage.css";
 import Login from "./../components/login/Login";
 import Popup from "./../components/Popup";
-import { useGetAllUserTables } from "../components/tablesHelpsComponents";
+import { useGetAllUserTables } from "../components/useGetComponents";
 
 const LandingPage = () => {
   const navigate = useNavigate();

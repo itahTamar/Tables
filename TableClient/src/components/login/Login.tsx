@@ -1,12 +1,11 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchTables } from "../../api/tablesApi";
 import { login } from "../../api/userApi";
 import { ServerContext } from "../../context/ServerUrlContext";
+import { TableContext } from "../../context/tableContext";
 import { UserContext } from "../../context/userContext";
 import "../../style/buttons.css";
-import { TableContext } from "../../context/tableContext";
-import { useGetAllUserTables } from "../tablesHelpsComponents";
+import { useGetAllUserTables } from "../useGetComponents";
 
 //work ok
 const Login = () => {
@@ -22,9 +21,6 @@ const Login = () => {
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
   }
-  // const { setTables } = tableContext;
-
-  // handleGetAllUserTables()
 
   const handleSubmitLogin = async (ev: React.FormEvent<HTMLFormElement>) => {
     try {
