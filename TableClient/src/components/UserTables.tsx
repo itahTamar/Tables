@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TableContext } from "../context/tableContext";
 import GeneralSearch from "./GeneralSearch";
-import { RowData } from "../types/tableType";
+import { TableData } from "../types/tableType";
 
 const UserTables: React.FC = () => {
   const tableContext = useContext(TableContext);
@@ -13,7 +13,7 @@ const UserTables: React.FC = () => {
 
   const { tables } = tableContext;
 
-  const [filteredTables, setFilteredTables] = useState<RowData[]>([]); // Store filtered results as RowData[]
+  const [filteredTables, setFilteredTables] = useState<TableData[]>([]); // Store filtered results as TableData[]
   const navigate = useNavigate();
 
   // Handle search results from the GeneralSearch component
@@ -30,7 +30,7 @@ const UserTables: React.FC = () => {
   };
 
   const handleCardClick = (tableId: string) => {
-    navigate(`/table/${tableId}`); // Navigate to table detail
+    navigate(`/table/${tableId}`); // Navigate to the specific table
   };
 
   return (
@@ -38,6 +38,7 @@ const UserTables: React.FC = () => {
       <div className="flex justify-center">
         <GeneralSearch onSearchResults={handleSearchResults} />
       </div>
+
       {/* Display tables in grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-9 lg:grid-cols-4 gap-4 mt-16 ">
         {(filteredTables.length > 0 ? filteredTables : tables).map((table) => (
@@ -55,3 +56,4 @@ const UserTables: React.FC = () => {
 };
 
 export default UserTables;
+//work ok

@@ -12,7 +12,7 @@ export async function addDoc(req: any, res: any) {
 
     // Save the new doc to MongoDB
     const response = await MongoDBWrapper.createDocument(collectionName, document);
-    console.log("At addDoc the response:", response);
+    console.log("At addDoc the response:", response); //=>{acknowledged, insertedId}
     if (!response) throw new Error("at addDoc Fails to save new doc");
     res.send(response);
   } catch (error) {
@@ -73,7 +73,7 @@ export async function updateDoc(req: any, res: any) {
   }
 } //work ok
 
-//!get doc
+//!get one doc - not in use
 export async function getDoc(req: any, res: any) {
   try {
     const { collectionName } = req.query;
@@ -95,7 +95,7 @@ export async function getDoc(req: any, res: any) {
         parsedQuery._id = new ObjectId(parsedQuery._id);
     }
 
-    // delete the doc to MongoDB
+    // read the doc from MongoDB
     const response = await MongoDBWrapper.readDocument(collectionName, parsedQuery);
     console.log("At getDoc the response:", response);
     if (!response) throw new Error("at getDoc Fails to save new doc");
@@ -105,3 +105,36 @@ export async function getDoc(req: any, res: any) {
     return res.status(500).json({ message: "Internal server error" });
   }
 } //work ok
+
+//!get one/all doc
+export async function getDocs(req: any, res: any) {
+  try {
+    const { collectionName } = req.query;
+    const { query } = req.query;
+
+    console.log("At getDoc the collectionName is:", collectionName);
+    console.log("At getDoc the query is:", query);
+
+
+    if (!collectionName || !query)
+      throw new Error("no collectionName or query");
+    
+
+    const parsedQuery = JSON.parse(query); // Parse query from string to object
+    console.log("Parsed query:", parsedQuery);
+
+    // Convert _id to ObjectId if it exists in the query
+    if (parsedQuery._id && typeof parsedQuery._id === "string") {
+        parsedQuery._id = new ObjectId(parsedQuery._id);
+    }
+
+    // read the doc from MongoDB
+    const response = await MongoDBWrapper.readDocuments(collectionName, parsedQuery);
+    console.log("At getDoc the response:", response);
+    if (!response) throw new Error("at getDoc Fails to save new doc");
+    res.send(response);
+  } catch (error) {
+    console.error("Error in getDoc:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}

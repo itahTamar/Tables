@@ -77,7 +77,7 @@ const connectToMongoDB = async () => {
     // await connectToDatabase();
 
     //with wrapper
-    await MongoDBWrapper.connect()
+    await MongoDBWrapper.connectMongoDB()
   } catch (err) {
     console.error(err);
     process.exit(1); // Exit the process with a non-zero code

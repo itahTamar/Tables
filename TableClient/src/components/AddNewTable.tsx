@@ -1,44 +1,48 @@
 import { useContext, useState } from "react";
-import { addNewTable, fetchTables } from "../api/tablesApi"; // Import the API function
 import { ServerContext } from "../context/ServerUrlContext";
-import '../style/buttons.css'
+import "../style/buttons.css";
 import { TableContext } from "../context/tableContext";
+import { DocumentAPIWrapper } from "../api/docApi";
+import { useGetAllUserTables } from "./tablesHelpsComponents";
 
 interface AddTableProps {
-    onClose: () => void;
-  }
+  onClose: () => void;
+}
 
 const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
   const [tableSubject, setTableSubject] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const serverUrl = useContext(ServerContext);
+  const getAllUserTables = useGetAllUserTables();
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
   }
-  const { setTables } = tableContext
+  const { tables } = tableContext;
   const handleAddTable = async () => {
     if (!tableSubject) {
       setMessage("Please fill in both fields.");
       return;
     }
 
-    const handleGetAllUserTables = async () => {
-        try {
-          const tablesData = await fetchTables(serverUrl);
-          if (!tablesData) throw new Error("No tables found.");
-          setTables(tablesData);
-        } catch (error) {
-          console.error("Error fetching user tables:", error);
-        }
-      };
+    //last table index
+    const maxTableIndexValue = tables.reduce((max, current) => {
+      return current.tableIndex > max ? current.tableIndex : max;
+    }, 0);
 
-    const success = await addNewTable(serverUrl, tableSubject);
+    console.log("At handleAddTable the maxTableIndexValue is:", maxTableIndexValue)
+
+    const success = await DocumentAPIWrapper.add(serverUrl, "tables", {
+      type: "table",
+      tableName: tableSubject,
+      tableIndex: maxTableIndexValue + 1,
+    });
+
     if (success) {
       setMessage("Table added successfully!");
       setTableSubject("");
-      handleGetAllUserTables()
-      onClose()
+      await getAllUserTables();
+      onClose();
     } else {
       setMessage("Failed to add table.");
     }
@@ -57,9 +61,11 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
       <button onClick={handleAddTable} className="add-button">
         ADD
       </button>
+
       {message && <p className="message">{message}</p>}
     </div>
   );
 };
 
 export default AddNewTable;
+//work ok

@@ -1,9 +1,10 @@
 
-export interface RowData {
+export interface TableData {
     _id: string;
     tableName: string;
+    tableIndex: number;
     __v: number;
   }
   
-  export type Table = RowData[]; // Define Table as an array of RowData
+  export type Table = TableData[]; // Define Table as an array of RowData
   

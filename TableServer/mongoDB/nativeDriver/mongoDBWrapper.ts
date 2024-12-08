@@ -53,7 +53,7 @@ class MongoDBWrapper {
     const collection: Collection = this.db!.collection(collectionName);
     try {
       const result: InsertOneResult = await collection.insertOne(document);
-      console.log("Document inserted:", result);
+      console.log("Document inserted:", result);  //=>{acknowledged, insertedId}
       return result;
     } catch (err) {
       console.error("Error inserting document:", err);

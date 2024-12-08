@@ -6,6 +6,7 @@ import { ServerContext } from "../../context/ServerUrlContext";
 import { UserContext } from "../../context/userContext";
 import "../../style/buttons.css";
 import { TableContext } from "../../context/tableContext";
+import { useGetAllUserTables } from "../tablesHelpsComponents";
 
 //work ok
 const Login = () => {
@@ -16,21 +17,14 @@ const Login = () => {
   const [visible, setVisible] = useState(false);
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const serverUrl = useContext(ServerContext);
+  const getAllUserTables = useGetAllUserTables();
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
   }
-  const { setTables } = tableContext;
+  // const { setTables } = tableContext;
 
-  const handleGetAllUserTables = async () => {
-    try {
-      const tablesData = await fetchTables(serverUrl);
-      if (!tablesData) throw new Error("No tables found.");
-      setTables(tablesData);
-    } catch (error) {
-      console.error("Error fetching user tables:", error);
-    }
-  };
+  // handleGetAllUserTables()
 
   const handleSubmitLogin = async (ev: React.FormEvent<HTMLFormElement>) => {
     try {
@@ -48,7 +42,7 @@ const Login = () => {
         throw new Error("login failed from server!");
       }
       setUserEmail(email);
-      handleGetAllUserTables();
+      await getAllUserTables();
       navigate(`/mainTablesPage`);
     } catch (error) {
       console.error(error);
