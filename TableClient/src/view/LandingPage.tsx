@@ -15,9 +15,9 @@ const LandingPage = () => {
   return (
       <div className="landingPage-container">
         <div className="tempDiv">
-          <button className="m-4" onClick={() => {DocumentAPIWrapper.add(serverUrl,"users", { name: "Jon Dohe", email: "jonadohe@example.com", age:56, gander: "mail" })}}>Add Doc</button>
-          <button className="m-4" onClick={()=>{DocumentAPIWrapper.delete(serverUrl, "users", {_id: "674efa05dc0b8b3434b5606c"})}}>Delete Doc</button>
-          <button className="m-4" onClick={()=>{DocumentAPIWrapper.update(serverUrl, "users", {_id: "674d9b778111770d12e59198"}, {age: 70})}}>Update Doc</button>
+          <button className="m-4" onClick={() => {DocumentAPIWrapper.add(serverUrl,"users", { name: "Jon Dow", email: "jonadow@example.com", age:56, gander: "mail" })}}>Add Doc</button>
+          <button className="m-4" onClick={()=>{DocumentAPIWrapper.delete(serverUrl, "users", {_id: "674efe18eb94d0ba6960757a"})}}>Delete Doc</button>
+          <button className="m-4" onClick={()=>{DocumentAPIWrapper.update(serverUrl, "users", {_id: "674d9b778111770d12e59198"}, {age: 56})}}>Update Doc</button>
           <button className="m-4" onClick={()=>{DocumentAPIWrapper.get(serverUrl, "users", {_id: "674d9b778111770d12e59198"})}}>Get Doc</button>
         </div>
 

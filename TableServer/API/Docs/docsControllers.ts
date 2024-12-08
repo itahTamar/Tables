@@ -11,7 +11,7 @@ export async function addDoc(req: any, res: any) {
       throw new Error("no collectionName or document");
 
     // Save the new doc to MongoDB
-    const response = await MongoDBWrapper.create(collectionName, document);
+    const response = await MongoDBWrapper.createDocument(collectionName, document);
     console.log("At addDoc the response:", response);
     if (!response) throw new Error("at addDoc Fails to save new doc");
     res.send(response);
@@ -37,7 +37,7 @@ export async function deleteDoc(req: any, res: any) {
     }
 
     // delete the doc to MongoDB
-    const response = await MongoDBWrapper.delete(collectionName, query);
+    const response = await MongoDBWrapper.deleteDocument(collectionName, query);
     console.log("At deleteDoc the response:", response);
     if (!response) throw new Error("at deleteDoc Fails to save new doc");
     res.send(response);
@@ -63,7 +63,7 @@ export async function updateDoc(req: any, res: any) {
     }
 
     // delete the doc to MongoDB
-    const response = await MongoDBWrapper.update(collectionName, query, update);
+    const response = await MongoDBWrapper.updateDocument(collectionName, query, update);
     console.log("At updateDoc the response:", response);
     if (!response) throw new Error("at updateDoc Fails to save new doc");
     res.send(response);
@@ -96,7 +96,7 @@ export async function getDoc(req: any, res: any) {
     }
 
     // delete the doc to MongoDB
-    const response = await MongoDBWrapper.read(collectionName, parsedQuery);
+    const response = await MongoDBWrapper.readDocument(collectionName, parsedQuery);
     console.log("At getDoc the response:", response);
     if (!response) throw new Error("at getDoc Fails to save new doc");
     res.send(response);
