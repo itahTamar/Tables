@@ -50,3 +50,27 @@ export function useGetAllTablesColumns() {
 
   return handleGetAllTablesColumns;
 }
+
+export function useGetAllTablesCells() {
+  const serverUrl = useContext(ServerContext);
+  const tableContext = useContext(TableContext);
+
+  if (!tableContext) {
+    throw new Error("TableContext must be used within a TableProvider");
+  }
+  const { setCells } = tableContext;
+
+  const handleGetAllTablesCells = async () => {
+    try {
+      const cellsData = await DocumentAPIWrapper.get(serverUrl, "tables", {
+        type: "cell",
+      });
+      if (!cellsData) throw new Error("No cells found.");
+      setCells(cellsData);
+    } catch (error) {
+      console.error("Error fetching tables cells:", error);
+    }
+  };
+
+  return handleGetAllTablesCells;
+}

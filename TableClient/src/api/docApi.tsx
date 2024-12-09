@@ -12,15 +12,15 @@ class DocumentAPIWrapper {
         collectionName,
         document,
       });
-      console.log("at add the response is:", response);
+      console.log("at DocumentAPIWrapper.add the response is:", response);
       console.log(
-        "at add the response.data.acknowledged is:",
+        "at DocumentAPIWrapper.add the response.data.acknowledged is:",
         response.data.acknowledged
       );
-      if (!response.data.acknowledged) throw new Error("No response in add");
+      if (!response.data.acknowledged) throw new Error("No response in DocumentAPIWrapper.add");
       return true;
     } catch (error) {
-      console.error("Error adding document");
+      console.error("Error DocumentAPIWrapper.add document");
       return false;
     }
   } //work ok
@@ -35,15 +35,15 @@ class DocumentAPIWrapper {
       const response = await axios.delete(`${serverUrl}/api/doc/deleteDoc`, {
         data: { collectionName, query },
       });
-      console.log("at delete the response is:", response);
+      console.log("at DocumentAPIWrapper.delete the response is:", response);
       console.log(
-        "at delete the response.data.acknowledged is:",
+        "at DocumentAPIWrapper.delete the response.data.acknowledged is:",
         response.data.acknowledged
       );
-      if (!response.data.acknowledged) throw new Error("No response in delete");
+      if (!response.data.acknowledged) throw new Error("No response in DocumentAPIWrapper.delete");
       return true;
     } catch (error) {
-      console.error("Error delete document");
+      console.error("Error DocumentAPIWrapper.delete document");
       return false;
     }
   } //work ok
@@ -65,15 +65,15 @@ class DocumentAPIWrapper {
         query,
         update,
       });
-      console.log("at update the response is:", response);
+      console.log("at DocumentAPIWrapper.update the response is:", response);
       console.log(
-        "at update the response.data.acknowledged is:",
+        "at DocumentAPIWrapper.update the response.data.acknowledged is:",
         response.data.acknowledged
       );
-      if (!response.data.acknowledged) throw new Error("No response in update");
+      if (!response.data.acknowledged) throw new Error("No response in DocumentAPIWrapper.update");
       return true;
     } catch (error) {
-      console.error("Error update document");
+      console.error("Error DocumentAPIWrapper.update document");
       return false;
     }
   } //work ok
@@ -88,15 +88,15 @@ class DocumentAPIWrapper {
       const response = await axios.get(`${serverUrl}/api/doc/getDoc`, {
         params: { collectionName, query: JSON.stringify(query) },
       });
-      console.log("at get the response is:", response);
+      console.log("at DocumentAPIWrapper.get the response is:", response);
       console.log(
-        "at get the response.data is:",
+        "at DocumentAPIWrapper.get the response.data is:",
         response.data
       );
-      if (!response.data) throw new Error("No response in delete");
+      if (!response.data) throw new Error("No response in DocumentAPIWrapper.get");
       return response.data;
     } catch (error) {
-      console.error("Error get document");
+      console.error("Error DocumentAPIWrapper.get document");
       return [];
     }
   } //work ok

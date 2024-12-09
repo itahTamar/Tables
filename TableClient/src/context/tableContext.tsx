@@ -1,23 +1,26 @@
 // tableContext.tsx - contain all user's table fetched from DB
 import React, { createContext, ReactNode, useState } from "react";
-import { ColumnData } from "../types/colunmType";
 import { TableData } from "../types/tableType"; // Import the TableData type
+import { CellData } from "../types/cellType";
 
 interface TableContextType {
   tables: TableData[]; // Define as an array of TableData
   setTables: (tables: TableData[]) => void;
-  columns: ColumnData[];
-  setColumns: (columns: ColumnData[]) => void;
+  columns: CellData[];
+  setColumns: (columns: CellData[] | ((prev: CellData[]) => CellData[])) => void; // Allow updater function
+  cells: CellData[];
+  setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
 }
 
 export const TableContext = createContext<TableContextType | undefined>(undefined);
 
 export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [tables, setTables] = useState<TableData[]>([]); // Initialize as an empty array
-  const [columns, setColumns] = useState<ColumnData[]>([])
+  const [columns, setColumns] = useState<CellData[]>([])
+  const [cells, setCells] = useState<CellData[]>([])
 
   return (
-    <TableContext.Provider value={{ tables, setTables, columns ,setColumns }}>
+    <TableContext.Provider value={{ tables, setTables, columns, setColumns, cells, setCells }}>
       {children}
     </TableContext.Provider>
   );
