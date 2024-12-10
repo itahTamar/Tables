@@ -45,7 +45,7 @@ const AddNewTablesRow: React.FC<AddCellProp> = ({ tableId }) => {
       try {
         const success = await DocumentAPIWrapper.add(serverUrl, "tables", {
         type: "cell",
-        data: " ",
+        data: null,
         columnIndex: i,
         rowIndex: maxRowIndexValue + 1,
         tableIndex: currentTableIndex,

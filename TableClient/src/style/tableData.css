@@ -1,34 +1,63 @@
-/* Style for the table headers */
-th {
-    position: relative;
-    padding: 10px;
-    background-color: #f8f8f8;
-    border: 1px solid #ddd;
-    text-align: left;
-  }
-  
-  /* Style for the "+" button */
-  .plus-button {
-    position: absolute;
-    top: 50%;
-    right: -12px; /* Adjust position to place it between columns */
-    transform: translateY(-50%);
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s;
-    z-index: 1;
-  }
-  
-  /* Show the "+" button when hovering over the corresponding header cell */
-  th:hover .plus-button {
-    opacity: 1;
-  }
-  
+/* Table container styles */
+.table-container {
+  overflow-x: auto;
+}
+
+/* Table styles */
+.table-auto {
+  table-layout: auto;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: gainsboro;
+}
+
+/* Table cell styles */
+td, th {
+  max-width: 10rem; /* Maximum width for each cell */
+  max-height: 7rem; /* Maximum height for each cell */
+  word-wrap: break-word; /* Ensure long text wraps within the cell */
+  word-break: break-word;
+  overflow: hidden; /* Prevent overflow */
+  vertical-align: top; /* Align text and content to the top */
+  text-align: center; /* Center-align text and other content */
+  padding: 0.5rem;
+}
+
+/* Input and textarea styles */
+input,
+textarea {
+  resize: none; /* Disable resize handle */
+  width: 100%; /* Full width of the cell */
+  height: 100%; /* Full height of the cell */
+  max-width: 10rem; /* Constrain the width */
+  max-height: 7rem; /* Constrain the height */
+  overflow-wrap: break-word; /* Enable word wrapping */
+  word-break: break-word; /* Break long words */
+  overflow: auto; /* Add scrollbars if content exceeds dimensions */
+  text-align: center; /* Center-align the text */
+  box-sizing: border-box; /* Include padding and border in dimensions */
+  padding: 0.25rem; /* Adjust padding for better readability */
+  line-height: 1.2; /* Adjust line-height to fit more lines */
+  text-overflow: ellipsis; /* Add ellipsis for long text */
+}
+
+/* Image styles */
+img {
+  max-width: 100%; /* Shrink image to fit cell width */
+  max-height: 100%; /* Shrink image to fit cell height */
+  display: block; /* Prevent inline gap */
+  margin: auto; /* Center the image in the cell */
+}
+
+/* Link styles */
+a {
+  display: inline-block; /* Ensure the link is block-like */
+  max-width: 100%; /* Prevent links from overflowing the cell */
+  text-overflow: ellipsis; /* Add ellipsis for long text */
+  white-space: normal; /* Wrap long links */
+  word-wrap: break-word;
+  word-break: break-word;
+}

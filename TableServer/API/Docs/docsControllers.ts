@@ -73,6 +73,31 @@ export async function updateDoc(req: any, res: any) {
   }
 } //work ok
 
+export async function updateDocs(req: any, res: any) {
+  try {
+    const { collectionName } = req.body;
+    const { query } = req.body;
+    const { update } = req.body;
+
+    if (!collectionName || !query || !update)
+      throw new Error("no collectionName or query or update");
+
+    // Convert _id to ObjectId if it exists in the query
+    if (query._id && typeof query._id === "string") {
+      query._id = new ObjectId(query._id);
+    }
+
+    // delete the doc to MongoDB
+    const response = await MongoDBWrapper.updateDocuments(collectionName, query, update);
+    console.log("At updateDoc the response:", response);
+    if (!response) throw new Error("at updateDoc Fails to save new doc");
+    res.send(response);
+  } catch (error) {
+    console.error("Error in updateDoc:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 //!get one doc - not in use
 export async function getDoc(req: any, res: any) {
   try {
