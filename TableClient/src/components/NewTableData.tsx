@@ -22,14 +22,14 @@ const NewTableData: React.FC = () => {
     return acc;
   }, {});
 
-  const sortedColumns = [...columns].sort(
+  const sortedColumns = [...(columns || [])].sort(
     (a, b) => a.columnIndex - b.columnIndex
   );
   const sortedRows = Object.keys(rows)
     .map(Number)
     .sort((a, b) => a - b)
     .map((rowIndex) =>
-      rows[rowIndex].sort((a, b) => a.columnIndex - b.columnIndex)
+      rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
     );
 
   const handleCellUpdate = async (cell: CellData, newData: any) => {

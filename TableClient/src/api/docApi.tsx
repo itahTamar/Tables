@@ -17,7 +17,8 @@ class DocumentAPIWrapper {
         "at DocumentAPIWrapper.add the response.data.acknowledged is:",
         response.data.acknowledged
       );
-      if (!response.data.acknowledged) throw new Error("No response in DocumentAPIWrapper.add");
+      if (!response.data.acknowledged)
+        throw new Error("No response in DocumentAPIWrapper.add");
       return true;
     } catch (error) {
       console.error("Error DocumentAPIWrapper.add document");
@@ -40,7 +41,8 @@ class DocumentAPIWrapper {
         "at DocumentAPIWrapper.delete the response.data.acknowledged is:",
         response.data.acknowledged
       );
-      if (!response.data.acknowledged) throw new Error("No response in DocumentAPIWrapper.delete");
+      if (!response.data.acknowledged)
+        throw new Error("No response in DocumentAPIWrapper.delete");
       return true;
     } catch (error) {
       console.error("Error DocumentAPIWrapper.delete document");
@@ -70,7 +72,8 @@ class DocumentAPIWrapper {
         "at DocumentAPIWrapper.update the response.data.acknowledged is:",
         response.data.acknowledged
       );
-      if (!response.data.acknowledged) throw new Error("No response in DocumentAPIWrapper.update");
+      if (!response.data.acknowledged)
+        throw new Error("No response in DocumentAPIWrapper.update");
       return true;
     } catch (error) {
       console.error("Error DocumentAPIWrapper.update document");
@@ -78,7 +81,7 @@ class DocumentAPIWrapper {
     }
   } //work ok
 
-  //get document
+  //get documents
   static async get(
     serverUrl: string,
     collectionName: string,
@@ -93,10 +96,39 @@ class DocumentAPIWrapper {
         "at DocumentAPIWrapper.get the response.data is:",
         response.data
       );
-      if (!response.data) throw new Error("No response in DocumentAPIWrapper.get");
+      if (!response.data)
+        throw new Error("No response in DocumentAPIWrapper.get");
       return response.data;
     } catch (error) {
       console.error("Error DocumentAPIWrapper.get document");
+      return [];
+    }
+  } //work ok
+
+  //get Search In Table Cells documents
+  static async getSearchInTableCells(
+    serverUrl: string,
+    collectionName: string,
+    tableIndex: number | undefined,
+    regexToSearch: string
+  ): Promise<any> {
+    try {
+      const response = await axios.get(`${serverUrl}/api/doc/searchDocsAggPip`, {
+        params: { collectionName, tableIndex, regexToSearch },
+      });
+      console.log("at DocumentAPIWrapper.getSearchInTableCells the response is:", response);
+      console.log(
+        "at DocumentAPIWrapper.getSearchInTableCells the response.data is:",
+        response.data
+      );console.log(
+        "at DocumentAPIWrapper.getSearchInTableCells the response.data.documents is:",
+        response.data[0].documents
+      );
+      if (!response.data)
+        throw new Error("No response in DocumentAPIWrapper.getSearchInTableCells");
+      return response.data[0].documents;
+    } catch (error) {
+      console.error("Error DocumentAPIWrapper.getSearchInTableCells document");
       return [];
     }
   } //work ok

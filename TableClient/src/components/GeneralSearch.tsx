@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+//component that search in the client side only
 interface GeneralSearchProps {
   onSearchResults: (results: string[]) => void; // Callback to return search results
   placeholder?: string;

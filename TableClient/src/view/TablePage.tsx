@@ -8,6 +8,7 @@ import {
 import { TableContext } from "../context/tableContext";
 import AddNewTablesColumn from "../components/AddNewColumn";
 import NewTableData from "../components/NewTableData";
+import SearchInTableCells from "../components/SearchInTableCells";
 
 function TablePage() {
   const navigate = useNavigate();
@@ -27,7 +28,9 @@ function TablePage() {
   const tableName = tables.map((e) => {
     return e._id === tableId ? e.tableName : null;
   });
-
+  const tableIndex = tables.find((e) => e._id === tableId)?.tableIndex;
+  console.log("At TablePage the tableIndex is:", tableIndex)
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,6 +56,7 @@ function TablePage() {
       </header>
 
       <h1>{tableName}</h1>
+      <SearchInTableCells tableIndex={tableIndex}/>
       <div className="flex flex-row mb-24">
         <AddNewTablesRow tableId={tableId} />
 
