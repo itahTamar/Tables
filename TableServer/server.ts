@@ -28,20 +28,20 @@ import { MongoDBWrapper } from "./mongoDB/nativeDriver/mongoDBWrapper";
 import userRoutes from "./API/User/userRoutes";
 app.use("/api/users", userRoutes);
 
-import usersTablesRoutes from "./API/UsersTables/usersTablesRoutes";
-app.use("/api/usersTables", usersTablesRoutes);
+// import usersTablesRoutes from "./API/UsersTables/usersTablesRoutes";
+// app.use("/api/usersTables", usersTablesRoutes);
 
-import cellRoutes  from "./API/Cell/cellRoutes";
-app.use("/api/cells", cellRoutes);
+// import cellRoutes  from "./API/Cell/cellRoutes";
+// app.use("/api/cells", cellRoutes);
 
-import tableRoutes from "./API/Table/tableRoutes";
-app.use("/api/tables", tableRoutes)
+// import tableRoutes from "./API/Table/tableRoutes";
+// app.use("/api/tables", tableRoutes)
 
-import columnsCellsRoutes from "./API/Table/ColumnJoins/ColumnsCells/columnsCellsRoutes";
-app.use("/api/columnsCells", columnsCellsRoutes)
+// import columnsCellsRoutes from "./API/Table/ColumnJoins/ColumnsCells/columnsCellsRoutes";
+// app.use("/api/columnsCells", columnsCellsRoutes)
 
-import tablesColumnsRoutes from "./API/Table/ColumnJoins/TablesColumns/tablesColumnsRoutes";
-app.use("/api/TablesColumns", tablesColumnsRoutes)
+// import tablesColumnsRoutes from "./API/Table/ColumnJoins/TablesColumns/tablesColumnsRoutes";
+// app.use("/api/TablesColumns", tablesColumnsRoutes)
 
 import docRouter from "./API/Docs/docRouter";
 app.use("/api/doc", docRouter)

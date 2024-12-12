@@ -7,7 +7,7 @@ import {
 } from "../components/useGetComponents";
 import { TableContext } from "../context/tableContext";
 import AddNewTablesColumn from "../components/AddNewColumn";
-import NewTableData from "../components/newTableData";
+import NewTableData from "../components/NewTableData";
 
 function TablePage() {
   const navigate = useNavigate();

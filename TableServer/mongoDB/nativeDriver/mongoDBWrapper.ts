@@ -53,7 +53,7 @@ class MongoDBWrapper {
     const collection: Collection = this.db!.collection(collectionName);
     try {
       const result: InsertOneResult = await collection.insertOne(document);
-      console.log("Document inserted:", result);  //=>{acknowledged, insertedId}
+      console.log("Document inserted:", result); //=>{acknowledged, insertedId}
       return result;
     } catch (err) {
       console.error("Error inserting document:", err);
@@ -214,37 +214,60 @@ class MongoDBWrapper {
     }
   }
 
-    // DELETE FIELD: Remove a field from all documents in a collection
-    static async deleteFieldFromCollectionAndMongoDB(
-      collectionName: string,
-      fieldName: string
-    ): Promise<void> {
-      this.ensureConnected();
-      const collection: Collection = this.db!.collection(collectionName);
-  
-      try {
-        // Check if the field exists in the documents
-        const sampleDoc = await collection.findOne({});
-        if (sampleDoc && fieldName in sampleDoc) {
-          // Remove the field from all documents
-          const update = {
-            $unset: { [fieldName]: "" },
-          };
-  
-          const result = await collection.updateMany({}, update);
-          console.log(
-            `${result.modifiedCount} documents had the field "${fieldName}" removed.`
-          );
-        } else {
-          console.log(`Field "${fieldName}" does not exist in any documents.`);
-        }
-      } catch (err) {
-        console.error(
-          `Error removing field "${fieldName}" from documents in collection "${collectionName}":`,
-          err
+  // DELETE FIELD: Remove a field from all documents in a collection
+  static async deleteFieldFromCollectionAndMongoDB(
+    collectionName: string,
+    fieldName: string
+  ): Promise<void> {
+    this.ensureConnected();
+    const collection: Collection = this.db!.collection(collectionName);
+
+    try {
+      // Check if the field exists in the documents
+      const sampleDoc = await collection.findOne({});
+      if (sampleDoc && fieldName in sampleDoc) {
+        // Remove the field from all documents
+        const update = {
+          $unset: { [fieldName]: "" },
+        };
+
+        const result = await collection.updateMany({}, update);
+        console.log(
+          `${result.modifiedCount} documents had the field "${fieldName}" removed.`
         );
+      } else {
+        console.log(`Field "${fieldName}" does not exist in any documents.`);
       }
+    } catch (err) {
+      console.error(
+        `Error removing field "${fieldName}" from documents in collection "${collectionName}":`,
+        err
+      );
     }
+  }
+
+  //search with Aggregation pipeline
+  static async searchDocumentsAggPip(
+    collectionName: string,
+    pipeline: Array<Record<string, any>>,
+    sort = {}
+  ) {
+    this.ensureConnected();
+    const collection: Collection = this.db!.collection(collectionName);
+
+    try {
+      // Conditionally add $sort stage if sort object is not empty
+      if (Object.keys(sort).length > 0) {
+        pipeline.push({ $sort: sort });
+      }
+      const documents = await collection.aggregate(pipeline).toArray();
+      console.log("Found documents:", documents);
+      return documents;
+    } catch (error) {
+      console.error("Error reading documents:", error);
+      throw error;
+    }
+  } //work ok
 }
 
 export { MongoDBWrapper };
