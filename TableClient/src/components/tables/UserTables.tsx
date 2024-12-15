@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { TableContext } from "../context/tableContext";
-import GeneralSearch from "./GeneralSearch";
-import { TableData } from "../types/tableType";
+import { TableContext } from "../../context/tableContext";
+import GeneralSearch from "../filters/GeneralSearch";
+import { TableData } from "../../types/tableType";
 
 const UserTables: React.FC = () => {
   const tableContext = useContext(TableContext);

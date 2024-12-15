@@ -1,16 +1,18 @@
 import { useContext } from "react";
-import { DocumentAPIWrapper } from "../api/docApi";
-import { ServerContext } from "../context/ServerUrlContext";
-import { TableContext } from "../context/tableContext";
+import { ServerContext } from "../../context/ServerUrlContext";
 import { useGetAllTablesCells } from "./useGetComponents";
+import { useAddTablesColumnsCell } from "./useAddColumnCell";
+import { TableContext } from "../../context/tableContext";
+import { DocumentAPIWrapper } from "../../api/docApi";
 
 interface AddCellProp {
   tableId: string;
 }
-//add cells type to build a row
-const AddNewTablesRow: React.FC<AddCellProp> = ({ tableId }) => {
+//add cells type and one column type to build a column
+const AddNewTablesColumn: React.FC<AddCellProp> = ({ tableId }) => {
   const serverUrl = useContext(ServerContext);
   const getAllTablesCells = useGetAllTablesCells();
+  const addTablesColumnsCell  = useAddTablesColumnsCell({ tableId });
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
@@ -39,15 +41,16 @@ const AddNewTablesRow: React.FC<AddCellProp> = ({ tableId }) => {
     maxColumnIndexValue
   );
 
-  const handleAddTablesCell = async () => {
+  const handleAddTablesNewColumn = async () => {
+    await addTablesColumnsCell()
     let i = 1;
-    while (i <= maxColumnIndexValue) {
+    while (i <= maxRowIndexValue) {
       try {
         const success = await DocumentAPIWrapper.add(serverUrl, "tables", {
         type: "cell",
-        data: null,
-        columnIndex: i,
-        rowIndex: maxRowIndexValue + 1,
+        data: null,  
+        columnIndex: maxColumnIndexValue+1,
+        rowIndex: i,
         tableIndex: currentTableIndex,
       });
       if (success) {
@@ -63,11 +66,11 @@ const AddNewTablesRow: React.FC<AddCellProp> = ({ tableId }) => {
 
   return (
     <div className="add-table relative top-20">
-      <button onClick={handleAddTablesCell} className="add-button">
-        Add row cells
+      <button onClick={handleAddTablesNewColumn} className="add-button">
+        Add new column
       </button>
     </div>
   );
 };
 
-export default AddNewTablesRow;
+export default AddNewTablesColumn;

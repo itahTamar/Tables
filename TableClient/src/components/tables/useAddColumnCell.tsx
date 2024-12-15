@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import { DocumentAPIWrapper } from "../api/docApi";
-import { ServerContext } from "../context/ServerUrlContext";
-import { TableContext } from "../context/tableContext";
+import { DocumentAPIWrapper } from "../../api/docApi";
+import { ServerContext } from "../../context/ServerUrlContext";
+import { TableContext } from "../../context/tableContext";
 import { useGetAllTablesColumns } from "./useGetComponents";
 
 interface AddColumnProp {

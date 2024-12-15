@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
-import { TableContext } from "../context/tableContext";
-import { DocumentAPIWrapper } from "../api/docApi";
-import { ServerContext } from "../context/ServerUrlContext";
+import { TableContext } from "../../context/tableContext";
+import { DocumentAPIWrapper } from "../../api/docApi";
+import { ServerContext } from "../../context/ServerUrlContext";
 import { useGetAllTablesCells } from "./useGetComponents";
 
 //component that search in the DB

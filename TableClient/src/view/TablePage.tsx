@@ -1,14 +1,14 @@
 import { useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AddNewTablesRow from "../components/AddNewRow";
+import AddNewTablesRow from "../components/tables/AddNewRow";
 import {
   useGetAllTablesCells,
   useGetAllTablesColumns,
-} from "../components/useGetComponents";
+} from "../components/tables/useGetComponents";
 import { TableContext } from "../context/tableContext";
-import AddNewTablesColumn from "../components/AddNewColumn";
-import NewTableData from "../components/NewTableData";
-import SearchInTableCells from "../components/SearchInTableCells";
+import NewTableData from "../components/tables/NewTableData";
+import SearchInTableCells from "../components/tables/SearchInTableCells";
+import AddNewTablesColumn from "../components/tables/AddNewColumn";
 
 function TablePage() {
   const navigate = useNavigate();

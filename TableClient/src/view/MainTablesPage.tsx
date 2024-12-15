@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../api/userApi';
-import AddNewTable from '../components/AddNewTable';
-import PopupWithAnimation from '../components/popupWithAnimation';
+import AddNewTable from '../components/tables/AddNewTable';
+import PopupWithAnimation from '../components/popups/popupWithAnimation';
 import '../style/mainTablePage.css';
-import UserTables from './../components/UserTables';
+import UserTables from '../components/tables/UserTables';
 
 const MainTablesPage: React.FC = () => {
   const navigate = useNavigate();

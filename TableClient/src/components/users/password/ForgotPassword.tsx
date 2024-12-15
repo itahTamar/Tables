@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { recoveryEmail } from "../api/userApi";
-import { ServerContext } from "../context/ServerUrlContext";
+import { recoveryEmail } from "../../../api/userApi";
+import { ServerContext } from "../../../context/ServerUrlContext";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState<string>("");

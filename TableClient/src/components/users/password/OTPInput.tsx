@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { ServerContext } from "../context/ServerUrlContext";
-import { recoveryEmail } from "../api/userApi";
+import { ServerContext } from "../../../context/ServerUrlContext";
+import { recoveryEmail } from "../../../api/userApi";
 
 const OTPInput: React.FC = () => {
   const location = useLocation();

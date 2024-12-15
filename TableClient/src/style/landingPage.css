@@ -6,11 +6,7 @@
     padding-top: 7rem;
     background-color: rgb(246, 223, 248);
 }
-
-/* body {
-    display: flex;
-  } */
-  
+ 
 @media only screen and (max-height: 666px), 
         only screen and (max-width: 792px) {
     .landingPage-container {

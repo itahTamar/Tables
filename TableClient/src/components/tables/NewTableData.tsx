@@ -1,8 +1,8 @@
 import React, { useContext, useRef } from "react";
-import { TableContext } from "../context/tableContext";
-import { CellData } from "../types/cellType";
-import { DocumentAPIWrapper } from "../api/docApi";
-import { ServerContext } from "../context/ServerUrlContext";
+import { TableContext } from "../../context/tableContext";
+import { CellData } from "../../types/cellType";
+import { DocumentAPIWrapper } from "../../api/docApi";
+import { ServerContext } from "../../context/ServerUrlContext";
 import "../style/tableData.css";
 
 const NewTableData: React.FC = () => {

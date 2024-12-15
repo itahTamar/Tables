@@ -1,11 +1,11 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../api/userApi";
-import { ServerContext } from "../../context/ServerUrlContext";
-import { TableContext } from "../../context/tableContext";
-import { UserContext } from "../../context/userContext";
 import "../../style/buttons.css";
-import { useGetAllUserTables } from "../useGetComponents";
+import { UserContext } from "../../../context/userContext";
+import { ServerContext } from "../../../context/ServerUrlContext";
+import { useGetAllUserTables } from "../../tables/useGetComponents";
+import { TableContext } from "../../../context/tableContext";
+import { login } from "../../../api/userApi";
 
 //work ok
 const Login = () => {

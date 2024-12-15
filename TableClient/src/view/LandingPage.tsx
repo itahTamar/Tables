@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/buttons.css";
 import "../style/landingPage.css";
-import Login from "./../components/login/Login";
-import Popup from "./../components/Popup";
-import { useGetAllUserTables } from "../components/useGetComponents";
+import Popup from "../components/popups/Popup";
+import { useGetAllUserTables } from "../components/tables/useGetComponents";
+import Login from "../components/users/login/Login";
 
 const LandingPage = () => {
   const navigate = useNavigate();

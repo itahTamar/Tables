@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
-import { ServerContext } from "../context/ServerUrlContext";
+import { ServerContext } from "../../context/ServerUrlContext";
 import "../style/buttons.css";
-import { TableContext } from "../context/tableContext";
-import { DocumentAPIWrapper } from "../api/docApi";
+import { TableContext } from "../../context/tableContext";
+import { DocumentAPIWrapper } from "../../api/docApi";
 import { useGetAllUserTables } from "./useGetComponents";
 
 interface AddTableProps {

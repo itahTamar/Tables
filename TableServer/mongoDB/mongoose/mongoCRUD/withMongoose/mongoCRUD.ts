@@ -117,6 +117,9 @@ export const getOneDataFromMongoDB = async <T extends Document>(
     if (!response) {
       return { ok: false };
     }
+    if (response === null) {
+      return {ok: false} //the document not found in DB
+    }
   } catch (error) {
     console.error(error);
     return { ok: false, error: error.message };

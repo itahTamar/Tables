@@ -1,19 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ServerContext } from "../context/ServerUrlContext";
-import { UserContext } from "../context/userContext";
-import { updateUserDetails } from "../api/userApi";
+import { ServerContext } from "../../../context/ServerUrlContext";
+import { resetPassword } from "../../../api/userApi";
 
-export default function UpdateUserDetails() {
-  const {user} = useContext(UserContext) //get the userName from userContext
-  const [newUserName, setNewUserName] = useState<string>(user);
+function ResetPassword() {
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [visible, setVisible] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [match, setMatch] = useState(false);
-  const {email} = useContext(UserContext)
-  const [newEmail, setNewEmail] = useState<string>(email);
+  const [email, setEmail] = useState<string>("");
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const serverUrl = useContext(ServerContext);
   const navigate = useNavigate();
@@ -56,19 +52,20 @@ export default function UpdateUserDetails() {
     validate();
   }, [confirmPassword, password]);
 
-  const handleSubmitUpdateUserDetails = async (
+  const handleSubmitResetPassword = async (
     ev: React.FormEvent<HTMLFormElement>
   ) => {
     try {
       ev.preventDefault();
-      console.log("At handleSubmitUpdateUserDetails, the serverUrl is:", serverUrl);
+      console.log("At handleSubmitRegister, the serverUrl is:", serverUrl);
       if (password === confirmPassword) {
-        const data = { newUserName, newEmail, password };
-        if (!data) throw new Error("update detail failed - no userName, email or password");
-        const response = await updateUserDetails({ serverUrl, email: newEmail, password });
+        const data = { email, password };
+        if (!data) throw new Error("register failed - no email or password");
+        const response = await resetPassword({ serverUrl, email, password });
+        // const response = await register({userName, password});
         if (!response) throw new Error("register failed from server");
-        alert("User details updated successfully");
-        navigate("/userPage");
+        alert("Password successfully set");
+        navigate("/");
       } else {
         alert("Passwords not match, please check it out");
       }
@@ -82,42 +79,25 @@ export default function UpdateUserDetails() {
       <div className="h-screen">
         <button
           className="absolute top-8 left-16"
-          onClick={() => navigate("/userPage")}
+          onClick={() => navigate("/")}
         >
           Back
         </button>
 
         <form
           className="custom-form relative"
-          onSubmit={handleSubmitUpdateUserDetails}
+          onSubmit={handleSubmitResetPassword}
         >
-          <h1 className="text-7xl mb-20 font-bold mt-16 text-black">
-            Update Your Details
-          </h1>
-
-          <div className="">
-            <div className="icon_container"></div>
-            <input
-              className="border border-black m-2 rounded-2xl w-72 h-12 relative indent-4"
-              type="userName"
-              name="userName"
-              autoComplete="given-name"
-              placeholder={user}
-              value={newUserName}
-              onInput={(ev) =>
-                setNewUserName((ev.target as HTMLInputElement).value)
-              }
-            />
-          </div>
+        <h1 className="text-7xl mb-20 font-bold mt-16 text-black">Set a New Password</h1>
 
           <input
             className="border border-black m-2 rounded-2xl w-72 h-12 relative indent-4"
             type="email"
             name="email"
             autoComplete="given-name"
-            placeholder={email}
-            value={newEmail}
-            onInput={(ev) => setNewEmail((ev.target as HTMLInputElement).value)}
+            placeholder="Enter your email" //must be uniq
+            value={email}
+            onInput={(ev) => setEmail((ev.target as HTMLInputElement).value)}
           />
 
           <div className="relative left-4">
@@ -127,13 +107,12 @@ export default function UpdateUserDetails() {
               id="password"
               name="password"
               autoComplete="off"
-              placeholder="Password"
+              placeholder="Choose your Password"
               value={password}
               onInput={(ev) =>
                 setPassword((ev.target as HTMLInputElement).value)
               }
             ></input>
-  
             <button
               type="button"
               className="emoji-button visible right-12"
@@ -152,12 +131,11 @@ export default function UpdateUserDetails() {
               value={confirmPassword}
               name="confirmPassword"
               autoComplete="off"
-              placeholder="Enter Password again"
+              placeholder="Enter your Password again"
               onInput={(ev) =>
                 setConfirmPassword((ev.target as HTMLInputElement).value)
               }
             ></input>
-
             <button
               type="button"
               className="emoji-button visible right-12"
@@ -170,10 +148,12 @@ export default function UpdateUserDetails() {
 
           <p>{!match ? "password are not matched!" : null}</p>
           <button className="registerBtn text-xl" type="submit">
-            Save
+            Save new password
           </button>
         </form>
       </div>
     </div>
   );
 }
+
+export default ResetPassword;

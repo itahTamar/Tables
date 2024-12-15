@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { register } from "../../api/userApi";
 import "../../style/buttons.css";
 import "../../style/register.css";
-import { ServerContext } from "../../context/ServerUrlContext";
+import { ServerContext } from "../../../context/ServerUrlContext";
+import { register } from "../../../api/userApi";
 
 const Register = () => {
   const [password, setPassword] = useState<string>("");
