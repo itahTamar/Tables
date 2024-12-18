@@ -1,9 +1,9 @@
-import React, { useContext, useRef } from "react";
-import { TableContext } from "../../context/tableContext";
-import { CellData } from "../../types/cellType";
+import React, { useContext } from "react";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
+import { TableContext } from "../../context/tableContext";
 import "../../style/tables/tableData.css";
+import { CellData } from "../../types/cellType";
 
 const PlotTable: React.FC = () => {
   const tableContext = useContext(TableContext);

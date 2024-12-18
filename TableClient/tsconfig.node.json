@@ -1,23 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2023"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "Bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+	"module": "CommonJS",
+	"target": "ES2020",
+	"outDir": "dist",
+	"lib": ["ESNext"],
+	"strict": true,
+	"esModuleInterop": true,
+	"composite": true,
+	"declaration": true, // Optional, enables generation of .d.ts files
+	"declarationMap": true // Optional, generates source maps for .d.ts files
   },
-  "include": ["vite.config.ts"]
+  "include": ["server/**/*.ts"]
 }
+

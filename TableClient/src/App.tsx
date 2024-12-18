@@ -3,7 +3,7 @@ import "./App.css";
 import { router } from "./router/router";
 import { useState } from "react";
 import { UserContext } from "./context/userContext";
-// import { disableReactDevTools } from '@fvilers/disable-react-devtools' //add before prodction
+import { disableReactDevTools } from '@fvilers/disable-react-devtools' //add before prodction
 import { ServerContext } from "./context/ServerUrlContext";
 import { TableProvider } from "./context/tableContext";
 
@@ -13,7 +13,7 @@ const dev_server = import.meta.env.VITE_REACT_APP_SERVER_URL_DEV;
 const prod_server = import.meta.env.VITE_REACT_APP_SERVER_URL_PROD;
 const checkEnvironment =
   environment === "development" ? dev_server : prod_server;
-// disableReactDevTools()
+disableReactDevTools()
 
 function App() {
   console.log("environment:", environment);

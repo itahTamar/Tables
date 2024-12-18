@@ -7,7 +7,7 @@ import { TableContext } from "../context/tableContext";
 import { addNewColumnWithCells } from "../functions/table/addNewColumnWithCells";
 import { addNewRowCells } from "../functions/table/addNewRowCells";
 import { getAllTablesCells } from "../functions/table/getAllTablesCells";
-import { getAllTablesColumns } from "../functions/table/getAllTablescolumns";
+import { getAllTablesColumns } from "../functions/table/getAllTablesColumns";
 
 function TablePage() {
   const navigate = useNavigate();
