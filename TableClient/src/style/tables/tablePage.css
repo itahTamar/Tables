@@ -1,0 +1,21 @@
+/* Add this in a CSS file or Tailwind classes */
+.table-container {
+    margin: 2rem auto;
+    max-width: 90%;
+    overflow-x: auto;
+  }
+  .table-auto {
+    width: 100%;
+    border-spacing: 0;
+  }
+  th,
+  td {
+    min-width: 100px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  th {
+    font-weight: bold;
+    background-color: #f3f4f6;
+  }
+  

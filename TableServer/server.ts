@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import mongoose, { ConnectOptions } from 'mongoose';
 import cookieParser from 'cookie-parser';
 // import {addFieldToUsers} from './API/users/updateUserDB'
 import cors from 'cors'
@@ -21,26 +20,40 @@ app.use(cors(corsOptions))
 //middleware for using parser
 app.use(cookieParser())
 
-import connectionMongo from "./DBConnection/mongoDB";
+// import connectionMongo from "./DBConnection/mongooseMongoDBConnection";
+// import { connectToDatabase } from "./mongoDB/nativeDriver/nativeMongiDBConnection";
+import { MongoDBWrapper } from "./mongoDB/nativeDriver/mongoDBWrapper";
 
 //API routes
-// get router from usersRouter
-import userRoute from "./API/User/userRoute";
-app.use("/api/users", userRoute);
+import userRoutes from "./API/User/userRoutes";
+app.use("/api/users", userRoutes);
 
-// get router from dataModel
-import dataRoutes  from "./API/Data/dataRoutes";
-app.use("/api/data", dataRoutes);
+// import usersTablesRoutes from "./API/UsersTables/usersTablesRoutes";
+// app.use("/api/usersTables", usersTablesRoutes);
 
-import tableRoutes from "./API/Table/tableRoutes";
-app.use("/api/tables", tableRoutes)
+// import cellRoutes  from "./API/Cell/cellRoutes";
+// app.use("/api/cells", cellRoutes);
+
+// import tableRoutes from "./API/Table/tableRoutes";
+// app.use("/api/tables", tableRoutes)
+
+// import columnsCellsRoutes from "./API/Table/ColumnJoins/ColumnsCells/columnsCellsRoutes";
+// app.use("/api/columnsCells", columnsCellsRoutes)
+
+// import tablesColumnsRoutes from "./API/Table/ColumnJoins/TablesColumns/tablesColumnsRoutes";
+// app.use("/api/TablesColumns", tablesColumnsRoutes)
+
+import docRouter from "./API/Docs/docRouter";
+app.use("/api/doc", docRouter)
 
 // Route for sending recovery email
-import { isEmailExist } from "./API/User/userCont";
+import { isItemExist } from "./API/helpFunctions";
+import { UserModel } from "./API/User/userModel";
 app.post("/send_recovery_email", async (req: Request, res: Response) => {
   try { 
     const email = req.body.recipient_email
-    const emailExists = await isEmailExist(email);  // Await the async function
+    //@ts-ignore
+    const emailExists = await isItemExist(UserModel,email);  // Await the async function
     if (emailExists) {
       sendEmail(req.body)
       .then((response) => res.send(response))
@@ -57,7 +70,14 @@ app.post("/send_recovery_email", async (req: Request, res: Response) => {
 // Connect to MongoDB
 const connectToMongoDB = async () => {
   try {
-    await connectionMongo;
+    //with mongoose
+    // await connectionMongo;
+
+    //with native driver
+    // await connectToDatabase();
+
+    //with wrapper
+    await MongoDBWrapper.connectMongoDB()
   } catch (err) {
     console.error(err);
     process.exit(1); // Exit the process with a non-zero code
@@ -78,3 +98,34 @@ connectToMongoDB()
   .catch((err) => {
     console.error(err);
   });
+
+
+
+  //test the native drive mongoDB CRUD
+// import { createDocument, deleteDocument, readDocuments, updateDocument, updateDocuments } from "./mongoDB/nativeDriver/nativeMongoDBCRUD";
+// import { ObjectId } from 'mongodb';
+// import { getParsedCommandLineOfConfigFile } from "typescript";
+  // CREATE
+// const newUser = {
+//   name: 'MS.John Doe',
+//   email: 'MSjohn.doe@example.com',
+//   age: 25,
+//   active: true
+// };
+// createDocument('users', newUser);
+
+// READ
+// const objectId = new ObjectId('674d9b52d06b972fe55237c4');
+// readDocuments('users', { _id: objectId });
+
+// UPDATE
+// updateDocument('users', { email: 'john.doe@example.com' }, { age: 35 });
+// const filter = { age: { $gte: 20 } };  // Example filter to select documents with age >= 30
+// const updateDoc = {            
+//   age: 17
+// };
+
+// updateDocuments('users', filter, updateDoc)
+
+// DELETE
+// deleteDocument('users', { email: 'john.doe@example.com' });

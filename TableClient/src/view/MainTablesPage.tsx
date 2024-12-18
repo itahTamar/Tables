@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../api/userApi';
-import UserTables from './../components/UserTables';
-import '../style/mainTablePage.css'
-import AddNewTable from '../components/AddNewTable';
-import PopupWithAnimation from '../components/popupWithAnimation';
+import AddNewTable from '../components/tables/AddNewTable';
+import PopupWithAnimation from '../components/popups/popupWithAnimation';
+import UserTables from '../components/tables/UserTables';
 
 const MainTablesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -50,3 +49,4 @@ const MainTablesPage: React.FC = () => {
 };
 
 export default MainTablesPage;
+//work ok

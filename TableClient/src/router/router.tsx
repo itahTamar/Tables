@@ -1,13 +1,12 @@
 import { createBrowserRouter } from "react-router-dom"
+import ForgotPassword from "../components/users/password/ForgotPassword"
+import OTPInput from "../components/users/password/OTPInput"
+import ResetPassword from "../components/users/password/ResetPassword"
+import UpdateUserDetails from "../components/users/UpdateUserDetails"
 import LandingPage from "../view/LandingPage"
-import RegisterPage from "../view/RegisterPage"
-import ResetPassword from "../components/ResetPassword"
-import ForgotPassword from "../components/ForgotPassword"
-import OTPInput from "../components/OTPInput"
-import UpdateUserDetails from "../components/UpdateUserDetails"
 import MainTablesPage from "../view/MainTablesPage"
-// import { TableData } from "../components/TableData"
-import { TableDataCopyTest } from "../components/TableDataCopyTest"
+import RegisterPage from "../view/RegisterPage"
+import TablePage from "../view/TablePage"
 
 export const router = createBrowserRouter([
     {path: "/", element: <LandingPage/>},
@@ -17,7 +16,6 @@ export const router = createBrowserRouter([
     {path: "/resetPassword", element: <ResetPassword/>},
     {path: "/updateUserDetails", element: <UpdateUserDetails/>},
     {path: "/mainTablesPage", element: <MainTablesPage/>},
-    // {path: "/table/:tableId", element: <TableData/>},
-    {path: "/table/:tableId", element: <TableDataCopyTest/>},
+    {path: "/table/:tableId", element: <TablePage/>},
 
 ])
