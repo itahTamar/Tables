@@ -30,5 +30,5 @@ interface findLastIndexProp {
       console.error("Error in findLastIndex:", error);
       return undefined;
     }
-  };
+  }; //work ok
  

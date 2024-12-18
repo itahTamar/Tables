@@ -48,4 +48,4 @@ export const addNewColumnWithCells = async ({serverUrl, tableIndex, columns, cel
     }
 
     return true;
-}; 
+}; //work ok

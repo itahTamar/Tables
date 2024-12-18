@@ -31,6 +31,6 @@ export const addNewColumnsCell = async ({serverUrl, tableIndex, columns }: AddCo
       console.log("Failed to add Column.");
     }
     return;
-  };
+  }; //work ok
 
 

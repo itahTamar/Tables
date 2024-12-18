@@ -47,4 +47,4 @@ export const addNewRowCells = async ({serverUrl, tableIndex, columns, cells }: A
     }   
 
   return true;
-};
+}; //work ok
