@@ -31,18 +31,6 @@ app.use("/api/users", userRoutes);
 // import usersTablesRoutes from "./API/UsersTables/usersTablesRoutes";
 // app.use("/api/usersTables", usersTablesRoutes);
 
-// import cellRoutes  from "./API/Cell/cellRoutes";
-// app.use("/api/cells", cellRoutes);
-
-// import tableRoutes from "./API/Table/tableRoutes";
-// app.use("/api/tables", tableRoutes)
-
-// import columnsCellsRoutes from "./API/Table/ColumnJoins/ColumnsCells/columnsCellsRoutes";
-// app.use("/api/columnsCells", columnsCellsRoutes)
-
-// import tablesColumnsRoutes from "./API/Table/ColumnJoins/TablesColumns/tablesColumnsRoutes";
-// app.use("/api/TablesColumns", tablesColumnsRoutes)
-
 import docRouter from "./API/Docs/docRouter";
 app.use("/api/doc", docRouter)
 
@@ -98,34 +86,3 @@ connectToMongoDB()
   .catch((err) => {
     console.error(err);
   });
-
-
-
-  //test the native drive mongoDB CRUD
-// import { createDocument, deleteDocument, readDocuments, updateDocument, updateDocuments } from "./mongoDB/nativeDriver/nativeMongoDBCRUD";
-// import { ObjectId } from 'mongodb';
-// import { getParsedCommandLineOfConfigFile } from "typescript";
-  // CREATE
-// const newUser = {
-//   name: 'MS.John Doe',
-//   email: 'MSjohn.doe@example.com',
-//   age: 25,
-//   active: true
-// };
-// createDocument('users', newUser);
-
-// READ
-// const objectId = new ObjectId('674d9b52d06b972fe55237c4');
-// readDocuments('users', { _id: objectId });
-
-// UPDATE
-// updateDocument('users', { email: 'john.doe@example.com' }, { age: 35 });
-// const filter = { age: { $gte: 20 } };  // Example filter to select documents with age >= 30
-// const updateDoc = {            
-//   age: 17
-// };
-
-// updateDocuments('users', filter, updateDoc)
-
-// DELETE
-// deleteDocument('users', { email: 'john.doe@example.com' });
