@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { logout } from '../api/userApi';
 import AddNewTable from '../components/tables/AddNewTable';
 import PopupWithAnimation from '../components/popups/popupWithAnimation';
-import '../style/mainTablePage.css';
 import UserTables from '../components/tables/UserTables';
 
 const MainTablesPage: React.FC = () => {

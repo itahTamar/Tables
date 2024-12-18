@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../style/buttons.css";
 import "../style/landingPage.css";
 import Popup from "../components/popups/Popup";
-import { useGetAllUserTables } from "../components/tables/useGetComponents";
+import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 import Login from "../components/users/login/Login";
 
 const LandingPage = () => {

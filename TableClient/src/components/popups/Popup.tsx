@@ -1,5 +1,4 @@
-import "../style/popup.css"
-
+import "../../style/popups/popup.css"
 interface PopupProps {
   onClose: () => void;
   children: React.ReactNode;

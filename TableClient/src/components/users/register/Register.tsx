@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../style/buttons.css";
-import "../../style/register.css";
+import "../../../style/buttons.css";
+import "../../../style/users/register.css";
 import { ServerContext } from "../../../context/ServerUrlContext";
 import { register } from "../../../api/userApi";
 

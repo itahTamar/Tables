@@ -1,6 +1,6 @@
 import mongoose, { Model, Document, UpdateQuery, Schema } from "mongoose";
 import { ObjectId } from "mongodb";
-import { IJoinDataObjectDocument, MyJoinDataObjectCollection } from "../../../../API/general/joinDataObjectModel";
+import { IJoinDataObjectDocument, MyJoinDataObjectCollection } from "../../general/joinDataObjectModel";
 
 export interface JoinDocument {
   item1ID: ObjectId;

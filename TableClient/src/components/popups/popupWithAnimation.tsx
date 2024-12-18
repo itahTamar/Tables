@@ -1,4 +1,4 @@
-import "../style/popupWithAnimation.css";
+import "../../style/popups/popupWithAnimation.css";
 
 interface PopupProps {
   onClose: () => void;

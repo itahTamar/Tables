@@ -9,7 +9,7 @@ import {
 
 class MongoDBWrapper {
   private static uri: string = process.env.MONGO_URL;
-  private static dbName: string = "testNativeDriverDatabase"; //! Replace when you want to create/connect to new/existing database
+  private static dbName: string = "tableProjectV2"; //! Replace when you want to create/connect to new/existing database
   private static client: MongoClient | null = null;
   private static db: Db | null = null;
 

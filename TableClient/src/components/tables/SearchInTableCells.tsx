@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
 import { TableContext } from "../../context/tableContext";
-import { DocumentAPIWrapper } from "../../api/docApi";
+import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
-import { useGetAllTablesCells } from "./useGetComponents";
+import { getAllTablesCells } from "../../functions/table/getAllTablesCells";
 
 //component that search in the DB
 interface SearchInTableCellsProps {
-  tableIndex: number | undefined
+  tableIndex: number;
   placeholder?: string;
 }
 
@@ -17,7 +17,6 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableIndex, plac
   }
   const { setCells } = tableContext;
   const serverUrl = useContext(ServerContext);
-  const getAllTablesCells = useGetAllTablesCells();
 
   const [query, setQuery] = useState<string>("");
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(
@@ -34,7 +33,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableIndex, plac
       if (e.target.value) {
         handleSearchResults(e.target.value); // Trigger search with query
         } else {
-          getAllTablesCells(); // No query, return empty results
+          getAllTablesCells({serverUrl, tableIndex}); // No query, return empty results
       }
     }, 1000);
 
@@ -43,7 +42,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableIndex, plac
 
   const handleSearchResults = async (target: any) => {
     console.log("At handleSearchResults the tableIndex from prop is:", tableIndex)
-    const result = await DocumentAPIWrapper.getSearchInTableCells(serverUrl,"tables", tableIndex, target)
+    const result = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableIndex, target)
     if(!result) throw new Error("no result for search in table cells");
     setCells(result)
   }

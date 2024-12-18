@@ -1,11 +1,11 @@
 import React, { useContext, useRef } from "react";
 import { TableContext } from "../../context/tableContext";
 import { CellData } from "../../types/cellType";
-import { DocumentAPIWrapper } from "../../api/docApi";
+import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
-import "../style/tableData.css";
+import "../../style/tables/tableData.css";
 
-const NewTableData: React.FC = () => {
+const PlotTable: React.FC = () => {
   const tableContext = useContext(TableContext);
   const serverUrl = useContext(ServerContext);
 
@@ -35,7 +35,7 @@ const NewTableData: React.FC = () => {
   const handleCellUpdate = async (cell: CellData, newData: any) => {
     try {
       const updatedCell = { ...cell, data: newData };
-      const success = await DocumentAPIWrapper.update(
+      const success = await DocumentRestAPIMethods.update(
         serverUrl,
         "tables",
         { _id: cell._id },
@@ -155,4 +155,4 @@ const NewTableData: React.FC = () => {
   );
 };
 
-export default NewTableData;
+export default PlotTable;

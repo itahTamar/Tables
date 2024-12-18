@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
 import { ServerContext } from "../../context/ServerUrlContext";
-import "../style/buttons.css";
+import "../../style/buttons.css";
 import { TableContext } from "../../context/tableContext";
-import { DocumentAPIWrapper } from "../../api/docApi";
-import { useGetAllUserTables } from "./useGetComponents";
+import { DocumentRestAPIMethods } from "../../api/docApi";
+import { useGetAllUserTables } from "../../hooks/tables/useGetTablesHooks";
 
 interface AddTableProps {
   onClose: () => void;
@@ -22,18 +22,18 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
 
   const handleAddTable = async () => {
     if (!tableSubject) {
-      setMessage("Please fill in both fields.");
+      setMessage("Please fill the field.");
       return;
     }
 
-    //last table index
+    //fine last (max) table index
     const maxTableIndexValue = tables.reduce((max, current) => {
       return current.tableIndex > max ? current.tableIndex : max;
     }, 0);
 
     console.log("At handleAddTable the maxTableIndexValue is:", maxTableIndexValue)
 
-    const success = await DocumentAPIWrapper.add(serverUrl, "tables", {
+    const success = await DocumentRestAPIMethods.add(serverUrl, "tables", {
       type: "table",
       tableName: tableSubject,
       tableIndex: maxTableIndexValue + 1,

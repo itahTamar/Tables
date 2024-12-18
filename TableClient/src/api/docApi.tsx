@@ -1,6 +1,6 @@
 import axios from "axios";
 
-class DocumentAPIWrapper {
+class DocumentRestAPIMethods {
   //add document
   static async add(
     serverUrl: string,
@@ -12,16 +12,16 @@ class DocumentAPIWrapper {
         collectionName,
         document,
       });
-      console.log("at DocumentAPIWrapper.add the response is:", response);
+      console.log("at DocumentRestAPIMethods.add the response is:", response);
       console.log(
-        "at DocumentAPIWrapper.add the response.data.acknowledged is:",
+        "at DocumentRestAPIMethods.add the response.data.acknowledged is:",
         response.data.acknowledged
       );
       if (!response.data.acknowledged)
-        throw new Error("No response in DocumentAPIWrapper.add");
+        throw new Error("No response in DocumentRestAPIMethods.add");
       return true;
     } catch (error) {
-      console.error("Error DocumentAPIWrapper.add document");
+      console.error("Error DocumentRestAPIMethods.add document");
       return false;
     }
   } //work ok
@@ -36,16 +36,16 @@ class DocumentAPIWrapper {
       const response = await axios.delete(`${serverUrl}/api/doc/deleteDoc`, {
         data: { collectionName, query },
       });
-      console.log("at DocumentAPIWrapper.delete the response is:", response);
+      console.log("at DocumentRestAPIMethods.delete the response is:", response);
       console.log(
-        "at DocumentAPIWrapper.delete the response.data.acknowledged is:",
+        "at DocumentRestAPIMethods.delete the response.data.acknowledged is:",
         response.data.acknowledged
       );
       if (!response.data.acknowledged)
-        throw new Error("No response in DocumentAPIWrapper.delete");
+        throw new Error("No response in DocumentRestAPIMethods.delete");
       return true;
     } catch (error) {
-      console.error("Error DocumentAPIWrapper.delete document");
+      console.error("Error DocumentRestAPIMethods.delete document");
       return false;
     }
   } //work ok
@@ -58,25 +58,25 @@ class DocumentAPIWrapper {
     update: object
   ): Promise<boolean> {
     try {
-      console.log("at update the collectionName is:", collectionName);
-      console.log("at update the query is:", query);
-      console.log("at update the update is:", update);
+      console.log("at DocumentRestAPIMethods.update the collectionName is:", collectionName);
+      console.log("at DocumentRestAPIMethods.update the query is:", query);
+      console.log("at DocumentRestAPIMethods.update the update is:", update);
 
       const response = await axios.patch(`${serverUrl}/api/doc/updateDoc`, {
         collectionName,
         query,
         update,
       });
-      console.log("at DocumentAPIWrapper.update the response is:", response);
+      console.log("at DocumentRestAPIMethods.update the response is:", response);
       console.log(
-        "at DocumentAPIWrapper.update the response.data.acknowledged is:",
+        "at DocumentRestAPIMethods.update the response.data.acknowledged is:",
         response.data.acknowledged
       );
       if (!response.data.acknowledged)
-        throw new Error("No response in DocumentAPIWrapper.update");
+        throw new Error("No response in DocumentRestAPIMethods.update");
       return true;
     } catch (error) {
-      console.error("Error DocumentAPIWrapper.update document");
+      console.error("Error DocumentRestAPIMethods.update document");
       return false;
     }
   } //work ok
@@ -91,16 +91,16 @@ class DocumentAPIWrapper {
       const response = await axios.get(`${serverUrl}/api/doc/getDoc`, {
         params: { collectionName, query: JSON.stringify(query) },
       });
-      console.log("at DocumentAPIWrapper.get the response is:", response);
+      console.log("at DocumentRestAPIMethods.get the response is:", response);
       console.log(
-        "at DocumentAPIWrapper.get the response.data is:",
+        "at DocumentRestAPIMethods.get the response.data is:",
         response.data
       );
       if (!response.data)
-        throw new Error("No response in DocumentAPIWrapper.get");
+        throw new Error("No response in DocumentRestAPIMethods.get");
       return response.data;
     } catch (error) {
-      console.error("Error DocumentAPIWrapper.get document");
+      console.error("Error DocumentRestAPIMethods.get document");
       return [];
     }
   } //work ok
@@ -116,21 +116,21 @@ class DocumentAPIWrapper {
       const response = await axios.get(`${serverUrl}/api/doc/searchDocsAggPip`, {
         params: { collectionName, tableIndex, regexToSearch },
       });
-      console.log("at DocumentAPIWrapper.getSearchInTableCells the response is:", response);
+      console.log("at DocumentRestAPIMethods.getSearchInTableCells the response is:", response);
       console.log(
-        "at DocumentAPIWrapper.getSearchInTableCells the response.data is:",
+        "at DocumentRestAPIMethods.getSearchInTableCells the response.data is:",
         response.data
       );console.log(
-        "at DocumentAPIWrapper.getSearchInTableCells the response.data.documents is:",
+        "at DocumentRestAPIMethods.getSearchInTableCells the response.data.documents is:",
         response.data[0].documents
       );
       if (!response.data)
-        throw new Error("No response in DocumentAPIWrapper.getSearchInTableCells");
+        throw new Error("No response in DocumentRestAPIMethods.getSearchInTableCells");
       return response.data[0].documents;
     } catch (error) {
-      console.error("Error DocumentAPIWrapper.getSearchInTableCells document");
+      console.error("Error DocumentRestAPIMethods.getSearchInTableCells document");
       return [];
     }
   } //work ok
 }
-export { DocumentAPIWrapper };
+export { DocumentRestAPIMethods };

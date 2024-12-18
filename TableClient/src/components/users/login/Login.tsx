@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../style/buttons.css";
+import "../../../style/buttons.css";
 import { UserContext } from "../../../context/userContext";
 import { ServerContext } from "../../../context/ServerUrlContext";
-import { useGetAllUserTables } from "../../tables/useGetComponents";
+import { useGetAllUserTables } from "../../../hooks/tables/useGetTablesHooks";
 import { TableContext } from "../../../context/tableContext";
 import { login } from "../../../api/userApi";
 
