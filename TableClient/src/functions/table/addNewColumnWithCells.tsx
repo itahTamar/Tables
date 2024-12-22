@@ -1,6 +1,5 @@
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { CellData } from "../../types/cellType";
-import { addNewColumnsCell } from "./addNewColumn";
 import { findTheLastIndex } from "./findTheLastIndex";
 import { updateIndexes } from "./updateIndex";
 

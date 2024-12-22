@@ -80,9 +80,9 @@ export const DeleteColumnCells = async ({
   if (currentColumnIndex < lastColumnIndex) {
   console.log("At DeleteColumnCells the currentColumnIndex before update:", currentColumnIndex);
   //1) update the cell-type column
-    const successCol = updateIndexes({serverUrl, arr: columns, currentIndex: currentColumnIndex, indexType: "columnIndex"})
+    const successCol = updateIndexes({serverUrl, arr: columns, currentIndex: currentColumnIndex, indexType: "columnIndex", action:"subtraction"})
     //2) update the cell-type cell
-    const successCell = updateIndexes({serverUrl, arr: cells, currentIndex: currentColumnIndex, indexType: "columnIndex"})
+    const successCell = updateIndexes({serverUrl, arr: cells, currentIndex: currentColumnIndex, indexType: "columnIndex", action:"subtraction"})
     if (!successCol || !successCell) throw new Error("Invalid currentIndex at DeleteColumnCells") ;
     if (successCol === undefined || successCell === undefined) throw new Error("updateIndexes caught an error");
     return true

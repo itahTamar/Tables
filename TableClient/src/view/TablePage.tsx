@@ -149,7 +149,7 @@ function TablePage() {
       <div className="flex flex-row mb-24">
       <button onClick={() => handleAddRowBtnClick(false)}>Add Row After</button>
       <button onClick={() => handleAddRowBtnClick(true)}>Add Row Before</button>
-        <button onClick={() => handleAddColumnBtnClicked()}>Add Column</button>
+        <button onClick={() => handleAddColumnBtnClicked()}>Add Column After</button>
         <button onClick={() => handleDeleteRowBtnClicked()}>Delete Row</button>
         <button onClick={() => handleDeleteColumnBtnClicked()}>Delete Column</button>
       </div>
