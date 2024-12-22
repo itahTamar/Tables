@@ -1,6 +1,6 @@
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { CellData } from "../../types/cellType";
-import { findLastIndex } from "./findLastIndex";
+import { findTheLastIndex } from './findTheLastIndex';
 
 interface AddColumnProp {
   serverUrl: string;
@@ -12,7 +12,7 @@ export const addNewColumnsCell = async ({serverUrl, tableIndex, columns }: AddCo
     
     //find the last (max) column index
     //@ts-ignore
-    const lastColumnIndex = findLastIndex({ arr: columns, indexType: "columnIndex" });
+    const lastColumnIndex = findTheLastIndex({ arr: columns, indexType: "columnIndex" });
     if(lastColumnIndex === undefined) throw new Error("At addNewColumn the lastColumnIndex not defined");
 
     console.log("At addNewColumnsCell the lastColumnIndex:", lastColumnIndex );

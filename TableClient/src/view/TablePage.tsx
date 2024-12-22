@@ -1,19 +1,22 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { DocumentRestAPIMethods } from "../api/docApi";
 import PlotTable from "../components/tables/PlotTable";
 import SearchInTableCells from "../components/tables/SearchInTableCells";
 import { ServerContext } from "../context/ServerUrlContext";
 import { TableContext } from "../context/tableContext";
 import { addNewColumnWithCells } from "../functions/table/addNewColumnWithCells";
 import { addNewRowCells } from "../functions/table/addNewRowCells";
+import { DeleteRowCells } from "../functions/table/deleteRowCells";
 import { getAllTablesCells } from "../functions/table/getAllTablesCells";
 import { getAllTablesColumns } from "../functions/table/getAllTablesColumns";
+import { DeleteColumnCells } from "../functions/table/deleteColumnCells";
 
 function TablePage() {
   const navigate = useNavigate();
   const serverUrl = useContext(ServerContext);
   const { tableId } = useParams();
-  const [fetchAgain, setFetchAgain] = useState(false)
+  const [fetchAgain, setFetchAgain] = useState(false);
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
@@ -25,16 +28,19 @@ function TablePage() {
 
   const { tables, columns, cells, setColumns, setCells } = tableContext;
 
-  const tableName = tables.map((e) => e._id === tableId ? e.tableName : null);
+  const tableName = tables.map((e) => (e._id === tableId ? e.tableName : null));
   const tableIndex = tables.find((e) => e._id === tableId)?.tableIndex;
-  if(!tableIndex) throw new Error("no tableIndex in tablePage");
+  if (!tableIndex) throw new Error("no tableIndex in tablePage");
   console.log("At TablePage the tableIndex is:", tableIndex); //ok
 
   // Fetch columns and cells in useEffect
   useEffect(() => {
     const fetchColumnsAndCells = async () => {
       try {
-        const fetchedColumns = await getAllTablesColumns({ serverUrl, tableIndex });
+        const fetchedColumns = await getAllTablesColumns({
+          serverUrl,
+          tableIndex,
+        });
         const fetchedCells = await getAllTablesCells({ serverUrl, tableIndex });
 
         if (!fetchedColumns || !fetchedCells) {
@@ -44,10 +50,9 @@ function TablePage() {
         // Set the fetched columns and cells into the context
         setColumns(fetchedColumns);
         setCells(fetchedCells);
-        setFetchAgain(false)
+        setFetchAgain(false);
         console.log("At TablePage fetched columns:", fetchedColumns);
         console.log("At TablePage fetched cells:", fetchedCells);
-
       } catch (error) {
         console.error("Error fetching columns or cells:", error);
       }
@@ -59,19 +64,74 @@ function TablePage() {
   const handleBackBtnClicked = async () => {
     setColumns([]);
     setCells([]);
-    navigate("/mainTablesPage")
-  }
+    navigate("/mainTablesPage");
+  };
 
-  const handleAddRowBtnClick = async () => {
-    const fetchAgain = await addNewRowCells({serverUrl, tableIndex, columns, cells})
-    setFetchAgain(fetchAgain)
-  }
+  const handleAddRowBtnClick = async (addBefore: boolean) => {
+    const fetchAgain = await addNewRowCells({
+      serverUrl,
+      tableIndex,
+      currentRowIndex: 1, //!change
+      columns,
+      cells,
+      addBefore,
+    });
+    setFetchAgain(fetchAgain);
+  };
 
   const handleAddColumnBtnClicked = async () => {
-    const fetchAgain = await addNewColumnWithCells({serverUrl, tableIndex, columns, cells})
-    setFetchAgain(fetchAgain)
-  }
-  
+    const fetchAgain = await addNewColumnWithCells({
+      serverUrl,
+      tableIndex,
+      currentColumnIndex: 1, //!change
+      columns,
+      cells,
+    });
+    setFetchAgain(fetchAgain);
+  };
+
+  const handleDeleteRowBtnClicked = async () => {
+    try {
+      const result = await DeleteRowCells({
+        serverUrl,
+        tableIndex,
+        currentRowIndex: 3, //!change
+        columns,
+        cells,
+      });
+
+      if (result === undefined) {
+        throw new Error("Result is undefined - delete row failed");
+      }
+
+      setFetchAgain(result);
+
+    } catch (error) {
+      console.error("Error handling delete row:", error);
+    }
+  };
+
+  const handleDeleteColumnBtnClicked = async () => {
+    try {
+      const result = await DeleteColumnCells({
+        serverUrl,
+        tableIndex,
+        currentColumnIndex: 1, //!change 
+        columns,
+        cells,
+      });
+
+      if (result === undefined) {
+        throw new Error("Result is undefined - delete row failed");
+      }
+
+      setFetchAgain(result);
+
+    } catch (error) {
+      console.error("Error handling delete row:", error);
+    }
+  };
+
   return (
     <div>
       <header className="flex justify-between items-center mb-24">
@@ -87,11 +147,11 @@ function TablePage() {
       <h1>{tableName}</h1>
       <SearchInTableCells tableIndex={tableIndex} />
       <div className="flex flex-row mb-24">
-        {/* <AddNewTablesRow tableId={tableId} /> */}
-        <button onClick={() => handleAddRowBtnClick()}>Add Row</button>
-        <button onClick={()=> handleAddColumnBtnClicked()}>Add Column</button>
-        {/* <AddNewTablesColumn tableId={tableId} /> */}
-
+      <button onClick={() => handleAddRowBtnClick(false)}>Add Row After</button>
+      <button onClick={() => handleAddRowBtnClick(true)}>Add Row Before</button>
+        <button onClick={() => handleAddColumnBtnClicked()}>Add Column</button>
+        <button onClick={() => handleDeleteRowBtnClicked()}>Delete Row</button>
+        <button onClick={() => handleDeleteColumnBtnClicked()}>Delete Column</button>
       </div>
 
       <PlotTable />

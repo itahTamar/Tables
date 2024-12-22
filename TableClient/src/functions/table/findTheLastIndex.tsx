@@ -1,12 +1,12 @@
 import { CellData } from "../../types/cellType";
 import { TableData } from "../../types/tableType";
 
-interface findLastIndexProp {
+interface findTheLastIndexProp {
     arr: CellData[] | TableData[];
-    indexType: keyof CellData & keyof TableData; // Ensures indexType exists in both types // e.g., 'tableIndex', 'cellIndex', 'columnIndex'
+    indexType: keyof CellData | keyof TableData; // Ensures indexType exists in both types // e.g., 'tableIndex', 'cellIndex', 'columnIndex'
   }
   
-  export const findLastIndex = ({ arr, indexType }: findLastIndexProp): number | undefined => {
+  export const findTheLastIndex = ({ arr, indexType }: findTheLastIndexProp): number | undefined => {
     try {
       // Ensure the array is not empty
       if (!arr.length) {
@@ -15,7 +15,7 @@ interface findLastIndexProp {
       }
   
       const lastIndex = arr.reduce((max, current) => {
-        const value = current[indexType] as unknown; // Dynamically access property 
+        const value = current[indexType as keyof typeof arr[number]] as unknown; // Dynamically access property 
         
         if (typeof value !== "number") {
           throw new Error(`Property ${indexType} is not a number.`);

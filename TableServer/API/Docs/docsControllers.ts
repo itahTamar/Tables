@@ -65,7 +65,7 @@ export async function updateDoc(req: any, res: any) {
       query._id = new ObjectId(query._id);
     }
 
-    // delete the doc to MongoDB
+    // update the doc to MongoDB
     const response = await MongoDBWrapper.updateDocument(
       collectionName,
       query,
@@ -94,7 +94,7 @@ export async function updateDocs(req: any, res: any) {
       query._id = new ObjectId(query._id);
     }
 
-    // delete the doc to MongoDB
+    // update the documents to MongoDB
     const response = await MongoDBWrapper.updateDocuments(
       collectionName,
       query,

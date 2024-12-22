@@ -117,7 +117,7 @@ class MongoDBWrapper {
       console.error("Error updating document:", err);
       throw err;
     }
-  } //work ok - not returning the updated document
+  } //work ok - not returning the updated document - not using it
 
   // UPDATE: Update multiple documents based on a filter
   static async updateDocuments(
@@ -143,7 +143,7 @@ class MongoDBWrapper {
     }
   }
 
-  // DELETE: Delete a document from a collection
+  // DELETE: Delete one document from a collection
   static async deleteDocument(
     collectionName: string,
     query: object
