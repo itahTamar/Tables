@@ -6,7 +6,7 @@ import { ServerContext } from "../context/ServerUrlContext";
 import { TableContext } from "../context/tableContext";
 import { addNewColumnWithCells } from "../functions/table/column/addNewColumnWithCells";
 import { DeleteColumnCells } from "../functions/table/column/deleteColumnCells";
-import { addNewRowCells } from "../functions/table/row/addNewRow";
+import { addNewRow } from "../functions/table/row/addNewRow";
 import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
 import { getAllTablesColumns } from "../functions/table/column/getAllTablesColumns";
 import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
@@ -123,7 +123,7 @@ function TablePage() {
   };
   
   const handleAddRowBtnClick = async (addBefore: boolean, currentRowIndex: number) => {
-    const fetchAgain = await addNewRowCells({
+    const fetchAgain = await addNewRow({
       serverUrl,
       tableIndex,
       currentRowIndex, 
@@ -196,6 +196,9 @@ function TablePage() {
           className="absolute top-4 left-4 text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600"
         >
           Back
+        </button>
+        <button onClick={() => handleAddColumnBtnClicked(false, 0)}>
+          Add initial Column 
         </button>
       </header>
 

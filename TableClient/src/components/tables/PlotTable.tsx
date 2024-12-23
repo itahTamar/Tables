@@ -117,6 +117,10 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
                 onBlur={(e) =>
                   handleCellUpdate(column, e.currentTarget.textContent || "")
                 }
+                onContextMenu={(e) => {
+                  e.preventDefault(); // Prevent default context menu
+                  handleRightClick(e, column.rowIndex, column.columnIndex);
+                }}
               >
                 {column.data}
               </th>
