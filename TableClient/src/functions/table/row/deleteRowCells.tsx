@@ -1,7 +1,7 @@
-import { DocumentRestAPIMethods } from "../../api/docApi";
-import { CellData } from "../../types/cellType";
-import { updateIndexes } from "./updateIndex";
-import { findTheLastIndex } from './findTheLastIndex';
+import { DocumentRestAPIMethods } from "../../../api/docApi";
+import { CellData } from "../../../types/cellType";
+import { updateIndexes } from "./../updateIndex";
+import { findTheLastIndex } from './../findTheLastIndex';
 
 interface deleteRowProp {
   serverUrl: string;
@@ -68,3 +68,4 @@ export const DeleteRowCells = async ({
     return true
   }
 };
+//work ok

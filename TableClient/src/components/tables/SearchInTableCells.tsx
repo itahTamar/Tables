@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { TableContext } from "../../context/tableContext";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
-import { getAllTablesCells } from "../../functions/table/getAllTablesCells";
+import { getAllTablesCells } from "../../functions/table/row/getAllTablesCells";
 
 //component that search in the DB
 interface SearchInTableCellsProps {

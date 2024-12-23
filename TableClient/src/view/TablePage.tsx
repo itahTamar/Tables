@@ -1,16 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { DocumentRestAPIMethods } from "../api/docApi";
 import PlotTable from "../components/tables/PlotTable";
 import SearchInTableCells from "../components/tables/SearchInTableCells";
 import { ServerContext } from "../context/ServerUrlContext";
 import { TableContext } from "../context/tableContext";
-import { addNewColumnWithCells } from "../functions/table/addNewColumnWithCells";
-import { addNewRowCells } from "../functions/table/addNewRowCells";
-import { DeleteRowCells } from "../functions/table/deleteRowCells";
-import { getAllTablesCells } from "../functions/table/getAllTablesCells";
-import { getAllTablesColumns } from "../functions/table/getAllTablesColumns";
-import { DeleteColumnCells } from "../functions/table/deleteColumnCells";
+import { addNewColumnWithCells } from "../functions/table/column/addNewColumnWithCells";
+import { DeleteColumnCells } from "../functions/table/column/deleteColumnCells";
+import { addNewRowCells } from "../functions/table/row/addNewRow";
+import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
+import { getAllTablesColumns } from "../functions/table/column/getAllTablesColumns";
+import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 
 function TablePage() {
   const navigate = useNavigate();
@@ -79,14 +78,16 @@ function TablePage() {
     setFetchAgain(fetchAgain);
   };
 
-  const handleAddColumnBtnClicked = async () => {
+  const handleAddColumnBtnClicked = async (addBefore: boolean) => {
     const fetchAgain = await addNewColumnWithCells({
       serverUrl,
       tableIndex,
       currentColumnIndex: 1, //!change
       columns,
       cells,
+      addBefore
     });
+    //@ts-ignore
     setFetchAgain(fetchAgain);
   };
 
@@ -147,9 +148,10 @@ function TablePage() {
       <h1>{tableName}</h1>
       <SearchInTableCells tableIndex={tableIndex} />
       <div className="flex flex-row mb-24">
-      <button onClick={() => handleAddRowBtnClick(false)}>Add Row After</button>
-      <button onClick={() => handleAddRowBtnClick(true)}>Add Row Before</button>
-        <button onClick={() => handleAddColumnBtnClicked()}>Add Column After</button>
+        <button onClick={() => handleAddRowBtnClick(false)}>Add Row After</button>
+        <button onClick={() => handleAddRowBtnClick(true)}>Add Row Before</button>
+        <button onClick={() => handleAddColumnBtnClicked(false)}>Add Column After</button>
+        <button onClick={() => handleAddColumnBtnClicked(true)}>Add Column Before</button>
         <button onClick={() => handleDeleteRowBtnClicked()}>Delete Row</button>
         <button onClick={() => handleDeleteColumnBtnClicked()}>Delete Column</button>
       </div>

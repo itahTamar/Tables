@@ -1,7 +1,7 @@
-import { DocumentRestAPIMethods } from "../../api/docApi";
-import { CellData } from "../../types/cellType";
-import { findTheLastIndex } from "./findTheLastIndex";
-import { updateIndexes } from "./updateIndex";
+import { DocumentRestAPIMethods } from "../../../api/docApi";
+import { CellData } from "../../../types/cellType";
+import { findTheLastIndex } from "../findTheLastIndex";
+import { updateIndexes } from "../updateIndex";
 
 interface AddRowProp {
   serverUrl: string;
@@ -12,7 +12,7 @@ interface AddRowProp {
   addBefore: boolean;
 }
 
-//regular function to add one row to the table, row-cell will be according to the number of columns
+//regular function to add one row to the table, row-cells will be according to the number of columns
 export const addNewRowCells = async ({
   serverUrl,
   tableIndex,
@@ -115,3 +115,4 @@ export const addNewRowCells = async ({
   }
   return true;
 };
+//work ok
