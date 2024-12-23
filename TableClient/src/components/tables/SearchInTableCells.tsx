@@ -48,7 +48,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableIndex, plac
   }
 
   return (
-    <div style={{ width: "100%", maxWidth: "400px", margin: "my-4 mx-auto" }}>
+    <div style={{ width: "100%", maxWidth: "400px"}} className="my-4 mx-auto">
       <input
         type="text"
         value={query}
