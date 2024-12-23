@@ -1,0 +1,16 @@
+.selection-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 4px;
+  }
+  .selection-menu button {
+    padding: 8px 12px;
+    border: none;
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }
+  .selection-menu button:hover {
+    background-color: #eaeaea;
+  }
+  
