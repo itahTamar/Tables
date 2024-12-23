@@ -10,12 +10,21 @@ import { addNewRowCells } from "../functions/table/row/addNewRow";
 import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
 import { getAllTablesColumns } from "../functions/table/column/getAllTablesColumns";
 import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
+import SelectionMenu from "./../components/tables/SelectionMenu";
 
 function TablePage() {
   const navigate = useNavigate();
   const serverUrl = useContext(ServerContext);
   const { tableId } = useParams();
   const [fetchAgain, setFetchAgain] = useState(false);
+  const [menuState, setMenuState] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    rowIndex: number;
+    columnIndex: number;
+  }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
+
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
@@ -60,17 +69,64 @@ function TablePage() {
     fetchColumnsAndCells();
   }, [setColumns, setCells, fetchAgain]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Close the menu if the click is outside the table
+      const target = event.target as HTMLElement;
+      if (!target.closest(".table-container") && !target.closest(".selection-menu")) {
+        setMenuState((prev) => ({ ...prev, visible: false }));
+      }
+    };
+  
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  const handleRightClick = (
+    event: React.MouseEvent,
+    rowIndex: number,
+    columnIndex: number
+  ) => {
+    setMenuState({
+      visible: true,
+      x: event.pageX,
+      y: event.pageY,
+      rowIndex,
+      columnIndex,
+    });
+  };
+
   const handleBackBtnClicked = async () => {
     setColumns([]);
     setCells([]);
     navigate("/mainTablesPage");
   };
 
-  const handleAddRowBtnClick = async (addBefore: boolean) => {
+  const handleMenuAction = async (action: string) => {
+    const { rowIndex, columnIndex } = menuState;
+  
+    if (action === "addRowAfter") {
+      await handleAddRowBtnClick(false, rowIndex);
+    } else if (action === "addRowBefore") {
+      await handleAddRowBtnClick(true, rowIndex);
+    } else if (action === "addColumnAfter") {
+      await handleAddColumnBtnClicked(false, columnIndex);
+    } else if (action === "addColumnBefore") {
+      await handleAddColumnBtnClicked(true, columnIndex);
+    } else if (action === "deleteRow") {
+      await handleDeleteRowBtnClicked(rowIndex);
+    } else if (action === "deleteColumn") {
+      await handleDeleteColumnBtnClicked(columnIndex);
+    }
+  
+    setMenuState({ ...menuState, visible: false }); // Close menu after action
+  };
+  
+  const handleAddRowBtnClick = async (addBefore: boolean, currentRowIndex: number) => {
     const fetchAgain = await addNewRowCells({
       serverUrl,
       tableIndex,
-      currentRowIndex: 1, //!change
+      currentRowIndex, 
       columns,
       cells,
       addBefore,
@@ -78,25 +134,25 @@ function TablePage() {
     setFetchAgain(fetchAgain);
   };
 
-  const handleAddColumnBtnClicked = async (addBefore: boolean) => {
+  const handleAddColumnBtnClicked = async (addBefore: boolean, currentColumnIndex:number) => {
     const fetchAgain = await addNewColumnWithCells({
       serverUrl,
       tableIndex,
-      currentColumnIndex: 1, //!change
+      currentColumnIndex,
       columns,
       cells,
-      addBefore
+      addBefore,
     });
     //@ts-ignore
     setFetchAgain(fetchAgain);
   };
 
-  const handleDeleteRowBtnClicked = async () => {
+  const handleDeleteRowBtnClicked = async (currentRowIndex:number) => {
     try {
       const result = await DeleteRowCells({
         serverUrl,
         tableIndex,
-        currentRowIndex: 3, //!change
+        currentRowIndex,
         columns,
         cells,
       });
@@ -106,18 +162,17 @@ function TablePage() {
       }
 
       setFetchAgain(result);
-
     } catch (error) {
       console.error("Error handling delete row:", error);
     }
   };
 
-  const handleDeleteColumnBtnClicked = async () => {
+  const handleDeleteColumnBtnClicked = async (currentColumnIndex: number) => {
     try {
       const result = await DeleteColumnCells({
         serverUrl,
         tableIndex,
-        currentColumnIndex: 1, //!change 
+        currentColumnIndex,
         columns,
         cells,
       });
@@ -127,7 +182,6 @@ function TablePage() {
       }
 
       setFetchAgain(result);
-
     } catch (error) {
       console.error("Error handling delete row:", error);
     }
@@ -147,16 +201,18 @@ function TablePage() {
 
       <h1>{tableName}</h1>
       <SearchInTableCells tableIndex={tableIndex} />
-      <div className="flex flex-row mb-24">
-        <button onClick={() => handleAddRowBtnClick(false)}>Add Row After</button>
-        <button onClick={() => handleAddRowBtnClick(true)}>Add Row Before</button>
-        <button onClick={() => handleAddColumnBtnClicked(false)}>Add Column After</button>
-        <button onClick={() => handleAddColumnBtnClicked(true)}>Add Column Before</button>
-        <button onClick={() => handleDeleteRowBtnClicked()}>Delete Row</button>
-        <button onClick={() => handleDeleteColumnBtnClicked()}>Delete Column</button>
-      </div>
-
-      <PlotTable />
+    <div className="m-4"></div>
+      <PlotTable handleRightClick={handleRightClick} />
+      {menuState.visible && (
+        <SelectionMenu x={menuState.x} y={menuState.y}>
+          <button onClick={() => handleMenuAction("addRowAfter")}>Add Row After</button>
+          <button onClick={() => handleMenuAction("addRowBefore")}>Add Row Before</button>
+          <button onClick={() => handleMenuAction("addColumnAfter")}>Add Column After</button>
+          <button onClick={() => handleMenuAction("addColumnBefore")}>Add Column Before</button>
+          <button onClick={() => handleMenuAction("deleteRow")}>Delete Row</button>
+          <button onClick={() => handleMenuAction("deleteColumn")}>Delete Column</button>
+        </SelectionMenu>
+      )}
     </div>
   );
 }

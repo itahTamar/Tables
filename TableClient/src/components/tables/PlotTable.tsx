@@ -5,7 +5,15 @@ import { TableContext } from "../../context/tableContext";
 import "../../style/tables/tableData.css";
 import { CellData } from "../../types/cellType";
 
-const PlotTable: React.FC = () => {
+interface PlotTableProps {
+  handleRightClick: (
+    event: React.MouseEvent,
+    rowIndex: number,
+    columnIndex: number
+  ) => void;
+}
+
+const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
   const tableContext = useContext(TableContext);
   const serverUrl = useContext(ServerContext);
 
@@ -119,7 +127,12 @@ const PlotTable: React.FC = () => {
           {sortedRows.map((row, rowIndex) => (
             <tr key={`row-${rowIndex}`}>
               {row.map((cell) => (
-                <td key={cell._id} className="border border-gray-400">
+                <td key={cell._id} className="border border-gray-400"
+                onContextMenu={(e) => {
+                  e.preventDefault(); // Prevent default context menu
+                  handleRightClick(e, cell.rowIndex, cell.columnIndex);
+                }}
+                >
                   {cell.data && cell.data.startsWith("data:image") ? (
                     <img
                       src={cell.data}
