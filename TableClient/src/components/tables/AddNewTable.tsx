@@ -36,6 +36,7 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
     const success = await DocumentRestAPIMethods.add(serverUrl, "tables", {
       type: "table",
       tableName: tableSubject,
+      visibility: true,
       tableIndex: maxTableIndexValue + 1,
     });
 

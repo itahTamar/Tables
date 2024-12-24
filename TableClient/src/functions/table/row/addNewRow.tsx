@@ -13,7 +13,7 @@ interface AddRowProp {
 }
 
 //regular function to add one row to the table, row-cells will be according to the number of columns
-export const addNewRowCells = async ({
+export const addNewRow = async ({
   serverUrl,
   tableIndex,
   currentRowIndex,

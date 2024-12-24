@@ -17,6 +17,7 @@ export const addOneNewRowsTypeCell = async ({
     const success = await DocumentRestAPIMethods.add(serverUrl, "tables", {
       type: "cell",
       data: " ",
+      visibility: true,
       columnIndex: currentColumnIndex,
       rowIndex: rowIndexToInsert,
       tableIndex: tableIndex,

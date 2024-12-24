@@ -61,7 +61,7 @@ export const addNewColumnWithCells = async ({
   };
 
   // case 0: Handle case where there are no columns (empty table)
-  if (columns.length === 0) {
+  if (columns.length === 0 && currentColumnIndex===0) {
     // Add the first column cell - with no row-cells (there is no rows)
     const success = await addOneNewColumnsTypeCell({
       serverUrl,
@@ -72,7 +72,7 @@ export const addNewColumnWithCells = async ({
   }
 
   // case 1: Handle case where there only columns and no cells (no rows)
-  if (columns.length > 0 && cells.length === 0) {
+  if (columns.length > 0 && cells.length === 0 && currentColumnIndex!=0) {
     const success = await addOneNewColumnsTypeCell({
       serverUrl,
       tableIndex,
@@ -99,7 +99,7 @@ export const addNewColumnWithCells = async ({
 
     //case 2.1.2: Insert not at the end
     // Step 1: Update existing column and cell indices
-    if (currentColumnIndex < lastColumnIndex) {
+    if (currentColumnIndex < lastColumnIndex && currentColumnIndex!=0) {
       const updateSuccess = await updateIndexes({
         serverUrl,
         arr: [...columns, ...cells],
