@@ -2,6 +2,7 @@
 export interface TableData {
     _id: string;
     tableName: string;
+    visibility: true;
     tableIndex: number;
     __v: number;
   }
