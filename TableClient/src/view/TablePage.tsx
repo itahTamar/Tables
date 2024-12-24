@@ -12,7 +12,6 @@ import { getAllTablesColumns } from "../functions/table/column/getAllTablesColum
 import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 import SelectionMenu from "./../components/tables/SelectionMenu";
 import { DocumentRestAPIMethods } from "../api/docApi";
-import { TableData } from "../types/tableType";
 
 function TablePage() {
   const navigate = useNavigate();
@@ -240,12 +239,26 @@ function TablePage() {
       <PlotTable handleRightClick={handleRightClick} />
       {menuState.visible && (
         <SelectionMenu x={menuState.x} y={menuState.y}>
-          <button onClick={() => handleMenuAction("addRowAfter")}>Add Row After</button>
-          <button onClick={() => handleMenuAction("addRowBefore")}>Add Row Before</button>
-          <button onClick={() => handleMenuAction("addColumnAfter")}>Add Column After</button>
-          <button onClick={() => handleMenuAction("addColumnBefore")}>Add Column Before</button>
-          <button onClick={() => handleMenuAction("deleteRow")}>Delete Row</button>
-          <button onClick={() => handleMenuAction("deleteColumn")}>Delete Column</button>
+          <ul className="list-none space-y-2"> {/* Add styling here */}
+            <li>
+              <button onClick={() => handleMenuAction("addRowAfter")}>Add Row After</button>
+            </li>
+            <li>
+              <button onClick={() => handleMenuAction("addRowBefore")}>Add Row Before</button>
+            </li>
+            <li>
+              <button onClick={() => handleMenuAction("addColumnAfter")}>Add Column After</button>
+            </li>
+            <li>
+              <button onClick={() => handleMenuAction("addColumnBefore")}>Add Column Before</button>
+            </li>
+            <li>
+              <button onClick={() => handleMenuAction("deleteRow")}>Delete Row</button>
+            </li>
+            <li>
+              <button onClick={() => handleMenuAction("deleteColumn")}>Delete Column</button>
+            </li>
+          </ul>
         </SelectionMenu>
       )}
     </div>
