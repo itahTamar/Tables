@@ -11,6 +11,8 @@ import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
 import { getAllTablesColumns } from "../functions/table/column/getAllTablesColumns";
 import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 import SelectionMenu from "./../components/tables/SelectionMenu";
+import { DocumentRestAPIMethods } from "../api/docApi";
+import { TableData } from "../types/tableType";
 
 function TablePage() {
   const navigate = useNavigate();
@@ -81,6 +83,29 @@ function TablePage() {
     window.addEventListener("click", handleClickOutside);
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
+
+  const handleTableRenameUpdate = async (rename: string) => {
+    try {
+      const success = await DocumentRestAPIMethods.update(
+        serverUrl,
+        "tables",
+        { _id: tableId },
+        { tableName: rename }
+      );
+      if (success) {
+        console.log("Table renamed successfully");
+        
+        // Update the tableName in the tableContext
+        tableContext.setTables((prevTables) =>
+          prevTables.map((table) =>
+            table._id === tableId ? { ...table, tableName: rename } : table
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error in handleTableRenameUpdate:", error);
+    }
+  }
 
   const handleRightClick = (
     event: React.MouseEvent,
@@ -202,9 +227,16 @@ function TablePage() {
         </button>
       </header>
 
-      <h1>{tableName}</h1>
+      <h1
+        contentEditable
+        suppressContentEditableWarning
+        onBlur={(e) =>
+          handleTableRenameUpdate(e.currentTarget.textContent || "")
+        }
+      >{tableName}</h1>
+
       <SearchInTableCells tableIndex={tableIndex} />
-    <div className="m-4"></div>
+      <div className="m-4"></div>
       <PlotTable handleRightClick={handleRightClick} />
       {menuState.visible && (
         <SelectionMenu x={menuState.x} y={menuState.y}>

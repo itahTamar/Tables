@@ -5,8 +5,7 @@ import { CellData } from "../types/cellType";
 
 interface TableContextType {
   tables: TableData[]; // Define as an array of TableData
-  setTables: (tables: TableData[]) => void;
-  columns: CellData[];
+  setTables: React.Dispatch<React.SetStateAction<TableData[]>>;columns: CellData[];
   setColumns: (columns: CellData[] | ((prev: CellData[]) => CellData[])) => void; // Allow updater function
   cells: CellData[];
   setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
