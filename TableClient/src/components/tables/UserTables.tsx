@@ -4,7 +4,14 @@ import { TableContext } from "../../context/tableContext";
 import GeneralSearch from "../filters/GeneralSearch";
 import { TableData } from "../../types/tableType";
 
-const UserTables: React.FC = () => {
+interface UserTablesProp {
+    handleRightClick: (
+      event: React.MouseEvent,
+      tableId: string,
+    ) => void;
+}
+
+const UserTables: React.FC<UserTablesProp> = ({handleRightClick}) => {
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
@@ -44,6 +51,10 @@ const UserTables: React.FC = () => {
         {(filteredTables.length > 0 ? filteredTables : tables).map((table) => (
           <div
             key={table._id}
+            onContextMenu={(e) => {
+              e.preventDefault(); // Prevent default context menu
+              handleRightClick(e, table._id);
+            }}
             onClick={() => handleCardClick(table._id)}
             className="border border-gray-300 p-4 rounded-lg cursor-pointer text-center"
           >

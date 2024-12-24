@@ -197,8 +197,8 @@ function TablePage() {
         >
           Back
         </button>
-        <button onClick={() => handleAddColumnBtnClicked(false, 0)}>
-          Add initial Column 
+        <button className="absolute top-4 right-4" onClick={() => handleAddColumnBtnClicked(false, 0)} >
+          Initial Column 
         </button>
       </header>
 
