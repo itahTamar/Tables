@@ -27,8 +27,8 @@ td, th {
 }
 
 /* Input and textarea styles */
-input,
-textarea {
+.plotTableInput,
+.plotTableTextarea {
   resize: none; /* Disable resize handle */
   width: 100%; /* Full width of the cell */
   height: 100%; /* Full height of the cell */

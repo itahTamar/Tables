@@ -14,7 +14,7 @@ export const getAllTablesCells = async ({
     const cellsData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
       type: "cell",
       tableIndex: tableIndex,
-    });
+    }, "getDoc");
     if (!cellsData) throw new Error("No cells found.");
     console.log("at getAllTablesCells the cellData:", cellsData);
     return cellsData; // Return fetched data

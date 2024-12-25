@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import "../style/buttons.css";
 import "../style/landingPage.css";
 import Popup from "../components/popups/Popup";
-import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
+// import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 import Login from "../components/users/login/Login";
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const getAllUserTables = useGetAllUserTables();
+  // const getAllUserTables = useGetAllUserTables();
   const [showPopupLogin, setShowPopupLogin] = useState(false);
 
   return (
@@ -19,11 +19,11 @@ const LandingPage = () => {
       <div className="p-12">
         <button
           className="loginLP text-2xl font-medium hover:font-bold"
-          // onClick={() => setShowPopupLogin(true)} //!
-          onClick={async () => {
-            await getAllUserTables();
-            navigate("/mainTablesPage");
-          }}
+          onClick={() => setShowPopupLogin(true)} 
+          // onClick={async () => {
+          //   await getAllUserTables();
+          //   navigate("/mainTablesPage");
+          // }}
         >
           Log in
         </button>

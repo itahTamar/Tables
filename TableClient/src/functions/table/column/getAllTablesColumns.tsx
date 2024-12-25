@@ -15,7 +15,7 @@ export const getAllTablesColumns = async ({
     const columnsData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
       type: "column",
       tableIndex: tableIndex,
-    });
+    }, "getDoc");
     if (!columnsData) throw new Error("No columns found.");
     console.log("at getAllTablesColumns the columnsData:", columnsData);
     return columnsData;

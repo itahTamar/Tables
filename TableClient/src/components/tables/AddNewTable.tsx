@@ -38,6 +38,7 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
       tableName: tableSubject,
       visibility: true,
       tableIndex: maxTableIndexValue + 1,
+      //! add here: users: [{userId:_}]  need to get the userId from db when the user connect
     });
 
     if (success) {

@@ -28,7 +28,7 @@ export const addUser = async (req: any, res: any) => {
       throw new Error("At userCont-registerUser complete all fields");
     //check if email exist already, if so reject the registration
     // @ts-ignore
-    const emailExists = await isItemExist(UserModel, { filterCriteria: email }); // Await the result
+    const emailExists = await isItemExist(UserModel, { email: email }); // Await the result
     if (emailExists) {
       //if email exist (true)
       res.send({ ok: false, massage: "Email exist" });
@@ -280,14 +280,13 @@ export const connectUser = async (req: any, res: any) => {
 
     //create and encode cookie with JWT
     // encode
-    const JWTCookie = jwt.encode(userDB._id, secret); //the id given by mongo is store in the cookie
+    const JWTCookie = jwt.encode(userDB._id, secret); //the id given by mongo is store in the cookie - encoded!
     console.log("At userCont login JWTCookie:", JWTCookie); //got it here!
     res.cookie("user", JWTCookie, {
       // httpOnly: true,  //makes the cookie inaccessible via JavaScript on the client side. It won't show up in document.cookie or the browser's developer tools.
       path: "/", // Set the path to root to make it available across the entire site
       sameSite: "None", // Required for cross-origin cookies
       secure: false, //!true for PROD, false for DEV
-      // secure: true, //!true for PROD, false for DEV
       maxAge: 1000 * 60 * 60 * 24, //1 day
     }); //send the cookie to client
     res.send({ ok: true });

@@ -67,7 +67,7 @@ const Login = () => {
           <label className="text-2xl">Please enter your Email</label>
           <div>
             <input
-              className="border border-black m-2 rounded-2xl w-72 indent-4"
+              className="border border-black m-2 rounded-2xl w-80 indent-4"
               type="email"
               name="email"
               autoComplete="given-email"
@@ -81,7 +81,7 @@ const Login = () => {
           <label className="text-2xl">Please enter your Password</label>
           <div>
             <input
-              className="border border-black m-2 rounded-2xl w-72 relative left-4 indent-4"
+              className="border border-black m-2 rounded-2xl w-80 relative left-4 indent-4"
               type={visible ? "text" : "password"}
               name="password"
               autoComplete="off"

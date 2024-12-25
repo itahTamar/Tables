@@ -158,6 +158,14 @@ export async function getDocs(req: any, res: any) {
     const parsedQuery = JSON.parse(query); // Parse query from string to object
     console.log("Parsed query:", parsedQuery);
 
+    // Check if the middleware added `req.user`
+    if (req.user?.userId) {
+      console.log("User ID from middleware:", req.user.userId);
+
+      // Add the userId to the query if required
+      parsedQuery.userId = req.user.userId;
+    }
+
     // Convert _id to ObjectId if it exists in the query
     if (parsedQuery._id && typeof parsedQuery._id === "string") {
       parsedQuery._id = new ObjectId(parsedQuery._id);
@@ -256,6 +264,10 @@ export async function searchDocsAggPip(req: any, res: any) {
     res.status(200).send(finalResults);
   } catch (error) {
     console.error("Error in searchDocsAggPip:", error.message);
-    res.status(500).json({ message: error.message || "Internal server error in searchDocsAggPip" });
+    res
+      .status(500)
+      .json({
+        message: error.message || "Internal server error in searchDocsAggPip",
+      });
   }
 } //work ok

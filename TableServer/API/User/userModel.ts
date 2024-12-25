@@ -1,5 +1,5 @@
-import { Document, Model, ObjectId, Schema, model } from 'mongoose';
-import mongoose from 'mongoose';
+import { Document, Model, ObjectId, Schema, model } from "mongoose";
+import mongoose from "mongoose";
 
 // Define the User interface
 export interface IUser extends Document {
@@ -12,10 +12,10 @@ export class User {
   role: string;
   email: string;
 
-  constructor({ userName, password}: { userName: string, password: string }) {
+  constructor({ userName, password }: { userName: string; password: string }) {
     this.password = password;
     this.role = "user";
-    this.email = "none"
+    this.email = "none";
   }
 
   setRole(role: string) {
@@ -24,18 +24,27 @@ export class User {
 }
 
 //define a schema (It is like interface in typescript)
-export const userSchema = new mongoose.Schema<IUser>({
-  password: { type: String, required: true },
-  role: {type: String, default: "user"},
-  email: {type: String, default: "none", unique: true}
-});
+export const userSchema = new mongoose.Schema<IUser>(
+  {
+    password: { type: String, required: true },
+    role: { type: String, default: "user" },
+    email: { type: String, default: "none", unique: true },
+  },
+  { bufferCommands: false }
+);
 
 // Create the UserModel and extend it with custom methods
 export interface IUserModel extends Model<IUser> {
-  updateDataOnMongoDB(filter: Record<string, any>, update: Record<string, any>): Promise<any>;
+  updateDataOnMongoDB(
+    filter: Record<string, any>,
+    update: Record<string, any>
+  ): Promise<any>;
 }
 
-export const UserModel: IUserModel = model<IUser, IUserModel>("users", userSchema)
+export const UserModel: IUserModel = model<IUser, IUserModel>(
+  "users",
+  userSchema
+);
 
 export const users: User[] = [];
 

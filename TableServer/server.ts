@@ -1,13 +1,14 @@
 import express, { Request, Response } from "express";
 import cookieParser from 'cookie-parser';
 // import {addFieldToUsers} from './API/users/updateUserDB'
+//npm i dotenv
+import dotenv from 'dotenv';
+dotenv.config()
 import cors from 'cors'
 import { corsOptions } from "./config/corsOptions";
 import { sendEmail } from './services/mailService'; // Import the sendEmail function
 
-//npm i dotenv
-import dotenv from 'dotenv';
-dotenv.config()
+
 
 const app = express(); 
 const port = process.env.PORT || 5000;
@@ -20,16 +21,14 @@ app.use(cors(corsOptions))
 //middleware for using parser
 app.use(cookieParser())
 
-// import connectionMongo from "./DBConnection/mongooseMongoDBConnection";
-// import { connectToDatabase } from "./mongoDB/nativeDriver/nativeMongiDBConnection";
+//connection to db
+import connectionMongoWithMongoose from "./mongoDB/mongoose/DBConnection/mongooseMongoDBConnection";
+// import { connectToDatabase } from "./mongoDB/nativeDriver/nativeMongoDBConnection";
 import { MongoDBWrapper } from "./mongoDB/nativeDriver/mongoDBWrapper";
 
 //API routes
 import userRoutes from "./API/User/userRoutes";
 app.use("/api/users", userRoutes);
-
-// import usersTablesRoutes from "./API/UsersTables/usersTablesRoutes";
-// app.use("/api/usersTables", usersTablesRoutes);
 
 import docRouter from "./API/Docs/docRouter";
 app.use("/api/doc", docRouter)
@@ -37,6 +36,7 @@ app.use("/api/doc", docRouter)
 // Route for sending recovery email
 import { isItemExist } from "./API/helpFunctions";
 import { UserModel } from "./API/User/userModel";
+
 app.post("/send_recovery_email", async (req: Request, res: Response) => {
   try { 
     const email = req.body.recipient_email
@@ -59,7 +59,7 @@ app.post("/send_recovery_email", async (req: Request, res: Response) => {
 const connectToMongoDB = async () => {
   try {
     //with mongoose
-    // await connectionMongo;
+    await connectionMongoWithMongoose;
 
     //with native driver
     // await connectToDatabase();

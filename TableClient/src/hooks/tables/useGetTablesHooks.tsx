@@ -15,8 +15,8 @@ export function useGetAllUserTables() {
   const handleGetAllUserTables = async () => {
     try {
       const tablesData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
-        type: "table",
-      });
+        type: "table",   
+      }, "getUserDocs");
       if (!tablesData) throw new Error("No tables found.");
       setTables(tablesData);
     } catch (error) {

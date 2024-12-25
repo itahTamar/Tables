@@ -154,7 +154,7 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
                     </a>
                   ) : (
                     <textarea
-                      className="w-full h-26"
+                      className="plotTableTextarea w-full h-26"
                       defaultValue={cell.data}
                       onBlur={(e) =>
                         handleCellUpdate(cell, e.currentTarget.value)

@@ -106,7 +106,7 @@ export const getOneDataFromMongoDB = async <T extends Document>(
       "at mongoCRUD/getOneDataFromMongoDB the filterCriteria is:",
       filterCriteria
     );
-    const response = await modelName.findOne(filterCriteria);
+    const response = await modelName.findOne(filterCriteria).maxTimeMS(10000);
     console.log(
       "at mongoCRUD/getOneDataFromMongoDB the response is:",
       response

@@ -85,10 +85,11 @@ class DocumentRestAPIMethods {
   static async get(
     serverUrl: string,
     collectionName: string,
-    query: object
+    query: object,
+    path: string
   ): Promise<any> {
     try {
-      const response = await axios.get(`${serverUrl}/api/doc/getDoc`, {
+      const response = await axios.get(`${serverUrl}/api/doc/${path}`, {
         params: { collectionName, query: JSON.stringify(query) },
       });
       console.log("at DocumentRestAPIMethods.get the response is:", response);
