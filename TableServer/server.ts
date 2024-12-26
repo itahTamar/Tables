@@ -8,8 +8,6 @@ import cors from 'cors'
 import { corsOptions } from "./config/corsOptions";
 import { sendEmail } from './services/mailService'; // Import the sendEmail function
 
-
-
 const app = express(); 
 const port = process.env.PORT || 5000;
 

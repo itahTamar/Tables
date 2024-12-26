@@ -85,6 +85,8 @@ class MongoDBWrapper {
     sort = {}
   ) {
     this.ensureConnected();
+    console.log("At mongoDBWrapper.readDocuments the query:", query);
+
     const collection: Collection = this.db!.collection(collectionName);
 
     try {

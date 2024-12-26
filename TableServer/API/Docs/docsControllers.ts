@@ -159,11 +159,11 @@ export async function getDocs(req: any, res: any) {
     console.log("Parsed query:", parsedQuery);
 
     // Check if the middleware added `req.user`
-    if (req.user?.userId) {
-      console.log("User ID from middleware:", req.user.userId);
+    if (req.user) {
+      console.log("User ID from middleware:", req.user);
 
       // Add the userId to the query if required
-      parsedQuery.userId = req.user.userId;
+      parsedQuery.userId = req.user;
     }
 
     // Convert _id to ObjectId if it exists in the query

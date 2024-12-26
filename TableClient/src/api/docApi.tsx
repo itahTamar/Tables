@@ -90,7 +90,10 @@ class DocumentRestAPIMethods {
   ): Promise<any> {
     try {
       const response = await axios.get(`${serverUrl}/api/doc/${path}`, {
-        params: { collectionName, query: JSON.stringify(query) },
+        params: { 
+          collectionName, query: JSON.stringify(query)
+         },
+         withCredentials: true 
       });
       console.log("at DocumentRestAPIMethods.get the response is:", response);
       console.log(
