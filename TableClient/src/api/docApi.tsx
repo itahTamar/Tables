@@ -5,13 +5,14 @@ class DocumentRestAPIMethods {
   static async add(
     serverUrl: string,
     collectionName: string,
-    document: object
+    document: object, 
+    path: string
   ): Promise<boolean> {
     try {
-      const response = await axios.post(`${serverUrl}/api/doc/addDoc`, {
+      const response = await axios.post(`${serverUrl}/api/doc/${path}`, {
         collectionName,
-        document,
-      });
+        document
+      }, {withCredentials: true});
       console.log("at DocumentRestAPIMethods.add the response is:", response);
       console.log(
         "at DocumentRestAPIMethods.add the response.data.acknowledged is:",
@@ -34,7 +35,7 @@ class DocumentRestAPIMethods {
   ): Promise<boolean> {
     try {
       const response = await axios.delete(`${serverUrl}/api/doc/deleteDoc`, {
-        data: { collectionName, query },
+        data: { collectionName, query }, withCredentials: true
       });
       console.log("at DocumentRestAPIMethods.delete the response is:", response);
       console.log(
@@ -66,7 +67,7 @@ class DocumentRestAPIMethods {
         collectionName,
         query,
         update,
-      });
+      }, {withCredentials: true});
       console.log("at DocumentRestAPIMethods.update the response is:", response);
       console.log(
         "at DocumentRestAPIMethods.update the response.data.acknowledged is:",
@@ -118,7 +119,7 @@ class DocumentRestAPIMethods {
   ): Promise<any> {
     try {
       const response = await axios.get(`${serverUrl}/api/doc/searchDocsAggPip`, {
-        params: { collectionName, tableIndex, regexToSearch },
+        params: { collectionName, tableIndex, regexToSearch }, withCredentials: true
       });
       console.log("at DocumentRestAPIMethods.getSearchInTableCells the response is:", response);
       console.log(

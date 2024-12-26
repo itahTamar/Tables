@@ -6,6 +6,7 @@ const router = express.Router();
 
 router
   .post("/addDoc", addDoc) //work
+  .post("/addNewUsersTable", extractCookie, addDoc)
   .get("/getDoc", getDocs) //work
   .get("/getUserDocs", extractCookie, getDocs) //work
   .get("/searchDocsAggPip", searchDocsAggPip) //work

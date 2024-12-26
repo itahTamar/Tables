@@ -66,7 +66,7 @@ export const addNewRow = async ({
           columnIndex,
           rowIndex: currentRowIndex, // Add at the currentRowIndex
           tableIndex,
-        });
+        }, "addDoc");
 
         if (!success) {
           console.error("Failed to add new cell.");
@@ -103,7 +103,7 @@ export const addNewRow = async ({
         columnIndex: i,
         rowIndex: newRowIndex,
         tableIndex: tableIndex,
-      });
+      }, "addDoc");
       if (!success) {
         console.error("Failed to add Cell.");
       }

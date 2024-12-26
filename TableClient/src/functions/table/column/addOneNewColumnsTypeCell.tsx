@@ -19,7 +19,7 @@ export const addOneNewColumnsTypeCell = async ({
       columnIndex: columnIndexToInsert,
       rowIndex: 0,
       tableIndex: tableIndex,
-    });
+    }, "addDoc");
 
     if (success) {
       console.log("Column added successfully!");

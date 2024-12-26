@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const mongodb_uri = process.env.MONGO_URL;
+const mongodb_uri = process.env.MONGO_URL_MONGOOSE;
 
 const connectionMongoWithMongoose = mongoose
   .connect(mongodb_uri)

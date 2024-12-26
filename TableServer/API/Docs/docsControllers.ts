@@ -9,6 +9,17 @@ export async function addDoc(req: any, res: any) {
 
     if (!collectionName || !document)
       throw new Error("no collectionName or document");
+    
+    // Check if the middleware added `req.user`
+    if (req.user) {
+      console.log("User ID from middleware:", req.user);
+
+      // Add the userId as an object to the `users` array
+      if (!Array.isArray(document.users)) {
+        document.users = []; // Ensure `users` is an array if not already
+      }
+      document.users.push({ userId: req.user });
+    }
 
     // Save the new doc to MongoDB
     const response = await MongoDBWrapper.createDocument(
@@ -162,8 +173,10 @@ export async function getDocs(req: any, res: any) {
     if (req.user) {
       console.log("User ID from middleware:", req.user);
 
-      // Add the userId to the query if required
-      parsedQuery.userId = req.user;
+      // Add the userId in the correct nested structure
+      if (!parsedQuery["users.userId"]) {
+        parsedQuery["users.userId"] = req.user; // Adds userId to query
+      }
     }
 
     // Convert _id to ObjectId if it exists in the query

@@ -21,7 +21,7 @@ export const addOneNewRowsTypeCell = async ({
       columnIndex: currentColumnIndex,
       rowIndex: rowIndexToInsert,
       tableIndex: tableIndex,
-    });
+    }, "addDoc");
 
     if (success) {
       console.log("Cell added successfully!");
