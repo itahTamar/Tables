@@ -2,12 +2,14 @@ import { DocumentRestAPIMethods } from "../../../api/docApi";
 
 interface AddColumnProp {
   serverUrl: string;
+  tableId: string;
   tableIndex: number;
   columnIndexToInsert: number;
 }
 //regular standalone function to add only one column type cell to table collection
 export const addOneNewColumnsTypeCell = async ({
   serverUrl,
+  tableId,
   tableIndex,
   columnIndexToInsert,
 }: AddColumnProp) => {
@@ -19,6 +21,7 @@ export const addOneNewColumnsTypeCell = async ({
       columnIndex: columnIndexToInsert,
       rowIndex: 0,
       tableIndex: tableIndex,
+      tableId
     }, "addDoc");
 
     if (success) {

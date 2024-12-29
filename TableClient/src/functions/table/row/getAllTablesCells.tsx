@@ -2,11 +2,13 @@ import { DocumentRestAPIMethods } from "../../../api/docApi";
 
 interface TablesCellsProp {
   serverUrl: string;
+  tableId: string;
   tableIndex: number;
 }
 
 export const getAllTablesCells = async ({
   serverUrl,
+  tableId,
   tableIndex,
 }: TablesCellsProp) => {
   console.log("you at getAllTablesCells");
@@ -14,6 +16,7 @@ export const getAllTablesCells = async ({
     const cellsData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
       type: "cell",
       tableIndex: tableIndex,
+      tableId
     }, "getDoc");
     if (!cellsData) throw new Error("No cells found.");
     console.log("at getAllTablesCells the cellData:", cellsData);

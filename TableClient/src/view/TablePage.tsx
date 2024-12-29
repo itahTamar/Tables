@@ -48,9 +48,14 @@ function TablePage() {
       try {
         const fetchedColumns = await getAllTablesColumns({
           serverUrl,
+          tableId,
           tableIndex,
         });
-        const fetchedCells = await getAllTablesCells({ serverUrl, tableIndex });
+        const fetchedCells = await getAllTablesCells({
+          serverUrl,
+          tableIndex,
+          tableId,
+        });
 
         if (!fetchedColumns || !fetchedCells) {
           throw new Error("Failed to fetch columns or cells");
@@ -74,11 +79,14 @@ function TablePage() {
     const handleClickOutside = (event: MouseEvent) => {
       // Close the menu if the click is outside the table
       const target = event.target as HTMLElement;
-      if (!target.closest(".table-container") && !target.closest(".selection-menu")) {
+      if (
+        !target.closest(".table-container") &&
+        !target.closest(".selection-menu")
+      ) {
         setMenuState((prev) => ({ ...prev, visible: false }));
       }
     };
-  
+
     window.addEventListener("click", handleClickOutside);
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
@@ -93,7 +101,7 @@ function TablePage() {
       );
       if (success) {
         console.log("Table renamed successfully");
-        
+
         // Update the tableName in the tableContext
         tableContext.setTables((prevTables) =>
           prevTables.map((table) =>
@@ -104,7 +112,7 @@ function TablePage() {
     } catch (error) {
       console.error("Error in handleTableRenameUpdate:", error);
     }
-  }
+  };
 
   const handleRightClick = (
     event: React.MouseEvent,
@@ -128,7 +136,7 @@ function TablePage() {
 
   const handleMenuAction = async (action: string) => {
     const { rowIndex, columnIndex } = menuState;
-  
+
     if (action === "addRowAfter") {
       await handleAddRowBtnClick(false, rowIndex);
     } else if (action === "addRowBefore") {
@@ -142,15 +150,19 @@ function TablePage() {
     } else if (action === "deleteColumn") {
       await handleDeleteColumnBtnClicked(columnIndex);
     }
-  
+
     setMenuState({ ...menuState, visible: false }); // Close menu after action
   };
-  
-  const handleAddRowBtnClick = async (addBefore: boolean, currentRowIndex: number) => {
+
+  const handleAddRowBtnClick = async (
+    addBefore: boolean,
+    currentRowIndex: number
+  ) => {
     const fetchAgain = await addNewRow({
       serverUrl,
+      tableId,
       tableIndex,
-      currentRowIndex, 
+      currentRowIndex,
       columns,
       cells,
       addBefore,
@@ -158,9 +170,13 @@ function TablePage() {
     setFetchAgain(fetchAgain);
   };
 
-  const handleAddColumnBtnClicked = async (addBefore: boolean, currentColumnIndex:number) => {
+  const handleAddColumnBtnClicked = async (
+    addBefore: boolean,
+    currentColumnIndex: number
+  ) => {
     const fetchAgain = await addNewColumnWithCells({
       serverUrl,
+      tableId,
       tableIndex,
       currentColumnIndex,
       columns,
@@ -171,10 +187,11 @@ function TablePage() {
     setFetchAgain(fetchAgain);
   };
 
-  const handleDeleteRowBtnClicked = async (currentRowIndex:number) => {
+  const handleDeleteRowBtnClicked = async (currentRowIndex: number) => {
     try {
       const result = await DeleteRowCells({
         serverUrl,
+        tableId,
         tableIndex,
         currentRowIndex,
         columns,
@@ -195,6 +212,7 @@ function TablePage() {
     try {
       const result = await DeleteColumnCells({
         serverUrl,
+        tableId,
         tableIndex,
         currentColumnIndex,
         columns,
@@ -221,8 +239,11 @@ function TablePage() {
         >
           Back
         </button>
-        <button className="absolute top-4 right-4" onClick={() => handleAddColumnBtnClicked(false, 0)} >
-          Initial Column 
+        <button
+          className="absolute top-4 right-4"
+          onClick={() => handleAddColumnBtnClicked(false, 0)}
+        >
+          Initial Column
         </button>
       </header>
 
@@ -232,31 +253,52 @@ function TablePage() {
         onBlur={(e) =>
           handleTableRenameUpdate(e.currentTarget.textContent || "")
         }
-      >{tableName}</h1>
+      >
+        {tableName}
+      </h1>
 
-      <SearchInTableCells tableIndex={tableIndex} />
+      <SearchInTableCells tableIndex={tableIndex} tableId={tableId} />
       <div className="m-4"></div>
       <PlotTable handleRightClick={handleRightClick} />
       {menuState.visible && (
         <SelectionMenu x={menuState.x} y={menuState.y}>
-          <ul className="list-none space-y-2"> {/* Add styling here */}
+          <ul className="list-none space-y-2">
+            {" "}
+            {/* Add styling here */}
             <li>
-              <button onClick={() => handleMenuAction("addRowAfter")}>Add Row After</button>
+              <button onClick={() => handleMenuAction("addRowAfter")}>
+                Add Row After
+              </button>
             </li>
             <li>
-              <button onClick={() => handleMenuAction("addRowBefore")}>Add Row Before</button>
+              {menuState.rowIndex != 0 ? (
+                <button onClick={() => handleMenuAction("addRowBefore")}>
+                  Add Row Before
+                </button>
+              ) : null}
             </li>
             <li>
-              <button onClick={() => handleMenuAction("addColumnAfter")}>Add Column After</button>
+              <button onClick={() => handleMenuAction("addColumnAfter")}>
+                Add Column After
+              </button>
             </li>
             <li>
-              <button onClick={() => handleMenuAction("addColumnBefore")}>Add Column Before</button>
+              <button onClick={() => handleMenuAction("addColumnBefore")}>
+                Add Column Before
+              </button>
             </li>
             <li>
-              <button onClick={() => handleMenuAction("deleteRow")}>Delete Row</button>
+              {(cells.length !== 0 && menuState.rowIndex !== 0) ||
+              (cells.length === 0 && menuState.rowIndex === 0) ? (
+                <button onClick={() => handleMenuAction("deleteRow")}>
+                  Delete Row
+                </button>
+              ) : null}
             </li>
             <li>
-              <button onClick={() => handleMenuAction("deleteColumn")}>Delete Column</button>
+              <button onClick={() => handleMenuAction("deleteColumn")}>
+                Delete Column
+              </button>
             </li>
           </ul>
         </SelectionMenu>

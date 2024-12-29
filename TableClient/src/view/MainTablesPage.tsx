@@ -38,6 +38,7 @@ const MainTablesPage: React.FC = () => {
   };
 
   const handleRenameTable = async (tableId: string) => {
+    setMessage("")
     if (!tableRename) {
       setMessage("Please fill the field.");
       return;
@@ -45,7 +46,6 @@ const MainTablesPage: React.FC = () => {
     //update the table name (data)
     const updateSucceed = await DocumentRestAPIMethods.update(serverUrl, "tables", {_id: tableId}, {tableName: tableRename})
     if (updateSucceed) {
-      setMessage("Table renamed successfully!");
       setTableRename("");
       await getAllUserTables();
       setMenuState((prev) => ({ ...prev, visible: false }));

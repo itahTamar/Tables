@@ -2,6 +2,7 @@ import { DocumentRestAPIMethods } from "../../../api/docApi";
 
 interface AddRowProp {
   serverUrl: string;
+  tableId: string;
   tableIndex: number;
   rowIndexToInsert: number;
   currentColumnIndex: number;
@@ -9,6 +10,7 @@ interface AddRowProp {
 //regular standalone general function to add only one row's cell to table collection
 export const addOneNewRowsTypeCell = async ({
   serverUrl,
+  tableId,
   tableIndex,
   rowIndexToInsert,
   currentColumnIndex,
@@ -21,6 +23,7 @@ export const addOneNewRowsTypeCell = async ({
       columnIndex: currentColumnIndex,
       rowIndex: rowIndexToInsert,
       tableIndex: tableIndex,
+      tableId
     }, "addDoc");
 
     if (success) {

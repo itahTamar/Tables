@@ -6,11 +6,12 @@ import { getAllTablesCells } from "../../functions/table/row/getAllTablesCells";
 
 //component that search in the DB
 interface SearchInTableCellsProps {
+  tableId: string;
   tableIndex: number;
   placeholder?: string;
 }
 
-const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableIndex, placeholder = "Search..." }) => {
+const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIndex, placeholder = "Search..." }) => {
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
@@ -21,7 +22,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableIndex, plac
   const [query, setQuery] = useState<string>("");
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(
     null
-  ); // Correct type for the timer
+  ); 
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,11 +30,12 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableIndex, plac
     if (timer) clearTimeout(timer); // Clear previous timer
 
     // Set a new timer for 1 seconds
-    const newTimer = setTimeout(() => {
-      if (e.target.value) {
+    const newTimer = setTimeout(async() => {
+      if (e.target.value != "") {
         handleSearchResults(e.target.value); // Trigger search with query
         } else {
-          getAllTablesCells({serverUrl, tableIndex}); // No query, return empty results
+          const result = await getAllTablesCells({serverUrl, tableIndex, tableId}); // No query, return empty results
+          setCells(result)
       }
     }, 1000);
 
@@ -41,8 +43,8 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableIndex, plac
   };
 
   const handleSearchResults = async (target: any) => {
-    console.log("At handleSearchResults the tableIndex from prop is:", tableIndex)
-    const result = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableIndex, target)
+    console.log("At handleSearchResults the tableId from prop is:", tableId)
+    const result = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target)
     if(!result) throw new Error("no result for search in table cells");
     setCells(result)
   }

@@ -5,6 +5,7 @@ import { updateIndexes } from "../updateIndex";
 
 interface AddRowProp {
   serverUrl: string;
+  tableId: string;
   tableIndex: number;
   currentRowIndex: number;
   columns: CellData[];
@@ -15,6 +16,7 @@ interface AddRowProp {
 //regular function to add one row to the table, row-cells will be according to the number of columns
 export const addNewRow = async ({
   serverUrl,
+  tableId,
   tableIndex,
   currentRowIndex,
   columns,
@@ -66,6 +68,7 @@ export const addNewRow = async ({
           columnIndex,
           rowIndex: currentRowIndex, // Add at the currentRowIndex
           tableIndex,
+          tableId
         }, "addDoc");
 
         if (!success) {
@@ -103,6 +106,7 @@ export const addNewRow = async ({
         columnIndex: i,
         rowIndex: newRowIndex,
         tableIndex: tableIndex,
+        tableId
       }, "addDoc");
       if (!success) {
         console.error("Failed to add Cell.");

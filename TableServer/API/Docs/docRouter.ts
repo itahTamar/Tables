@@ -9,7 +9,7 @@ router
   .post("/addNewUsersTable", extractCookie, addDoc)
   .get("/getDoc", getDocs) //work
   .get("/getUserDocs", extractCookie, getDocs) //work
-  .get("/searchDocsAggPip", searchDocsAggPip) //work
+  .get("/searchDocsAggPip", extractCookie, searchDocsAggPip) //work
   .patch("/updateDoc", updateDocs) //work
   .delete("/deleteDoc", deleteDoc) //work
 

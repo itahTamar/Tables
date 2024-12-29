@@ -1,3 +1,4 @@
+import { before } from "lodash";
 import { CellData } from "../../../types/cellType";
 import { findTheLastIndex } from "../findTheLastIndex";
 import { addOneNewRowsTypeCell } from "../row/addOneNewRowsTypeCell";
@@ -6,6 +7,7 @@ import { addOneNewColumnsTypeCell } from "./addOneNewColumnsTypeCell";
 //function to handle all cases of inserting a nwe column (with or without new row's-cells)
 interface AddColumnProp {
   serverUrl: string;
+  tableId: string;
   tableIndex: number;
   currentColumnIndex: number;
   columns: CellData[];
@@ -15,6 +17,7 @@ interface AddColumnProp {
 
 export const addNewColumnWithCells = async ({
   serverUrl,
+  tableId,
   tableIndex,
   currentColumnIndex,
   columns,
@@ -47,6 +50,7 @@ export const addNewColumnWithCells = async ({
       try {
         const success = await addOneNewRowsTypeCell({
           serverUrl,
+          tableId,
           tableIndex,
           rowIndexToInsert: rowIndex,
           currentColumnIndex: columnIndex,
@@ -61,10 +65,11 @@ export const addNewColumnWithCells = async ({
   };
 
   // case 0: Handle case where there are no columns (empty table)
-  if (columns.length === 0 && currentColumnIndex===0) {
+  if (columns.length === 0 && currentColumnIndex === 0) {
     // Add the first column cell - with no row-cells (there is no rows)
     const success = await addOneNewColumnsTypeCell({
       serverUrl,
+      tableId,
       tableIndex,
       columnIndexToInsert: 1,
     });
@@ -72,13 +77,69 @@ export const addNewColumnWithCells = async ({
   }
 
   // case 1: Handle case where there only columns and no cells (no rows)
-  if (columns.length > 0 && cells.length === 0 && currentColumnIndex!=0) {
-    const success = await addOneNewColumnsTypeCell({
-      serverUrl,
-      tableIndex,
-      columnIndexToInsert: lastColumnIndex + 1,
-    });
-    return success;
+  if (columns.length > 0 && cells.length === 0 && currentColumnIndex != 0) {
+    //!case 1.1: Insert column AFTER an existing one
+    if (!addBefore) {
+      //case: 1.1.1: Insert at the end
+      if (currentColumnIndex === lastColumnIndex) {
+        console.log("case: 1.1.1: Insert at the end");
+        const success = await addOneNewColumnsTypeCell({
+          serverUrl,
+          tableId,
+          tableIndex,
+          columnIndexToInsert: lastColumnIndex + 1,
+        });
+        return success;
+      }
+      //case 1.1.2: Insert not at the end
+      // Step 1: Update existing column indices
+      if (currentColumnIndex < lastColumnIndex && currentColumnIndex != 0) {
+        console.log("case 1.1.2: Insert after not at the end");
+        const updateSuccess = await updateIndexes({
+          serverUrl,
+          arr: [...columns, ...cells],
+          currentIndex: currentColumnIndex,
+          indexType: "columnIndex",
+          action: "adding",
+        });
+
+        if (!updateSuccess)
+          throw new Error("Failed to update indices at addNewColumnWithCells");
+
+        //step 2: add the new column
+        const success = await addOneNewColumnsTypeCell({
+          serverUrl,
+          tableId,
+          tableIndex,
+          columnIndexToInsert: currentColumnIndex + 1,
+        });
+        return success;
+      }
+    }
+
+    //!case 1.2: Insert column BEFORE an existing one
+    if (addBefore) {
+      // Step 1: Update existing column indices
+      console.log("case 1.2: Insert before");
+      const updateSuccess = await updateIndexes({
+        serverUrl,
+        arr: [...columns, ...cells],
+        currentIndex: currentColumnIndex-1, //will update all columnIndexes including the current
+        indexType: "columnIndex",
+        action: "adding",
+      });
+
+      if (!updateSuccess)
+        throw new Error("Failed to update indices at addNewColumnWithCells");
+
+      const success = await addOneNewColumnsTypeCell({
+        serverUrl,
+        tableIndex,
+        tableId,
+        columnIndexToInsert: currentColumnIndex,
+      });
+      return success;
+    }
   }
 
   //case 2: Handle case where there is some column/s and cell/s
@@ -88,6 +149,7 @@ export const addNewColumnWithCells = async ({
     if (currentColumnIndex === lastColumnIndex) {
       const success = await addOneNewColumnsTypeCell({
         serverUrl,
+        tableId,
         tableIndex,
         columnIndexToInsert: lastColumnIndex + 1,
       });
@@ -99,7 +161,7 @@ export const addNewColumnWithCells = async ({
 
     //case 2.1.2: Insert not at the end
     // Step 1: Update existing column and cell indices
-    if (currentColumnIndex < lastColumnIndex && currentColumnIndex!=0) {
+    if (currentColumnIndex < lastColumnIndex && currentColumnIndex != 0) {
       const updateSuccess = await updateIndexes({
         serverUrl,
         arr: [...columns, ...cells],
@@ -110,25 +172,27 @@ export const addNewColumnWithCells = async ({
 
       if (!updateSuccess)
         throw new Error("Failed to update indices at addNewColumnWithCells");
-
+      //step 2: add the new column
       const success = await addOneNewColumnsTypeCell({
         serverUrl,
+        tableId,
         tableIndex,
         columnIndexToInsert: currentColumnIndex + 1,
       });
       if (success) {
+        //step 3: add row's cells
         addRowsCells(currentColumnIndex + 1);
         return true;
       }
     }
   }
 
-  //!case 2.2: Insert column BEFORE an existing onex
+  //!case 2.2: Insert column BEFORE an existing one
   if (addBefore) {
     const updateSuccess = await updateIndexes({
       serverUrl,
       arr: [...columns, ...cells],
-      currentIndex: currentColumnIndex-1, //will update all columnIndexes including the current
+      currentIndex: currentColumnIndex - 1, //will update all columnIndexes including the current
       indexType: "columnIndex",
       action: "adding",
     });
@@ -139,6 +203,7 @@ export const addNewColumnWithCells = async ({
     const success = await addOneNewColumnsTypeCell({
       serverUrl,
       tableIndex,
+      tableId,
       columnIndexToInsert: currentColumnIndex,
     });
     if (success) {
@@ -146,5 +211,5 @@ export const addNewColumnWithCells = async ({
       return true;
     }
   }
-}
+};
 //all work ok

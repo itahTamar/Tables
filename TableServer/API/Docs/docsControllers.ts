@@ -9,7 +9,7 @@ export async function addDoc(req: any, res: any) {
 
     if (!collectionName || !document)
       throw new Error("no collectionName or document");
-    
+
     // Check if the middleware added `req.user`
     if (req.user) {
       console.log("User ID from middleware:", req.user);
@@ -203,37 +203,25 @@ export async function searchDocsAggPip(req: any, res: any) {
   try {
     console.log("At searchDocsAggPip");
 
-    const { collectionName, tableIndex, regexToSearch } = req.query;
+    const { collectionName, tableId, regexToSearch } = req.query;
     console.log(
       "At searchDocsAggPip collectionName, tableIndex, regexToSearch:",
       collectionName,
-      tableIndex,
+      tableId,
       regexToSearch
     );
 
-    if (!collectionName || tableIndex === undefined || !regexToSearch) {
+    if (!collectionName || tableId === undefined || !regexToSearch) {
       throw new Error(
         "Missing required fields: collectionName, tableIndex, or regexToSearch"
       );
     }
 
-    console.log("Inputs:", { collectionName, tableIndex, regexToSearch });
+    console.log("Inputs:", { collectionName, tableId, regexToSearch });
 
-    // Convert tableIndex to a number (because in the query it came as a string!)
-    const tableIndexNumber = parseInt(tableIndex, 10);
-    if (isNaN(tableIndexNumber)) {
-      throw new Error("Invalid tableIndex: must be a number");
-    }
-
-    console.log("Inputs:", {
-      collectionName,
-      tableIndex: tableIndexNumber,
-      regexToSearch,
-    });
-
-    // Aggregation pipeline
+    //step 1: Aggregation pipeline for the cell search
     const pipeline = [
-      { $match: { tableIndex: tableIndexNumber } },
+      { $match: { tableId, type: "cell" } },
       {
         $match: {
           data: {
@@ -255,9 +243,9 @@ export async function searchDocsAggPip(req: any, res: any) {
       collectionName,
       pipeline
     );
-    console.log("First result:", firstResult);
+    console.log("First result:", firstResult); //!till here works ok
 
-    // Extract unique rowIndexes
+    //step 2: Extract unique rowIndexes
     const rowIndexSet = new Set(
       firstResult
         .map((doc) => doc.rowIndex)
@@ -265,22 +253,35 @@ export async function searchDocsAggPip(req: any, res: any) {
     );
     console.log("Unique rowIndexes:", Array.from(rowIndexSet));
 
-    // Fetch documents for each unique rowIndex
-    const finalResults = await Promise.all(
-      Array.from(rowIndexSet).map((rowIndex) =>
-        MongoDBWrapper.readDocuments(collectionName, { rowIndex }).then(
-          (documents) => ({ documents })
-        )
-      )
-    );
+    // Step 3: Fetch documents for all unique rowIndexes in the same tableId
+    const rowIndexArray = Array.from(rowIndexSet); // Convert Set to Array
+    console.log("Row Index Array for Step 3:", rowIndexArray);
 
-    res.status(200).send(finalResults);
+    const rowPipeline = [
+      {
+        $match: {
+          tableId, // Match the same tableId
+          rowIndex: { $in: rowIndexArray }, // Match any rowIndex in the set
+        },
+      },
+      {
+        $match: {
+          type: "cell", // Optional: Ensure only 'cell' type documents
+        },
+      },
+    ];
+
+    const finalResults = await MongoDBWrapper.searchDocumentsAggPip(
+      collectionName,
+      rowPipeline
+    );
+    console.log("finalResults Step 3:", finalResults);
+
+    res.status(200).json(finalResults);
   } catch (error) {
     console.error("Error in searchDocsAggPip:", error.message);
-    res
-      .status(500)
-      .json({
-        message: error.message || "Internal server error in searchDocsAggPip",
-      });
+    res.status(500).json({
+      message: error.message || "Internal server error in searchDocsAggPip",
+    });
   }
 } //work ok

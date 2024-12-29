@@ -1,10 +1,11 @@
 import { DocumentRestAPIMethods } from "../../../api/docApi";
 import { CellData } from "../../../types/cellType";
 import { updateIndexes } from "./../updateIndex";
-import { findTheLastIndex } from './../findTheLastIndex';
+import { findTheLastIndex } from "./../findTheLastIndex";
 
 interface deleteRowProp {
   serverUrl: string;
+  tableId: string;
   tableIndex: number;
   currentRowIndex: number;
   columns: CellData[];
@@ -14,6 +15,7 @@ interface deleteRowProp {
 //regular function to delete one row of the table
 export const DeleteRowCells = async ({
   serverUrl,
+  tableId,
   tableIndex,
   currentRowIndex,
   columns,
@@ -41,6 +43,29 @@ export const DeleteRowCells = async ({
   console.log("At DeleteRowCells the lastColumnIndex:", lastColumnIndex);
 
   //delete the row
+  //case 1 : rowIndex=0 -> delete the columns row //!only if their no cell-type rows
+  if(currentRowIndex === 0 && lastCellIndex === 0) {
+    let i = 1;
+    while (i <= lastColumnIndex) {
+      try {
+        const success = await DocumentRestAPIMethods.delete(serverUrl, "tables", {
+          type: "column",
+          columnIndex: i,
+          rowIndex: currentRowIndex,
+          tableIndex: tableIndex,
+          tableId,
+        });
+        if (success) {
+          console.log("Cell deleted successfully!");
+        }
+      } catch (error) {
+        console.error("Failed to delete Cell");
+      }
+      i++;
+    }
+  }
+
+  //case 2: other row
   let i = 1;
   while (i <= lastColumnIndex) {
     try {
@@ -49,6 +74,7 @@ export const DeleteRowCells = async ({
         columnIndex: i,
         rowIndex: currentRowIndex,
         tableIndex: tableIndex,
+        tableId,
       });
       if (success) {
         console.log("Cell deleted successfully!");
@@ -62,10 +88,16 @@ export const DeleteRowCells = async ({
     return true;
   }
   if (currentRowIndex < lastCellIndex) {
-    const success = updateIndexes({serverUrl, arr: cells, currentIndex: currentRowIndex, indexType: "rowIndex", action: "subtraction"})
+    const success = updateIndexes({
+      serverUrl,
+      arr: cells,
+      currentIndex: currentRowIndex,
+      indexType: "rowIndex",
+      action: "subtraction",
+    });
     if (!success) throw new Error("Invalid currentIndex at deleteRowCells");
     if (success === undefined) throw new Error("updateIndexes caught an error");
-    return true
+    return true;
   }
 };
 //work ok

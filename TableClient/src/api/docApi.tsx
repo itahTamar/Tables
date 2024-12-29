@@ -114,24 +114,20 @@ class DocumentRestAPIMethods {
   static async getSearchInTableCells(
     serverUrl: string,
     collectionName: string,
-    tableIndex: number | undefined,
+    tableId: string | undefined,
     regexToSearch: string
   ): Promise<any> {
     try {
       const response = await axios.get(`${serverUrl}/api/doc/searchDocsAggPip`, {
-        params: { collectionName, tableIndex, regexToSearch }, withCredentials: true
+        params: { collectionName, tableId, regexToSearch }, withCredentials: true
       });
       console.log("at DocumentRestAPIMethods.getSearchInTableCells the response is:", response);
-      console.log(
-        "at DocumentRestAPIMethods.getSearchInTableCells the response.data is:",
-        response.data
-      );console.log(
-        "at DocumentRestAPIMethods.getSearchInTableCells the response.data.documents is:",
-        response.data[0].documents
-      );
+      console.log("at DocumentRestAPIMethods.getSearchInTableCells the response.data is:",response.data);
+      console.log("at DocumentRestAPIMethods.getSearchInTableCells the response.data.documents is:", response.data[0].documents);
+      
       if (!response.data)
         throw new Error("No response in DocumentRestAPIMethods.getSearchInTableCells");
-      return response.data[0].documents;
+      return response.data;
     } catch (error) {
       console.error("Error DocumentRestAPIMethods.getSearchInTableCells document");
       return [];

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
 import { TableContext } from "../../context/tableContext";
@@ -30,9 +30,14 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
     return acc;
   }, {});
 
-  const sortedColumns = [...(columns || [])].sort(
-    (a, b) => a.columnIndex - b.columnIndex
-  );
+  const [sortedColumns, setSortedColumns] = useState(columns || []);
+  useEffect(() => {
+    if (columns) {
+      const sorted = [...columns].sort((a, b) => a.columnIndex - b.columnIndex);
+      setSortedColumns(sorted);
+    }
+  }, [columns]);
+  
   const sortedRows = Object.keys(rows)
     .map(Number)
     .sort((a, b) => a - b)

@@ -1,10 +1,11 @@
 import { DocumentRestAPIMethods } from "../../../api/docApi";
 import { CellData } from "../../../types/cellType";
 import { updateIndexes } from "../updateIndex";
-import { findTheLastIndex } from '../findTheLastIndex';
+import { findTheLastIndex } from "../findTheLastIndex";
 
 interface deleteRowProp {
   serverUrl: string;
+  tableId: string;
   tableIndex: number;
   currentColumnIndex: number;
   columns: CellData[];
@@ -14,6 +15,7 @@ interface deleteRowProp {
 //regular function to delete one row of the table
 export const DeleteColumnCells = async ({
   serverUrl,
+  tableId,
   tableIndex,
   currentColumnIndex,
   columns,
@@ -39,7 +41,10 @@ export const DeleteColumnCells = async ({
   console.log("At DeleteColumnCells the tableIndex:", tableIndex);
   console.log("At DeleteColumnCells the lastCellIndex:", lastCellIndex);
   console.log("At DeleteColumnCells the lastColumnIndex:", lastColumnIndex);
-  console.log("At DeleteColumnCells the currentColumnIndex:", currentColumnIndex);
+  console.log(
+    "At DeleteColumnCells the currentColumnIndex:",
+    currentColumnIndex
+  );
 
   //delete the column
   //1) delete the cell-type column
@@ -49,6 +54,7 @@ export const DeleteColumnCells = async ({
       columnIndex: currentColumnIndex,
       rowIndex: 0,
       tableIndex: tableIndex,
+      tableId,
     });
     if (success) {
       console.log("Cell deleted successfully!");
@@ -65,6 +71,7 @@ export const DeleteColumnCells = async ({
         columnIndex: currentColumnIndex,
         rowIndex: i,
         tableIndex: tableIndex,
+        tableId,
       });
       if (success) {
         console.log("Cell deleted successfully!");
@@ -78,14 +85,31 @@ export const DeleteColumnCells = async ({
     return true;
   }
   if (currentColumnIndex < lastColumnIndex) {
-  console.log("At DeleteColumnCells the currentColumnIndex before update:", currentColumnIndex);
-  //1) update the cell-type column
-    const successCol = updateIndexes({serverUrl, arr: columns, currentIndex: currentColumnIndex, indexType: "columnIndex", action:"subtraction"})
+    console.log(
+      "At DeleteColumnCells the currentColumnIndex before update:",
+      currentColumnIndex
+    );
+    //1) update the cell-type column
+    const successCol = updateIndexes({
+      serverUrl,
+      arr: columns,
+      currentIndex: currentColumnIndex,
+      indexType: "columnIndex",
+      action: "subtraction",
+    });
     //2) update the cell-type cell
-    const successCell = updateIndexes({serverUrl, arr: cells, currentIndex: currentColumnIndex, indexType: "columnIndex", action:"subtraction"})
-    if (!successCol || !successCell) throw new Error("Invalid currentIndex at DeleteColumnCells") ;
-    if (successCol === undefined || successCell === undefined) throw new Error("updateIndexes caught an error");
-    return true
+    const successCell = updateIndexes({
+      serverUrl,
+      arr: cells,
+      currentIndex: currentColumnIndex,
+      indexType: "columnIndex",
+      action: "subtraction",
+    });
+    if (!successCol || !successCell)
+      throw new Error("Invalid currentIndex at DeleteColumnCells");
+    if (successCol === undefined || successCell === undefined)
+      throw new Error("updateIndexes caught an error");
+    return true;
   }
 };
 //work ok

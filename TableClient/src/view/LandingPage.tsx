@@ -20,10 +20,6 @@ const LandingPage = () => {
         <button
           className="loginLP text-2xl font-medium hover:font-bold"
           onClick={() => setShowPopupLogin(true)} 
-          // onClick={async () => {
-          //   await getAllUserTables();
-          //   navigate("/mainTablesPage");
-          // }}
         >
           Log in
         </button>
