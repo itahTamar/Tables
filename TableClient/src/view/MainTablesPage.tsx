@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DocumentRestAPIMethods } from "../api/docApi";
 import { logout } from "../api/userApi";
@@ -36,6 +36,19 @@ const MainTablesPage: React.FC = () => {
       tableId,
     });
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Close the menu if the click is outside the table
+      const target = event.target as HTMLElement;
+      if (!target.closest(".selection-menu")) {
+        setMenuState((prev) => ({ ...prev, visible: false }));
+      }
+    };
+
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const handleRenameTable = async (tableId: string) => {
     setMessage("")
