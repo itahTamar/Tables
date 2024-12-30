@@ -284,7 +284,7 @@ export const connectUser = async (req: any, res: any) => {
     console.log("At userCont login JWTCookie:", JWTCookie); //got it here!
     
     const isProd = process.env.NODE_ENV === "production";
-    
+    console.log("isProd =", isProd)
     res.cookie("user", JWTCookie, {
       // httpOnly: true,  //makes the cookie inaccessible via JavaScript on the client side. It won't show up in document.cookie or the browser's developer tools.
       path: "/", // Set the path to root to make it available across the entire site

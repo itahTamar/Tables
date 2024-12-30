@@ -45,7 +45,7 @@ export const login = async (
     const response = await axios.post(
       `${serverUrl}/api/users/login`,
       { email, password },
-      { withCredentials: true } //! comment-in in DEV, comment-out when PROD
+      { withCredentials: true }
     );
     console.log("at user-api login response from server is:", response);
     return response.data;

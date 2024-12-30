@@ -23,8 +23,6 @@ export async function isItemExist<T extends Document>(
 export const extractCookie = (req: any, res: any, next) => {
   try {
     console.log("Request Cookies:", req.cookies);
-    console.log("JWT Secret:", process.env.JWT_SECRET);
-
     const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
     if (!userID)
       throw new Error(
