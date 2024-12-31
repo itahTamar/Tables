@@ -39,6 +39,9 @@ function TablePage() {
   }
 
   const { tables, columns, cells, setColumns, setCells } = tableContext;
+
+  const showGenerateTable = columns.length === 0 && cells.length === 0; // Check if arrays are empty
+  
   useEffect(() => {
     if (tables.length === 0) {
       console.error("No tables found in context.");
@@ -252,27 +255,7 @@ function TablePage() {
           Back
         </button>
 
-        {/*Initial the table*/}
-        <button
-          onClick={() => setShowPopupInitialTable(true)}
-          className="absolute top-4 right-4 flex items-center justify-center w-30 h-12 bg-blue-500 hover:bg-blue-600"
-          title="Generate Table" // Tooltip message on hover
-        >
-          <span
-            className="text-white text-2xl text-center"
-            style={{ paddingBottom: "0.33rem" }}
-          >
-            Generate Table
-          </span>
-        </button>
-        {showPopupInitialTable && (
-          <PopupWithAnimation
-            open={showPopupInitialTable}
-            onClose={() => setShowPopupInitialTable(false)}
-          >
-            <InitialNewTable onClose={() => {setFetchAgain(true); setShowPopupInitialTable(false)}} tableId={tableId} tableIndex={tableIndex} />
-          </PopupWithAnimation>
-        )}
+
       </header>
 
       <h1
@@ -287,6 +270,31 @@ function TablePage() {
 
       <SearchInTableCells tableIndex={tableIndex} tableId={tableId} />
       <div className="m-4"></div>
+
+        {/*Initial the table*/}
+        {showGenerateTable && (
+        <button
+          onClick={() => setShowPopupInitialTable(true)}
+          className="absolute flex items-center justify-center w-30 h-12 bg-blue-500 hover:bg-blue-600"
+          title="Generate Table" // Tooltip message on hover
+        >
+          <span
+            className="text-white text-2xl text-center"
+            style={{ paddingBottom: "0.33rem" }}
+          >
+            Generate Table
+          </span>
+        </button>
+        )}
+        
+        {showPopupInitialTable && (
+          <PopupWithAnimation
+            open={showPopupInitialTable}
+            onClose={() => setShowPopupInitialTable(false)}
+          >
+            <InitialNewTable onClose={() => {setFetchAgain(true); setShowPopupInitialTable(false)}} tableId={tableId} tableIndex={tableIndex} />
+          </PopupWithAnimation>
+        )}
 
       <PlotTable handleRightClick={handleRightClick} />
       {menuState.visible && (
