@@ -23,6 +23,11 @@ export const addNewRow = async ({
   cells,
   addBefore, // New parameter to specify adding before the row
 }: AddRowProp) => {
+  if (!tableId || !tableIndex || columns.length === 0) {
+    console.error("Invalid input data for addNewRow");
+    return false;
+  }
+  
   //find the last (max) column index
   //@ts-ignore
   const lastColumnIndex = findTheLastIndex({
@@ -41,7 +46,7 @@ export const addNewRow = async ({
     );
 
   console.log("At addNewRowCells the tableIndex:", tableIndex);
-  console.log("At addNewRowCells the maxRowIndexValue:", lastCellIndex);
+  console.log("At addNewRowCells the lastCellIndex:", lastCellIndex);
   console.log("At addNewRowCells the lastColumnIndex:", lastColumnIndex);
   console.log("At addNewRowCells the currentRowIndex:", currentRowIndex);
   console.log("At addNewRowCells addBefore:", addBefore);
@@ -96,9 +101,10 @@ export const addNewRow = async ({
 
   // Step 2: Add a new row with updated indices after the currentRowIndex
   let i = 1;
-  const newRowIndex =
-    currentRowIndex < lastCellIndex ? currentRowIndex + 1 : lastCellIndex + 1;
+  const newRowIndex = currentRowIndex < lastCellIndex ? currentRowIndex + 1 : lastCellIndex + 1;
+  console.log("At addNewRowCells the newRowIndex is:", newRowIndex)
   while (i <= lastColumnIndex) {
+    console.log("start adding row no:", i)
     try {
       const success = await DocumentRestAPIMethods.add(serverUrl, "tables", {
         type: "cell",

@@ -12,9 +12,12 @@ import { getAllTablesColumns } from "../functions/table/column/getAllTablesColum
 import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 import SelectionMenu from "./../components/tables/SelectionMenu";
 import { DocumentRestAPIMethods } from "../api/docApi";
+import PopupWithAnimation from "../components/popups/popupWithAnimation";
+import InitialNewTable from "../components/tables/InitialNewTable";
 
 function TablePage() {
   const navigate = useNavigate();
+  const [showPopupInitialTable, setShowPopupInitialTable] = useState(false);
   const serverUrl = useContext(ServerContext);
   const { tableId } = useParams();
   const [fetchAgain, setFetchAgain] = useState(false);
@@ -36,10 +39,19 @@ function TablePage() {
   }
 
   const { tables, columns, cells, setColumns, setCells } = tableContext;
+  useEffect(() => {
+    if (tables.length === 0) {
+      console.error("No tables found in context.");
+      return;
+    }
+  }, [tables]);
 
   const tableName = tables.map((e) => (e._id === tableId ? e.tableName : null));
   const tableIndex = tables.find((e) => e._id === tableId)?.tableIndex;
-  if (!tableIndex) throw new Error("no tableIndex in tablePage");
+  if (tableIndex === undefined) {
+    console.error(`No tableIndex found for tableId: ${tableId}`);
+    return null; // Or navigate away
+  }
   console.log("At TablePage the tableIndex is:", tableIndex); //ok
 
   // Fetch columns and cells in useEffect
@@ -239,12 +251,28 @@ function TablePage() {
         >
           Back
         </button>
+
+        {/*Initial the table*/}
         <button
-          className="absolute top-4 right-4"
-          onClick={() => handleAddColumnBtnClicked(false, 0)}
+          onClick={() => setShowPopupInitialTable(true)}
+          className="absolute top-4 right-4 flex items-center justify-center w-30 h-12 bg-blue-500 hover:bg-blue-600"
+          title="Generate Table" // Tooltip message on hover
         >
-          Initial Column
+          <span
+            className="text-white text-2xl text-center"
+            style={{ paddingBottom: "0.33rem" }}
+          >
+            Generate Table
+          </span>
         </button>
+        {showPopupInitialTable && (
+          <PopupWithAnimation
+            open={showPopupInitialTable}
+            onClose={() => setShowPopupInitialTable(false)}
+          >
+            <InitialNewTable onClose={() => {setFetchAgain(true); setShowPopupInitialTable(false)}} tableId={tableId} tableIndex={tableIndex} />
+          </PopupWithAnimation>
+        )}
       </header>
 
       <h1
@@ -259,12 +287,11 @@ function TablePage() {
 
       <SearchInTableCells tableIndex={tableIndex} tableId={tableId} />
       <div className="m-4"></div>
+
       <PlotTable handleRightClick={handleRightClick} />
       {menuState.visible && (
         <SelectionMenu x={menuState.x} y={menuState.y}>
           <ul className="list-none space-y-2">
-            {" "}
-            {/* Add styling here */}
             <li>
               <button onClick={() => handleMenuAction("addRowAfter")}>
                 Add Row After

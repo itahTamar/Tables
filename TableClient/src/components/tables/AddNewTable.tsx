@@ -55,7 +55,7 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
     <div className="add-table relative top-20">
       <input
         type="text"
-        placeholder="Table Name/Subject"
+        placeholder="Table Name"
         value={tableSubject}
         onChange={(e) => setTableSubject(e.target.value)}
         className="border border-black m-2 rounded-2xl w-50 indent-4"
