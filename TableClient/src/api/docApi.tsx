@@ -31,10 +31,11 @@ class DocumentRestAPIMethods {
   static async delete(
     serverUrl: string,
     collectionName: string,
-    query: object
+    query: object,
+    path: string
   ): Promise<boolean> {
     try {
-      const response = await axios.delete(`${serverUrl}/api/doc/deleteDoc`, {
+      const response = await axios.delete(`${serverUrl}/api/doc/${path}`, {
         data: { collectionName, query }, withCredentials: true
       });
       console.log("at DocumentRestAPIMethods.delete the response is:", response);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 interface SelectionMenuProps {
   x: number; 
@@ -6,9 +6,10 @@ interface SelectionMenuProps {
   children: React.ReactNode;
 }
 
-const SelectionMenu: React.FC<SelectionMenuProps> = ({ x, y, children }) => {
+const SelectionMenu = forwardRef<HTMLDivElement, SelectionMenuProps>(({ x, y, children }, ref) => {
   return (
     <div
+      ref={ref}
       className="selection-menu"
       style={{
         position: "absolute",
@@ -24,6 +25,6 @@ const SelectionMenu: React.FC<SelectionMenuProps> = ({ x, y, children }) => {
       {children}
     </div>
   );
-};
+});
 
 export default SelectionMenu;

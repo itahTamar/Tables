@@ -52,4 +52,4 @@ export const extractCookie = (req: any, res: any, next) => {
     console.error("Error in extractCookie middleware:", error.message);
     res.status(401).send({ error: "Unauthorized access" });
   }
-}
+} //work ok

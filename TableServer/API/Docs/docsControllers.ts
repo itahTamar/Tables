@@ -35,7 +35,7 @@ export async function addDoc(req: any, res: any) {
   }
 } //work ok
 
-//!delete doc
+//!delete one doc
 export async function deleteDoc(req: any, res: any) {
   try {
     const { collectionName } = req.body;
@@ -50,13 +50,39 @@ export async function deleteDoc(req: any, res: any) {
       query._id = new ObjectId(query._id);
     }
 
-    // delete the doc to MongoDB
+    // delete the doc from MongoDB
     const response = await MongoDBWrapper.deleteDocument(collectionName, query);
     console.log("At deleteDoc the response:", response);
     if (!response) throw new Error("at deleteDoc Fails to save new doc");
     res.send(response);
   } catch (error) {
     console.error("Error in deleteDoc:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+} //work ok
+
+//!delete many documents
+export async function deleteDocs(req: any, res: any) {
+  try {
+    const { collectionName } = req.body;
+    const { query } = req.body;
+
+    if (!collectionName || !query)
+      throw new Error("no collectionName or query");
+    console.log("At deleteDocs the query is:", query);
+
+    // Convert _id to ObjectId if it exists in the query
+    if (query._id && typeof query._id === "string") {
+      query._id = new ObjectId(query._id);
+    }
+
+    // delete the doc from MongoDB
+    const response = await MongoDBWrapper.deleteDocuments(collectionName, query);
+    console.log("At deleteDocs the response:", response);
+    if (!response) throw new Error("at deleteDocs Fails to save new doc");
+    res.send(response);
+  } catch (error) {
+    console.error("Error in deleteDocs:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 } //work ok
@@ -195,93 +221,5 @@ export async function getDocs(req: any, res: any) {
   } catch (error) {
     console.error("Error in getDoc:", error);
     return res.status(500).json({ message: "Internal server error" });
-  }
-} //work ok
-
-//!get search result
-export async function searchDocsAggPip(req: any, res: any) {
-  try {
-    console.log("At searchDocsAggPip");
-
-    const { collectionName, tableId, regexToSearch } = req.query;
-    console.log(
-      "At searchDocsAggPip collectionName, tableIndex, regexToSearch:",
-      collectionName,
-      tableId,
-      regexToSearch
-    );
-
-    if (!collectionName || tableId === undefined || !regexToSearch) {
-      throw new Error(
-        "Missing required fields: collectionName, tableIndex, or regexToSearch"
-      );
-    }
-
-    console.log("Inputs:", { collectionName, tableId, regexToSearch });
-
-    //step 1: Aggregation pipeline for the cell search
-    const pipeline = [
-      { $match: { tableId, type: "cell" } },
-      {
-        $match: {
-          data: {
-            $regex: regexToSearch,
-            $options: "i",
-          },
-        },
-      }, // Regex search
-      {
-        $match: {
-          data: {
-            $not: /^data:image\//,
-          },
-        },
-      }, // Exclude images
-    ];
-
-    const firstResult = await MongoDBWrapper.searchDocumentsAggPip(
-      collectionName,
-      pipeline
-    );
-    console.log("First result:", firstResult); //!till here works ok
-
-    //step 2: Extract unique rowIndexes
-    const rowIndexSet = new Set(
-      firstResult
-        .map((doc) => doc.rowIndex)
-        .filter((rowIndex) => rowIndex !== undefined)
-    );
-    console.log("Unique rowIndexes:", Array.from(rowIndexSet));
-
-    // Step 3: Fetch documents for all unique rowIndexes in the same tableId
-    const rowIndexArray = Array.from(rowIndexSet); // Convert Set to Array
-    console.log("Row Index Array for Step 3:", rowIndexArray);
-
-    const rowPipeline = [
-      {
-        $match: {
-          tableId, // Match the same tableId
-          rowIndex: { $in: rowIndexArray }, // Match any rowIndex in the set
-        },
-      },
-      {
-        $match: {
-          type: "cell", // Optional: Ensure only 'cell' type documents
-        },
-      },
-    ];
-
-    const finalResults = await MongoDBWrapper.searchDocumentsAggPip(
-      collectionName,
-      rowPipeline
-    );
-    console.log("finalResults Step 3:", finalResults);
-
-    res.status(200).json(finalResults);
-  } catch (error) {
-    console.error("Error in searchDocsAggPip:", error.message);
-    res.status(500).json({
-      message: error.message || "Internal server error in searchDocsAggPip",
-    });
   }
 } //work ok

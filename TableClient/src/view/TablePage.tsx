@@ -56,6 +56,7 @@ function TablePage() {
     return null; // Or navigate away
   }
   console.log("At TablePage the tableIndex is:", tableIndex); //ok
+  console.log("At TablePage the tableId is:", tableId); //ok
 
   // Fetch columns and cells in useEffect
   useEffect(() => {

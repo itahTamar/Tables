@@ -170,8 +170,10 @@ class MongoDBWrapper {
     query: object
   ): Promise<DeleteResult> {
     this.ensureConnected();
+    console.log("collectionName sent to MongoDB:", collectionName);
     const collection: Collection = this.db!.collection(collectionName);
     try {
+      console.log("Query sent to MongoDB:", query);
       const result: DeleteResult = await collection.deleteMany(query);
       console.log(`Deleted ${result.deletedCount} document(s)`);
       return result;
@@ -179,7 +181,7 @@ class MongoDBWrapper {
       console.error("Error deleting documents:", err);
       throw err;
     }
-  }
+  } //work ok
 
   // ADD FIELD: Add a new field to all documents in a collection with a default value
   static async addFieldToCollectionAndMongoDB(

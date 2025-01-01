@@ -54,7 +54,7 @@ export const DeleteRowCells = async ({
           rowIndex: currentRowIndex,
           tableIndex: tableIndex,
           tableId,
-        });
+        }, "deleteDoc");
         if (success) {
           console.log("Cell deleted successfully!");
         }
@@ -75,7 +75,7 @@ export const DeleteRowCells = async ({
         rowIndex: currentRowIndex,
         tableIndex: tableIndex,
         tableId,
-      });
+      }, "deleteDoc");
       if (success) {
         console.log("Cell deleted successfully!");
       }
