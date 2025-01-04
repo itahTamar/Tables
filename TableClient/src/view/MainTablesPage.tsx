@@ -8,7 +8,6 @@ import SelectionMenu from "../components/tables/SelectionMenu";
 import UserTables from "../components/tables/UserTables";
 import { ServerContext } from "../context/ServerUrlContext";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
-import Popup from "../components/popups/Popup";
 
 const MainTablesPage: React.FC = () => {
   // Page variables
