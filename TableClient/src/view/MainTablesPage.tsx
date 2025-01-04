@@ -11,6 +11,13 @@ import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 import Popup from "../components/popups/Popup";
 
 const MainTablesPage: React.FC = () => {
+  // Page variables
+  
+  // Page state variables
+
+  // Page callbacks
+
+
   const navigate = useNavigate();
   const serverUrl = useContext(ServerContext);
   const [showPopupAddNewTable, setShowPopupAddNewTable] = useState(false);
@@ -142,7 +149,7 @@ const MainTablesPage: React.FC = () => {
           >
             <AddNewTable onClose={() => setShowPopupAddNewTable(false)} />
           </PopupWithAnimation>
-        )}
+        ) }
       </header>
 
       {/* Center the UserTables component */}

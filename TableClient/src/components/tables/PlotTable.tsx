@@ -11,6 +11,7 @@ interface PlotTableProps {
     rowIndex: number,
     columnIndex: number
   ) => void;
+  // plotCells: CellData[]
 }
 
 const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {

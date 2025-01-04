@@ -32,19 +32,19 @@ export const DeleteRowCells = async ({
 
   //find the last row index
   //@ts-ignore
-  const lastCellIndex = findTheLastIndex({ arr: cells, indexType: "rowIndex" });
-  if (lastColumnIndex === undefined || lastCellIndex === undefined)
+  const lastRowIndex = findTheLastIndex({ arr: cells, indexType: "rowIndex" });
+  if (lastColumnIndex === undefined || lastRowIndex === undefined)
     throw new Error(
-      "At DeleteRowCells the lastColumnIndex and lastCellIndex not defined"
+      "At DeleteRowCells the lastColumnIndex and lastRowIndex not defined"
     );
 
   console.log("At DeleteRowCells the tableIndex:", tableIndex);
-  console.log("At DeleteRowCells the lastCellIndex:", lastCellIndex);
+  console.log("At DeleteRowCells the lastRowIndex:", lastRowIndex);
   console.log("At DeleteRowCells the lastColumnIndex:", lastColumnIndex);
 
   //delete the row
   //case 1 : rowIndex=0 -> delete the columns row //!only if their no cell-type rows
-  if(currentRowIndex === 0 && lastCellIndex === 0) {
+  if(currentRowIndex === 0 && lastRowIndex === 0) {
     let i = 1;
     while (i <= lastColumnIndex) {
       try {
@@ -84,10 +84,10 @@ export const DeleteRowCells = async ({
     }
     i++;
   }
-  if (currentRowIndex === lastCellIndex) {
+  if (currentRowIndex === lastRowIndex) {
     return true;
   }
-  if (currentRowIndex < lastCellIndex) {
+  if (currentRowIndex < lastRowIndex) {
     const success = updateIndexes({
       serverUrl,
       arr: cells,
