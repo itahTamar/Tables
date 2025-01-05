@@ -20,29 +20,30 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-
   const { columns, cells, setColumns, setCells } = tableContext;
-
-  // Map rows to their respective cells
-  const rows = cells.reduce<Record<number, CellData[]>>((acc, cell) => {
-    acc[cell.rowIndex] = acc[cell.rowIndex] || [];
-    acc[cell.rowIndex].push(cell);
-    return acc;
-  }, {});
-
   const [sortedColumns, setSortedColumns] = useState(columns || []);
+  
+  //sort the columns array
   useEffect(() => {
     if (columns) {
       const sorted = [...columns].sort((a, b) => a.columnIndex - b.columnIndex);
       setSortedColumns(sorted);
     }
   }, [columns]);
-  
+
+ //sort the rows
+ // Map rows to their respective cells
+  const rows = cells.reduce<Record<number, CellData[]>>((acc, cell) => {
+    acc[cell.rowIndex] = acc[cell.rowIndex] || [];
+    acc[cell.rowIndex].push(cell);
+    return acc;
+  }, {});
   const sortedRows = Object.keys(rows)
     .map(Number)
     .sort((a, b) => a - b)
-    .map((rowIndex) =>
-      rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
+    .map(
+      (rowIndex) =>
+        rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
     );
 
   const handleCellUpdate = async (cell: CellData, newData: any) => {
@@ -77,12 +78,12 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
   };
 
   const handlePaste = async (
-    e: React.ClipboardEvent<HTMLTextAreaElement>,
+    e: React.ClipboardEvent<HTMLTextAreaElement>, //type provided by the React library to handle clipboard-related events
     cell: CellData
   ) => {
     e.preventDefault();
-    const clipboardData = e.clipboardData;
-    const items = clipboardData.items;
+    const clipboardData = e.clipboardData; //property provides access to the data associated with the clipboard event (coping, cutting, pasting)
+    const items = clipboardData.items; //A list of items (files or data) being transferred
 
     for (const item of items) {
       if (item.type.startsWith("image")) {
@@ -99,9 +100,10 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
     handleCellUpdate(cell, text);
   };
 
+  //convert a file to an string - so it be easier to save it in db
   const convertToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+      const reader = new FileReader(); //FileReader is a built-in JavaScript API for reading the contents of Blob or File objects.
       reader.onloadend = () => resolve(reader.result as string);
       reader.onerror = reject;
       reader.readAsDataURL(blob);
@@ -136,11 +138,13 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
           {sortedRows.map((row, rowIndex) => (
             <tr key={`row-${rowIndex}`}>
               {row.map((cell) => (
-                <td key={cell._id} className="border border-gray-400"
-                onContextMenu={(e) => {
-                  e.preventDefault(); // Prevent default context menu
-                  handleRightClick(e, cell.rowIndex, cell.columnIndex);
-                }}
+                <td
+                  key={cell._id}
+                  className="border border-gray-400"
+                  onContextMenu={(e) => {
+                    e.preventDefault(); // Prevent default context menu
+                    handleRightClick(e, cell.rowIndex, cell.columnIndex);
+                  }}
                 >
                   {cell.data && cell.data.startsWith("data:image") ? (
                     <img

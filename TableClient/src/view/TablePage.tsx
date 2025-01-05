@@ -16,9 +16,10 @@ import PopupWithAnimation from "../components/popups/popupWithAnimation";
 import InitialNewTable from "../components/tables/InitialNewTable";
 
 function TablePage() {
+  //variables:
+  const serverUrl = useContext(ServerContext);
   const navigate = useNavigate();
   const [showPopupInitialTable, setShowPopupInitialTable] = useState(false);
-  const serverUrl = useContext(ServerContext);
   const { tableId } = useParams();
   const [fetchAgain, setFetchAgain] = useState(false);
   const [menuState, setMenuState] = useState<{
@@ -58,6 +59,7 @@ function TablePage() {
   console.log("At TablePage the tableIndex is:", tableIndex); //ok
   console.log("At TablePage the tableId is:", tableId); //ok
 
+  //local functions:
   // Fetch columns and cells in useEffect
   useEffect(() => {
     const fetchColumnsAndCells = async () => {
@@ -248,19 +250,17 @@ function TablePage() {
   return (
     <div>
       <header className="flex justify-between items-center mb-24">
-        {/* Logout Button */}
+        {/* Back Button */}
         <button
           onClick={() => handleBackBtnClicked()}
           className="absolute top-4 left-4 text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600"
         >
           Back
         </button>
-
-
       </header>
 
       <h1
-        contentEditable
+        contentEditable  //give the h1 tag an update ability
         suppressContentEditableWarning
         onBlur={(e) =>
           handleTableRenameUpdate(e.currentTarget.textContent || "")

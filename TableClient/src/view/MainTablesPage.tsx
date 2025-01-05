@@ -8,13 +8,13 @@ import SelectionMenu from "../components/tables/SelectionMenu";
 import UserTables from "../components/tables/UserTables";
 import { ServerContext } from "../context/ServerUrlContext";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
-import Popup from "../components/popups/Popup";
 
 const MainTablesPage: React.FC = () => {
+  //variables
   const navigate = useNavigate();
+  const getAllUserTables = useGetAllUserTables();
   const serverUrl = useContext(ServerContext);
   const [showPopupAddNewTable, setShowPopupAddNewTable] = useState(false);
-  const getAllUserTables = useGetAllUserTables();
   const [message, setMessage] = useState<string>("");
   const [menuState, setMenuState] = useState<{
     visible: boolean;
@@ -23,10 +23,10 @@ const MainTablesPage: React.FC = () => {
     tableId: string;
   }>({ visible: false, x: 0, y: 0, tableId: "" });
   const [tableRename, setTableRename] = useState("");
-  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
-    useState(false);
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
 
+  //local functions:
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -41,8 +41,7 @@ const MainTablesPage: React.FC = () => {
     });
   };
 
-  // Use ref for the selection menu
-  const selectionMenuRef = useRef<HTMLDivElement | null>(null);
+  const selectionMenuRef = useRef<HTMLDivElement | null>(null); // Use ref for the selection menu
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
