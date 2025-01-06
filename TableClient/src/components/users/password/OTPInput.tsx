@@ -6,10 +6,10 @@ import { recoveryEmail } from "../../../api/userApi";
 const OTPInput: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const serverUrl = useContext(ServerContext);
   const [timerCount, setTimer] = useState<number>(60);
   const [OTPinput, setOTPinput] = useState<number[]>([0, 0, 0, 0]);
   const [disable, setDisable] = useState<boolean>(true);
-  const serverUrl = useContext(ServerContext);
 
   // Access email and OTP from location.state
   const { email, OTP } = location.state || {}; // Destructure with fallback to avoid undefined
@@ -27,9 +27,6 @@ const OTPInput: React.FC = () => {
     const response = await recoveryEmail({ serverUrl, email });
     if (!response) throw new Error("recoveryEmail failed from server");
     const OTP = response.otp;
-    // setDisable(true)
-    // alert("A new OTP has successfully been sent to your email.")
-    // setTimer(60)
     navigate("/otpCode", { state: { email, OTP } });
   }
 

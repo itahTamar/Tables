@@ -223,7 +223,7 @@ export const resetUserPassword = async (req: any, res: any) => {
     //check if email exist , if so update the user password
     //@ts-ignore
     const isEmailExists = await isItemExist(UserModel, {
-      filterCriteria: email,
+      item: email,
     }); // Await the result
     console.log("at resetPassword the isEmailExists answer is:", isEmailExists);
 

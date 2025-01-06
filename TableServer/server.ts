@@ -39,7 +39,7 @@ app.post("/send_recovery_email", async (req: Request, res: Response) => {
   try { 
     const email = req.body.recipient_email
     //@ts-ignore
-    const emailExists = await isItemExist(UserModel,email);  // Await the async function
+    const emailExists = await isItemExist(UserModel,{email: email});  // Await the async function
     if (emailExists) {
       sendEmail(req.body)
       .then((response) => res.send(response))
