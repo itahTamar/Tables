@@ -82,7 +82,7 @@ export default function UpdateUserDetails() {
       <div className="h-screen">
         <button
           className="absolute top-8 left-16"
-          onClick={() => navigate("/userPage")}
+          onClick={() => navigate("/mainTablesPage")}
         >
           Back
         </button>

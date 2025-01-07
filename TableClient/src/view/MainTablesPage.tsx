@@ -121,6 +121,15 @@ const MainTablesPage: React.FC = () => {
           Logout
         </button>
 
+        {/* update user details */}
+        {/* <button
+              type="button"
+              className="absolute top-4 left-28"
+              onClick={() => navigate("/updateUserDetails")}
+            >
+              <span className="emoji">&#xf2bd;</span>
+            </button> */}
+
         {/* Add Table Button */}
         <button
           onClick={() => setShowPopupAddNewTable(true)}
