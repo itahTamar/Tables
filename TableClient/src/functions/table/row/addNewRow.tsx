@@ -1,7 +1,6 @@
 import { DocumentRestAPIMethods } from "../../../api/docApi";
 import { CellData } from "../../../types/cellType";
 import { findTheLastIndex } from "../findTheLastIndex";
-import { updateIndexes } from "../updateIndex";
 
 interface AddRowProp {
   serverUrl: string;
@@ -10,10 +9,17 @@ interface AddRowProp {
   currentRowIndex: number;
   columns: CellData[];
   cells: CellData[];
+  setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
   addBefore: boolean;
 }
 
-//regular function to add one row to the table, row-cells will be according to the number of columns
+/**
+ * Function to add a new row to the table
+ * @param columns - Array of CellData representing columns
+ * @param cells - Array of CellData representing cells
+ * @param setCells - Function to update cells state
+ */
+
 export const addNewRow = async ({
   serverUrl,
   tableId,
@@ -21,13 +27,13 @@ export const addNewRow = async ({
   currentRowIndex,
   columns,
   cells,
+  setCells,
   addBefore, // New parameter to specify adding before the row
 }: AddRowProp) => {
   if (!tableId || !tableIndex || columns.length === 0) {
-    console.error("Invalid input data for addNewRow");
-    return false;
+    throw new Error("Invalid input data for addNewRow");
   }
-  
+
   //find the last (max) column index
   //@ts-ignore
   const lastColumnIndex = findTheLastIndex({
@@ -51,78 +57,88 @@ export const addNewRow = async ({
   console.log("At addNewRowCells the currentRowIndex:", currentRowIndex);
   console.log("At addNewRowCells addBefore:", addBefore);
 
-  if (addBefore) {
-    // Step 1: Update existing row indices (greater than or equal to currentRowIndex)
-    const success = await updateIndexes({
-      serverUrl,
-      arr: cells,
-      currentIndex: currentRowIndex - 1, // Include the currentRowIndex in the update
-      indexType: "rowIndex",
-      action: "adding",
-    });
+  // Determine where to add the new row
+  const newRowIndex = addBefore ? currentRowIndex : currentRowIndex + 1;
 
-    if (!success) throw new Error("Failed to update indices at addNewRowCells");
-    if (success === undefined) throw new Error("updateIndexes caught an error");
+  // Create new cells for the new row based on columns
+  const newRowCells: CellData[] = columns.map((column) => ({
+    _id: generateObjectId(), // Placeholder function to generate a unique ID
+    type: "cell",
+    data: null,
+    visibility: true,
+    rowIndex: newRowIndex,
+    columnIndex: column.columnIndex,
+    tableIndex: column.tableIndex,
+    tableId: tableId,
+    __v: 0,
+  }));
 
-    // Step 2: Add the new row at currentRowIndex
-    for (let columnIndex = 1; columnIndex <= lastColumnIndex; columnIndex++) {
-      try {
-        const success = await DocumentRestAPIMethods.add(serverUrl, "tables", {
-          type: "cell",
-          data: null,
-          columnIndex,
-          rowIndex: currentRowIndex, // Add at the currentRowIndex
-          tableIndex,
-          tableId
-        }, "addDoc");
-
-        if (!success) {
-          console.error("Failed to add new cell.");
-        }
-      } catch (error) {
-        console.error("Error adding new cell:", error);
-      }
+  // Adjust rowIndex for existing cells
+  const adjustedCells = cells.map((cell) => {
+    if (cell.rowIndex >= newRowIndex) {
+      return { ...cell, rowIndex: cell.rowIndex + 1 };
     }
-  }
+    return cell;
+  });
 
-  if(!addBefore){
-  // Step 1: Update the row indices if required
-  if (currentRowIndex < lastCellIndex) {
-    const success = updateIndexes({
-      serverUrl,
-      arr: cells,
-      currentIndex: currentRowIndex,
-      indexType: "rowIndex",
-      action: "adding",
-    });
-    if (!success) throw new Error("Invalid currentIndex at addNewRowCells");
-    if (success === undefined) throw new Error("updateIndexes caught an error");
-  }
+  // Combine the adjusted cells with the new row
+  const updatedCells = [...adjustedCells, ...newRowCells];
 
-  // Step 2: Add a new row with updated indices after the currentRowIndex
-  let i = 1;
-  const newRowIndex = currentRowIndex < lastCellIndex ? currentRowIndex + 1 : lastCellIndex + 1;
-  console.log("At addNewRowCells the newRowIndex is:", newRowIndex)
-  while (i <= lastColumnIndex) {
-    console.log("start adding row no:", i)
-    try {
-      const success = await DocumentRestAPIMethods.add(serverUrl, "tables", {
-        type: "cell",
-        data: null,
-        columnIndex: i,
-        rowIndex: newRowIndex,
-        tableIndex: tableIndex,
-        tableId
-      }, "addDoc");
-      if (!success) {
-        console.error("Failed to add Cell.");
-      }
-    } catch (error) {
-      console.error("Failed to add Cell:", error);
-    }
-    i++;
-  }
-  }
-  return true;
+  console.log("at addNewRow the updatedCells:", updatedCells)
+
+  const sortedUpdatedCells = updatedCells.sort(
+    (a, b) => a.rowIndex - b.rowIndex || a.columnIndex - b.columnIndex
+  );
+
+  console.log("at addNewRow the sortedUpdatedCells:", sortedUpdatedCells)
+  
+  // Update the state with the final cells
+  setCells(updatedCells);
+
+    // Determine affected cells based on the updated state
+    const affectedCells = updatedCells.filter((cell) => cell.rowIndex >= newRowIndex);
+  
+    // Batch update the database for affected cells
+    const successUpdate = await Promise.all(
+      affectedCells.map((cell) =>
+          DocumentRestAPIMethods.update(
+                  serverUrl,
+                  "tables",
+                  { _id: cell._id },
+                  { rowIndex: cell.rowIndex }
+                )
+      )
+    );
+
+  //add the newRowCells to db
+  const successAdd = await Promise.all(
+    newRowCells.map((cell) =>
+      DocumentRestAPIMethods.add(serverUrl, "tables", cell, "addDoc")
+    )
+  );
+
+  if (successUpdate && successAdd) console.log("row added successfully")
+
+    return sortedUpdatedCells
 };
-//work ok
+
+/**
+ * Helper function to generate a unique ID (placeholder)
+ */
+function generateObjectId(): string {
+    // Generate a 4-byte timestamp (seconds since Unix epoch)
+    const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');
+  
+    // Generate a 3-byte machine identifier (random value)
+    const machineIdentifier = Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0');
+  
+    // Generate a 2-byte process identifier (random value)
+    const processIdentifier = Math.floor(Math.random() * 0xffff).toString(16).padStart(4, '0');
+  
+    // Generate a 3-byte counter (random value)
+    const counter = Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0');
+  
+    // Combine all parts into a 24-character hexadecimal ObjectId
+    return `${timestamp}${machineIdentifier}${processIdentifier}${counter}`;
+  }
+  

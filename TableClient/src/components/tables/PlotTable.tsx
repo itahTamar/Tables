@@ -20,8 +20,9 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { columns, cells, setColumns, setCells } = tableContext;
+  const { columns, setColumns, cells, setCells } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
+  const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   
   //sort the columns array
   useEffect(() => {
@@ -33,18 +34,22 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
 
  //sort the rows
  // Map rows to their respective cells
-  const rows = cells.reduce<Record<number, CellData[]>>((acc, cell) => {
+ useEffect(()=>{
+    const rows = cells.reduce<Record<number, CellData[]>>((acc, cell) => {
     acc[cell.rowIndex] = acc[cell.rowIndex] || [];
     acc[cell.rowIndex].push(cell);
     return acc;
   }, {});
-  const sortedRows = Object.keys(rows)
+  const sortTheRows = Object.keys(rows)
     .map(Number)
     .sort((a, b) => a - b)
     .map(
       (rowIndex) =>
         rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
     );
+    setSortedRows(sortTheRows)
+ },[cells])
+
 
   const handleCellUpdate = async (cell: CellData, newData: any) => {
     try {
@@ -110,6 +115,13 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
     });
   };
 
+  console.log("at PlotTable the sorted columns:", sortedColumns)
+  console.log("at PlotTable the sorted rows:", sortedRows)
+  useEffect(() => {
+    console.log("PlotTable cells updated:", cells);
+    console.log("PlotTable columns updated:", columns);
+  }, [cells, columns]);
+  
   return (
     <div className="table-container">
       <table className="table-auto border-collapse border border-gray-400 w-full text-center">

@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { ServerContext } from "../../context/ServerUrlContext";
 import { TableContext } from "../../context/tableContext";
 import { addOneNewColumnsTypeCell } from "../../functions/table/column/addOneNewColumnsTypeCell";
-import { addNewRow } from "../../functions/table/row/addNewRow";
+import { addNewRow } from "../../functions/table/row/addNewRow_old_v";
 import "../../style/buttons.css";
 import { getAllTablesColumns } from "../../functions/table/column/getAllTablesColumns";
 import { getAllTablesCells } from "../../functions/table/row/getAllTablesCells";

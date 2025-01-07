@@ -6,7 +6,7 @@ import { ServerContext } from "../context/ServerUrlContext";
 import { TableContext } from "../context/tableContext";
 import { addNewColumnWithCells } from "../functions/table/column/addNewColumnWithCells";
 import { DeleteColumnCells } from "../functions/table/column/deleteColumnCells";
-import { addNewRow } from "../functions/table/row/addNewRow";
+// import { addNewRow } from "../functions/table/row/addNewRow_old_v";
 import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
 import { getAllTablesColumns } from "../functions/table/column/getAllTablesColumns";
 import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
@@ -14,6 +14,7 @@ import SelectionMenu from "./../components/tables/SelectionMenu";
 import { DocumentRestAPIMethods } from "../api/docApi";
 import PopupWithAnimation from "../components/popups/popupWithAnimation";
 import InitialNewTable from "../components/tables/InitialNewTable";
+import { addNewRow } from "../functions/table/row/addNewRow";
 
 function TablePage() {
   //variables:
@@ -176,16 +177,19 @@ function TablePage() {
     addBefore: boolean,
     currentRowIndex: number
   ) => {
-    const fetchAgain = await addNewRow({
+    const newCellsAfterAddingRow = await addNewRow({
       serverUrl,
       tableId,
       tableIndex,
       currentRowIndex,
       columns,
       cells,
+      setCells,
       addBefore,
     });
-    setFetchAgain(fetchAgain);
+    // setFetchAgain(fetchAgain);
+    console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow)
+    setCells(newCellsAfterAddingRow)
   };
 
   const handleAddColumnBtnClicked = async (
@@ -297,7 +301,7 @@ function TablePage() {
           </PopupWithAnimation>
         )}
 
-      <PlotTable handleRightClick={handleRightClick} />
+      <PlotTable handleRightClick={handleRightClick}/>
       {menuState.visible && (
         <SelectionMenu x={menuState.x} y={menuState.y}>
           <ul className="list-none space-y-2">
