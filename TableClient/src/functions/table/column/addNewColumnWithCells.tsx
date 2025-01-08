@@ -1,9 +1,8 @@
 import { CellData } from "../../../types/cellType";
 import { findTheLastIndex } from "../findTheLastIndex";
-import { addOneNewRowsTypeCell } from "../row/addOneNewRowsTypeCell";
-import { updateIndexes } from "../updateIndex";
-import { addOneNewColumnsTypeCell } from "./addOneNewColumnsTypeCell";
-//function to handle all cases of inserting a new column (with or without new row's-cells)
+import { generateObjectId } from "../row/addNewRow";
+
+//Function to add a new column to the table
 interface AddColumnProp {
   serverUrl: string;
   tableId: string;
@@ -15,200 +14,100 @@ interface AddColumnProp {
 }
 
 export const addNewColumnWithCells = async ({
-  serverUrl,
   tableId,
   tableIndex,
   currentColumnIndex,
   columns,
   cells,
-  addBefore,
+  addBefore, // parameter to specify adding before/after the current column
 }: AddColumnProp) => {
-  //find the last column index
-  //@ts-ignore
+  if (!tableId || columns.length === 0) {
+    throw new Error("Invalid input data for addNewColumnWithCells");
+  }
+
+  // Find the last column index and last row index
   const lastColumnIndex = findTheLastIndex({
     arr: columns,
     indexType: "columnIndex",
   });
 
   //find the last row index
-  //@ts-ignore
-  const lastCellIndex = findTheLastIndex({ arr: cells, indexType: "rowIndex" });
-  if (lastColumnIndex === undefined || lastCellIndex === undefined)
+  const lastRowIndex = findTheLastIndex({ arr: cells, indexType: "rowIndex" });
+
+  if (lastColumnIndex === undefined || lastRowIndex === undefined)
     throw new Error(
-      "At addNewColumn the lastColumnIndex and lastCellIndex not defined"
+      "At addNewRowCells the lastColumnIndex and lastCellIndex not defined"
     );
 
-  console.log("At addNewColumn the tableIndex:", tableIndex);
-  console.log("At addNewColumn the lastColumnIndex:", lastColumnIndex);
-  console.log("At addNewColumn the lastCellIndex:", lastCellIndex);
-  console.log("At addNewColumn the currentColumnIndex:", currentColumnIndex);
+  // Determine the new column index
+  const newColumnIndex = addBefore
+    ? currentColumnIndex
+    : currentColumnIndex + 1;
 
-  // help fun' to Add new cells for each existing row
-  const addRowsCells = async (columnIndex: number) => {
-    for (let rowIndex = 1; rowIndex <= lastCellIndex; rowIndex++) {
-      try {
-        const success = await addOneNewRowsTypeCell({
-          serverUrl,
-          tableId,
-          tableIndex,
-          rowIndexToInsert: rowIndex,
-          currentColumnIndex: columnIndex,
-        });
-        if (!success) {
-          console.error("Failed to add new cell.");
-        }
-      } catch (error) {
-        console.error("Error adding new cell:", error);
-      }
+  // Adjust indices of existing columns and cells
+  const adjustedColumns = columns.map((col) => {
+    if (col.columnIndex >= newColumnIndex) {
+      return { ...col, columnIndex: col.columnIndex + 1 };
     }
+    return col;
+  });
+
+  const adjustedCells = cells.map((cell) => {
+    if (cell.columnIndex >= newColumnIndex) {
+      return { ...cell, columnIndex: cell.columnIndex + 1 };
+    }
+    return cell;
+  });
+
+  // Add the new column to the columns array
+  const newColumn: CellData = {
+    _id: generateObjectId(),
+    type: "column",
+    data: null,
+    columnIndex: newColumnIndex,
+    rowIndex: 0,
+    tableIndex,
+    tableId,
+    visibility: true,
+    __v: 0,
   };
+  const updatedColumns = [...adjustedColumns, newColumn];
 
-  // case 0: Handle case where there are no columns (empty table)
-  if (columns.length === 0 && currentColumnIndex === 0) {
-    // Add the first column cell - with no row-cells (there is no rows)
-    const success = await addOneNewColumnsTypeCell({
-      serverUrl,
-      tableId,
-      tableIndex,
-      columnIndexToInsert: 1,
-    });
-    return success;
-  }
-
-  // case 1: Handle case where there only columns and no cells (no rows)
-  if (columns.length > 0 && cells.length === 0 && currentColumnIndex != 0) {
-    //!case 1.1: Insert column AFTER an existing one
-    if (!addBefore) {
-      //case: 1.1.1: Insert at the end
-      if (currentColumnIndex === lastColumnIndex) {
-        console.log("case: 1.1.1: Insert at the end");
-        const success = await addOneNewColumnsTypeCell({
-          serverUrl,
-          tableId,
-          tableIndex,
-          columnIndexToInsert: lastColumnIndex + 1,
-        });
-        return success;
-      }
-      //case 1.1.2: Insert not at the end
-      // Step 1: Update existing column indices
-      if (currentColumnIndex < lastColumnIndex && currentColumnIndex != 0) {
-        console.log("case 1.1.2: Insert after not at the end");
-        const updateSuccess = await updateIndexes({
-          serverUrl,
-          arr: [...columns, ...cells],
-          currentIndex: currentColumnIndex,
-          indexType: "columnIndex",
-          action: "adding",
-        });
-
-        if (!updateSuccess)
-          throw new Error("Failed to update indices at addNewColumnWithCells");
-
-        //step 2: add the new column
-        const success = await addOneNewColumnsTypeCell({
-          serverUrl,
-          tableId,
-          tableIndex,
-          columnIndexToInsert: currentColumnIndex + 1,
-        });
-        return success;
-      }
-    }
-
-    //!case 1.2: Insert column BEFORE an existing one
-    if (addBefore) {
-      // Step 1: Update existing column indices
-      console.log("case 1.2: Insert before");
-      const updateSuccess = await updateIndexes({
-        serverUrl,
-        arr: [...columns, ...cells],
-        currentIndex: currentColumnIndex-1, //will update all columnIndexes including the current
-        indexType: "columnIndex",
-        action: "adding",
-      });
-
-      if (!updateSuccess)
-        throw new Error("Failed to update indices at addNewColumnWithCells");
-
-      const success = await addOneNewColumnsTypeCell({
-        serverUrl,
-        tableIndex,
-        tableId,
-        columnIndexToInsert: currentColumnIndex,
-      });
-      return success;
-    }
-  }
-
-  //case 2: Handle case where there is some column/s and cell/s
-  //!case 2.1: Insert column AFTER an existing one
-  if (!addBefore) {
-    //case 2.1.1: Insert at the end
-    if (currentColumnIndex === lastColumnIndex) {
-      const success = await addOneNewColumnsTypeCell({
-        serverUrl,
-        tableId,
-        tableIndex,
-        columnIndexToInsert: lastColumnIndex + 1,
-      });
-      if (success) {
-        addRowsCells(lastColumnIndex + 1);
-        return true;
-      }
-    }
-
-    //case 2.1.2: Insert not at the end
-    // Step 1: Update existing column and cell indices
-    if (currentColumnIndex < lastColumnIndex && currentColumnIndex != 0) {
-      const updateSuccess = await updateIndexes({
-        serverUrl,
-        arr: [...columns, ...cells],
-        currentIndex: currentColumnIndex,
-        indexType: "columnIndex",
-        action: "adding",
-      });
-
-      if (!updateSuccess)
-        throw new Error("Failed to update indices at addNewColumnWithCells");
-      //step 2: add the new column
-      const success = await addOneNewColumnsTypeCell({
-        serverUrl,
-        tableId,
-        tableIndex,
-        columnIndexToInsert: currentColumnIndex + 1,
-      });
-      if (success) {
-        //step 3: add row's cells
-        addRowsCells(currentColumnIndex + 1);
-        return true;
-      }
-    }
-  }
-
-  //!case 2.2: Insert column BEFORE an existing one
-  if (addBefore) {
-    const updateSuccess = await updateIndexes({
-      serverUrl,
-      arr: [...columns, ...cells],
-      currentIndex: currentColumnIndex - 1, //will update all columnIndexes including the current
-      indexType: "columnIndex",
-      action: "adding",
-    });
-
-    if (!updateSuccess)
-      throw new Error("Failed to update indices at addNewColumnWithCells");
-
-    const success = await addOneNewColumnsTypeCell({
-      serverUrl,
+  // Add new cells for the rows corresponding to the new column
+  const newColumnCells: CellData[] = Array.from(
+    { length: lastRowIndex },
+    (_, rowIndex) => ({
+      _id: generateObjectId(),
+      type: "cell",
+      columnIndex: newColumnIndex,
+      rowIndex: rowIndex + 1,
       tableIndex,
       tableId,
-      columnIndexToInsert: currentColumnIndex,
-    });
-    if (success) {
-      addRowsCells(currentColumnIndex);
-      return true;
-    }
-  }
+      data: null,
+      visibility: true,
+      __v: 0,
+    })
+  );
+  const updatedCells = [...adjustedCells, ...newColumnCells];
+
+  // Sort columns and cells
+  const sortedUpdatedColumns = updatedColumns.sort(
+    (a, b) => a.columnIndex - b.columnIndex
+  );
+  const sortedUpdatedCells = updatedCells.sort(
+    (a, b) => a.rowIndex - b.rowIndex || a.columnIndex - b.columnIndex
+  );
+
+  // Update UI (front-end) state
+  console.log("Updated columns:", sortedUpdatedColumns);
+  console.log("Updated cells:", sortedUpdatedCells);
+
+  return {
+    updatedColumns: sortedUpdatedColumns,
+    updatedCells: sortedUpdatedCells,
+    adjustedColumns: adjustedColumns,
+    adjustedCells: adjustedCells,
+    newColumn: newColumn,
+    newColumnCells: newColumnCells,
+  };
 };
-//all work ok

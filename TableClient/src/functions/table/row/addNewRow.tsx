@@ -1,4 +1,3 @@
-import { DocumentRestAPIMethods } from "../../../api/docApi";
 import { CellData } from "../../../types/cellType";
 import { findTheLastIndex } from "../findTheLastIndex";
 
@@ -16,17 +15,15 @@ interface AddRowProp {
  * Function to add a new row to the table
  * @param columns - Array of CellData representing columns
  * @param cells - Array of CellData representing cells
- * @param setCells - Function to update cells state
  */
 
 export const addNewRow = async ({
-  serverUrl,
   tableId,
   tableIndex,
   currentRowIndex,
   columns,
   cells,
-  addBefore, // New parameter to specify adding before the row
+  addBefore, // parameter to specify adding before/after the current row
 }: AddRowProp) => {
   if (!tableId || !tableIndex || columns.length === 0) {
     throw new Error("Invalid input data for addNewRow");
@@ -95,34 +92,17 @@ export const addNewRow = async ({
   );
   console.log("at addNewRow the affectedCells:", affectedCells);
 
-  // Batch update the database for affected cells
-  const successUpdate = await Promise.all(
-    affectedCells.map((cell) =>
-      DocumentRestAPIMethods.update(
-        serverUrl,
-        "tables",
-        { _id: cell._id },
-        { rowIndex: cell.rowIndex }
-      )
-    )
-  );
-
-  //add the newRowCells to db
-  const successAdd = await Promise.all(
-    newRowCells.map((cell) =>
-      DocumentRestAPIMethods.add(serverUrl, "tables", cell, "addDoc")
-    )
-  );
-
-  if (successUpdate && successAdd) console.log("row added successfully");
-
-  return sortedUpdatedCells;
+  return {
+    updatedCells: sortedUpdatedCells,
+    adjustedCells: affectedCells,
+    newRowCells: newRowCells
+  };
 };
 
 /**
  * Helper function to generate a unique ID (placeholder)
  */
-function generateObjectId(): string {
+export function generateObjectId(): string {
   // Generate a 4-byte timestamp (seconds since Unix epoch)
   const timestamp = Math.floor(Date.now() / 1000)
     .toString(16)

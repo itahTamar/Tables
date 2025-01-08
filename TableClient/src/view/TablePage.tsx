@@ -6,7 +6,6 @@ import { ServerContext } from "../context/ServerUrlContext";
 import { TableContext } from "../context/tableContext";
 import { addNewColumnWithCells } from "../functions/table/column/addNewColumnWithCells";
 import { DeleteColumnCells } from "../functions/table/column/deleteColumnCells";
-// import { addNewRow } from "../functions/table/row/addNewRow_old_v";
 import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
 import { getAllTablesColumns } from "../functions/table/column/getAllTablesColumns";
 import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
@@ -15,6 +14,7 @@ import { DocumentRestAPIMethods } from "../api/docApi";
 import PopupWithAnimation from "../components/popups/popupWithAnimation";
 import InitialNewTable from "../components/tables/InitialNewTable";
 import { addNewRow } from "../functions/table/row/addNewRow";
+import { CellData } from "../types/cellType";
 
 function TablePage() {
   //variables:
@@ -110,6 +110,37 @@ function TablePage() {
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
+  const handleUpdateDB = async (adjustedColumns: CellData[], adjustedCells: CellData[]) => {
+    const successUpdate = await Promise.all(
+          [...adjustedColumns, ...adjustedCells].map((item) =>
+            DocumentRestAPIMethods.update(
+              serverUrl,
+              "tables",
+              { _id: item._id },
+              {
+                columnIndex: item.columnIndex,
+                ...(item.rowIndex !== undefined && { rowIndex: item.rowIndex }), 
+              }
+            )
+          )
+        );
+    if (successUpdate) console.log("rows and columns updated successfully");
+  }
+
+  const handleAddToDB = async (newCells: CellData[], newColumn: CellData | null) => {
+    if(newColumn != null) {
+      const successAddColum = await DocumentRestAPIMethods.add(serverUrl, "tables", newColumn, "addDoc");
+      if (successAddColum) console.log("column added successfully");
+    }
+    const successAddCells = await Promise.all(
+      newCells.map((cell) =>
+        DocumentRestAPIMethods.add(serverUrl, "tables", cell, "addDoc")
+      )
+    );
+    if (successAddCells) console.log("rows and columns added successfully");
+
+  }
+
   const handleTableRenameUpdate = async (rename: string) => {
     try {
       const success = await DocumentRestAPIMethods.update(
@@ -191,14 +222,17 @@ function TablePage() {
       addBefore,
     });
     console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
-    setCells(newCellsAfterAddingRow);
+    setCells(newCellsAfterAddingRow.updatedCells);
+    handleUpdateDB([], newCellsAfterAddingRow.adjustedCells)
+    handleAddToDB(newCellsAfterAddingRow.newRowCells, null )
+
   }; //works
 
   const handleAddColumnBtnClicked = async (
     addBefore: boolean,
     currentColumnIndex: number
   ) => {
-    const fetchAgain = await addNewColumnWithCells({
+    const newColumnAndCellsAfterAddingColumn = await addNewColumnWithCells({
       serverUrl,
       tableId,
       tableIndex,
@@ -207,9 +241,14 @@ function TablePage() {
       cells,
       addBefore,
     });
-    //@ts-ignore
-    setFetchAgain(fetchAgain);
-  };
+    const newCells = newColumnAndCellsAfterAddingColumn.updatedCells
+    const newColumns = newColumnAndCellsAfterAddingColumn.updatedColumns
+    setCells(newCells)
+    setColumns(newColumns)
+
+    handleUpdateDB(newColumnAndCellsAfterAddingColumn.adjustedColumns, newColumnAndCellsAfterAddingColumn.adjustedCells)
+    handleAddToDB(newColumnAndCellsAfterAddingColumn.newColumnCells, newColumnAndCellsAfterAddingColumn.newColumn)
+  }; //works
 
   const handleDeleteRowBtnClicked = async (currentRowIndex: number) => {
     try {
