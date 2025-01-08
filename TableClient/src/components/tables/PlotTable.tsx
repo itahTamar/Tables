@@ -50,10 +50,11 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
     setSortedRows(sortTheRows)
  },[cells])
 
-
+//!not working on new added row cells
   const handleCellUpdate = async (cell: CellData, newData: any) => {
     try {
       const updatedCell = { ...cell, data: newData };
+      console.log("at PlotTable handleCellUpdate the updatedCell:", updatedCell)
       const success = await DocumentRestAPIMethods.update(
         serverUrl,
         "tables",

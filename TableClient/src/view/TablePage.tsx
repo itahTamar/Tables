@@ -184,10 +184,9 @@ function TablePage() {
       currentRowIndex,
       columns,
       cells,
-      setCells,
+      // setCells,
       addBefore,
     });
-    // setFetchAgain(fetchAgain);
     console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow)
     setCells(newCellsAfterAddingRow)
   };

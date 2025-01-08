@@ -10,6 +10,11 @@ export async function addDoc(req: any, res: any) {
     if (!collectionName || !document)
       throw new Error("no collectionName or document");
 
+    // Convert _id to ObjectId if it's present and is a string
+    if (document._id && typeof document._id === "string") {
+      document._id = new ObjectId(document._id);
+    }
+
     // Check if the middleware added `req.user`
     if (req.user) {
       console.log("User ID from middleware:", req.user);
@@ -77,7 +82,10 @@ export async function deleteDocs(req: any, res: any) {
     }
 
     // delete the doc from MongoDB
-    const response = await MongoDBWrapper.deleteDocuments(collectionName, query);
+    const response = await MongoDBWrapper.deleteDocuments(
+      collectionName,
+      query
+    );
     console.log("At deleteDocs the response:", response);
     if (!response) throw new Error("at deleteDocs Fails to save new doc");
     res.send(response);
@@ -87,12 +95,17 @@ export async function deleteDocs(req: any, res: any) {
   }
 } //work ok
 
-//!update doc
+//!update one doc
 export async function updateDoc(req: any, res: any) {
   try {
     const { collectionName } = req.body;
     const { query } = req.body;
     const { update } = req.body;
+
+    console.log("At updateDoc the collectionName:", collectionName);
+    console.log("At updateDoc the query:", query);
+    console.log("At updateDoc the query._id:", query._id);
+    console.log("At updateDoc the update:", update);
 
     if (!collectionName || !query || !update)
       throw new Error("no collectionName or query or update");
@@ -109,13 +122,12 @@ export async function updateDoc(req: any, res: any) {
       update
     );
     console.log("At updateDoc the response:", response);
-    if (!response) throw new Error("at updateDoc Fails to save new doc");
-    res.send(response);
+    return response;
   } catch (error) {
     console.error("Error in updateDoc:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-} //work ok
+} //work ok //!not using that
 
 export async function updateDocs(req: any, res: any) {
   try {
@@ -125,6 +137,11 @@ export async function updateDocs(req: any, res: any) {
 
     if (!collectionName || !query || !update)
       throw new Error("no collectionName or query or update");
+
+    console.log("At updateDocs the collectionName:", collectionName);
+    console.log("At updateDocs the query:", query);
+    console.log("At updateDocs the query._id:", query._id);
+    console.log("At updateDocs the update:", update);
 
     // Convert _id to ObjectId if it exists in the query
     if (query._id && typeof query._id === "string") {
@@ -137,14 +154,17 @@ export async function updateDocs(req: any, res: any) {
       query,
       update
     );
-    console.log("At updateDoc the response:", response);
-    if (!response) throw new Error("at updateDoc Fails to save new doc");
-    res.send(response);
+    console.log("At updateDocs the response:", response);
+    if (response.matchedCount === 0)
+      throw new Error(
+        "at updateDocs Fails to find the docs. result.matchedCount=0"
+      );
+    res.send(true);
   } catch (error) {
-    console.error("Error in updateDoc:", error);
+    console.error("Error in updateDocs:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
-}
+} //work ok
 
 //!get one doc - not in use
 export async function getDoc(req: any, res: any) {

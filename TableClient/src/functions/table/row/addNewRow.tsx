@@ -9,7 +9,7 @@ interface AddRowProp {
   currentRowIndex: number;
   columns: CellData[];
   cells: CellData[];
-  setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
+  // setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
   addBefore: boolean;
 }
 
@@ -27,7 +27,7 @@ export const addNewRow = async ({
   currentRowIndex,
   columns,
   cells,
-  setCells,
+  // setCells,
   addBefore, // New parameter to specify adding before the row
 }: AddRowProp) => {
   if (!tableId || !tableIndex || columns.length === 0) {
@@ -80,25 +80,25 @@ export const addNewRow = async ({
     }
     return cell;
   });
+  console.log("at addNewRow the adjustedCells:", adjustedCells)
 
   // Combine the adjusted cells with the new row
   const updatedCells = [...adjustedCells, ...newRowCells];
-
   console.log("at addNewRow the updatedCells:", updatedCells)
 
   const sortedUpdatedCells = updatedCells.sort(
     (a, b) => a.rowIndex - b.rowIndex || a.columnIndex - b.columnIndex
   );
-
   console.log("at addNewRow the sortedUpdatedCells:", sortedUpdatedCells)
   
   // Update the state with the final cells
-  setCells(updatedCells);
+  // setCells(updatedCells);
 
     // Determine affected cells based on the updated state
-    const affectedCells = updatedCells.filter((cell) => cell.rowIndex >= newRowIndex);
+    const affectedCells = adjustedCells.filter((cell) => cell.rowIndex >= newRowIndex);
+    console.log("at addNewRow the affectedCells:", affectedCells)
   
-    // Batch update the database for affected cells
+    // Batch update the database for affected cells 
     const successUpdate = await Promise.all(
       affectedCells.map((cell) =>
           DocumentRestAPIMethods.update(
