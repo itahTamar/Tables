@@ -43,7 +43,7 @@ function TablePage() {
   const { tables, columns, cells, setColumns, setCells } = tableContext;
 
   const showGenerateTable = columns.length === 0 && cells.length === 0; // Check if arrays are empty
-  
+
   useEffect(() => {
     if (tables.length === 0) {
       console.error("No tables found in context.");
@@ -157,21 +157,25 @@ function TablePage() {
     const { rowIndex, columnIndex } = menuState;
 
     if (action === "addRowAfter") {
+      setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleAddRowBtnClick(false, rowIndex);
     } else if (action === "addRowBefore") {
+      setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleAddRowBtnClick(true, rowIndex);
     } else if (action === "addColumnAfter") {
+      setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleAddColumnBtnClicked(false, columnIndex);
     } else if (action === "addColumnBefore") {
+      setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleAddColumnBtnClicked(true, columnIndex);
     } else if (action === "deleteRow") {
+      setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleDeleteRowBtnClicked(rowIndex);
     } else if (action === "deleteColumn") {
+      setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleDeleteColumnBtnClicked(columnIndex);
     }
-
-    setMenuState({ ...menuState, visible: false }); // Close menu after action
-  };
+  }; //works
 
   const handleAddRowBtnClick = async (
     addBefore: boolean,
@@ -184,12 +188,11 @@ function TablePage() {
       currentRowIndex,
       columns,
       cells,
-      // setCells,
       addBefore,
     });
-    console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow)
-    setCells(newCellsAfterAddingRow)
-  };
+    console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
+    setCells(newCellsAfterAddingRow);
+  }; //works
 
   const handleAddColumnBtnClicked = async (
     addBefore: boolean,
@@ -263,7 +266,7 @@ function TablePage() {
       </header>
 
       <h1
-        contentEditable  //give the h1 tag an update ability
+        contentEditable //give the h1 tag an update ability
         suppressContentEditableWarning
         onBlur={(e) =>
           handleTableRenameUpdate(e.currentTarget.textContent || "")
@@ -275,8 +278,8 @@ function TablePage() {
       <SearchInTableCells tableIndex={tableIndex} tableId={tableId} />
       <div className="m-4"></div>
 
-        {/*Initial the table*/}
-        {showGenerateTable && (
+      {/*Initial the table*/}
+      {showGenerateTable && (
         <button
           onClick={() => setShowPopupInitialTable(true)}
           className="absolute flex items-center justify-center w-30 h-12 bg-blue-500 hover:bg-blue-600"
@@ -289,18 +292,25 @@ function TablePage() {
             Generate Table
           </span>
         </button>
-        )}
-        
-        {showPopupInitialTable && (
-          <PopupWithAnimation
-            open={showPopupInitialTable}
-            onClose={() => setShowPopupInitialTable(false)}
-          >
-            <InitialNewTable onClose={() => {setFetchAgain(true); setShowPopupInitialTable(false)}} tableId={tableId} tableIndex={tableIndex} />
-          </PopupWithAnimation>
-        )}
+      )}
 
-      <PlotTable handleRightClick={handleRightClick}/>
+      {showPopupInitialTable && (
+        <PopupWithAnimation
+          open={showPopupInitialTable}
+          onClose={() => setShowPopupInitialTable(false)}
+        >
+          <InitialNewTable
+            onClose={() => {
+              setFetchAgain(true);
+              setShowPopupInitialTable(false);
+            }}
+            tableId={tableId}
+            tableIndex={tableIndex}
+          />
+        </PopupWithAnimation>
+      )}
+
+      <PlotTable handleRightClick={handleRightClick} />
       {menuState.visible && (
         <SelectionMenu x={menuState.x} y={menuState.y}>
           <ul className="list-none space-y-2">

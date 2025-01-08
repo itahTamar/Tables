@@ -9,7 +9,6 @@ interface AddRowProp {
   currentRowIndex: number;
   columns: CellData[];
   cells: CellData[];
-  // setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
   addBefore: boolean;
 }
 
@@ -27,7 +26,6 @@ export const addNewRow = async ({
   currentRowIndex,
   columns,
   cells,
-  // setCells,
   addBefore, // New parameter to specify adding before the row
 }: AddRowProp) => {
   if (!tableId || !tableIndex || columns.length === 0) {
@@ -80,35 +78,34 @@ export const addNewRow = async ({
     }
     return cell;
   });
-  console.log("at addNewRow the adjustedCells:", adjustedCells)
+  console.log("at addNewRow the adjustedCells:", adjustedCells);
 
   // Combine the adjusted cells with the new row
   const updatedCells = [...adjustedCells, ...newRowCells];
-  console.log("at addNewRow the updatedCells:", updatedCells)
+  console.log("at addNewRow the updatedCells:", updatedCells);
 
   const sortedUpdatedCells = updatedCells.sort(
     (a, b) => a.rowIndex - b.rowIndex || a.columnIndex - b.columnIndex
   );
-  console.log("at addNewRow the sortedUpdatedCells:", sortedUpdatedCells)
-  
-  // Update the state with the final cells
-  // setCells(updatedCells);
+  console.log("at addNewRow the sortedUpdatedCells:", sortedUpdatedCells);
 
-    // Determine affected cells based on the updated state
-    const affectedCells = adjustedCells.filter((cell) => cell.rowIndex >= newRowIndex);
-    console.log("at addNewRow the affectedCells:", affectedCells)
-  
-    // Batch update the database for affected cells 
-    const successUpdate = await Promise.all(
-      affectedCells.map((cell) =>
-          DocumentRestAPIMethods.update(
-                  serverUrl,
-                  "tables",
-                  { _id: cell._id },
-                  { rowIndex: cell.rowIndex }
-                )
+  // Determine affected cells based on the updated state
+  const affectedCells = adjustedCells.filter(
+    (cell) => cell.rowIndex >= newRowIndex
+  );
+  console.log("at addNewRow the affectedCells:", affectedCells);
+
+  // Batch update the database for affected cells
+  const successUpdate = await Promise.all(
+    affectedCells.map((cell) =>
+      DocumentRestAPIMethods.update(
+        serverUrl,
+        "tables",
+        { _id: cell._id },
+        { rowIndex: cell.rowIndex }
       )
-    );
+    )
+  );
 
   //add the newRowCells to db
   const successAdd = await Promise.all(
@@ -117,28 +114,35 @@ export const addNewRow = async ({
     )
   );
 
-  if (successUpdate && successAdd) console.log("row added successfully")
+  if (successUpdate && successAdd) console.log("row added successfully");
 
-    return sortedUpdatedCells
+  return sortedUpdatedCells;
 };
 
 /**
  * Helper function to generate a unique ID (placeholder)
  */
 function generateObjectId(): string {
-    // Generate a 4-byte timestamp (seconds since Unix epoch)
-    const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');
-  
-    // Generate a 3-byte machine identifier (random value)
-    const machineIdentifier = Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0');
-  
-    // Generate a 2-byte process identifier (random value)
-    const processIdentifier = Math.floor(Math.random() * 0xffff).toString(16).padStart(4, '0');
-  
-    // Generate a 3-byte counter (random value)
-    const counter = Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0');
-  
-    // Combine all parts into a 24-character hexadecimal ObjectId
-    return `${timestamp}${machineIdentifier}${processIdentifier}${counter}`;
-  }
-  
+  // Generate a 4-byte timestamp (seconds since Unix epoch)
+  const timestamp = Math.floor(Date.now() / 1000)
+    .toString(16)
+    .padStart(8, "0");
+
+  // Generate a 3-byte machine identifier (random value)
+  const machineIdentifier = Math.floor(Math.random() * 0xffffff)
+    .toString(16)
+    .padStart(6, "0");
+
+  // Generate a 2-byte process identifier (random value)
+  const processIdentifier = Math.floor(Math.random() * 0xffff)
+    .toString(16)
+    .padStart(4, "0");
+
+  // Generate a 3-byte counter (random value)
+  const counter = Math.floor(Math.random() * 0xffffff)
+    .toString(16)
+    .padStart(6, "0");
+
+  // Combine all parts into a 24-character hexadecimal ObjectId
+  return `${timestamp}${machineIdentifier}${processIdentifier}${counter}`;
+}
