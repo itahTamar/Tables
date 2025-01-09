@@ -17,6 +17,7 @@ export const DeleteRowCells = ({
   toBeUpdated: CellData[];
   newCellsArrayAfterDelete: CellData[];
 } => {
+  console.log("HELLO FROM DELETE ROW")
   // Find the last (max) column index
   const lastColumnIndex = findTheLastIndex({
     arr: columns,
@@ -45,44 +46,30 @@ export const DeleteRowCells = ({
     );
   }
 
-  // Array to store the cells to be deleted
-  const toBeDeleted: CellData[] = [];
+  // Step 1: Identify cells to be deleted
+  const toBeDeleted = cells.filter((cell) => cell.rowIndex === currentRowIndex);
 
-  // Array to store the cells whose rowIndex will be updated
-  const toBeUpdated: CellData[] = [];
+  // Step 2: Update the `rowIndex` for cells that come after the deleted row
+  const toBeUpdated = cells
+    .filter((cell) => cell.rowIndex > currentRowIndex)
+    .map((cell) => ({ ...cell, rowIndex: cell.rowIndex - 1 }));
 
-  // Find and store the cells to be deleted from the current row
-  for (let i = 1; i <= lastColumnIndex; i++) {
-    const cellToDelete = cells.find(
-      (cell) => cell.rowIndex === currentRowIndex && cell.columnIndex === i
-    );
-    if (cellToDelete) {
-      toBeDeleted.push(cellToDelete);
-    }
-  }
+  //step 3: Create the new array excluding the deleted cells and all row-cells after
+  const tempArray = [...cells.filter((cell) => cell.rowIndex < currentRowIndex)]
+  console.log("At DeleteRowCells the currentRowIndex:", currentRowIndex);
+  console.log("At DeleteRowCells the tempArray:", tempArray);
 
-  // Remove the cells to be deleted from the `cells` array
-  for (const cell of toBeDeleted) {
-    const index = cells.indexOf(cell);
-    if (index !== -1) {
-      cells.splice(index, 1);
-    }
-  }
+  // Step 4: Create the new array excluding the deleted cells and including the updated cells
+  const newCellsArrayAfterDelete = [...tempArray,...toBeUpdated];
 
-  // Update the rowIndexes of the remaining cells and collect the updated cells
-  if (currentRowIndex < lastCellIndex) {
-    for (const cell of cells) {
-      if (cell.rowIndex > currentRowIndex) {
-        cell.rowIndex -= 1;
-        toBeUpdated.push(cell);
-      }
-    }
-  }
+  console.log("At DeleteRowCells the toBeDeleted:", toBeDeleted);
+  console.log("At DeleteRowCells the toBeUpdated:", toBeUpdated);
+  console.log("At DeleteRowCells the newCellsArrayAfterDelete:", newCellsArrayAfterDelete);
 
-  // Return the arrays of cells to be deleted and updated
   return {
-    newCellsArrayAfterDelete: cells,
+    newCellsArrayAfterDelete: newCellsArrayAfterDelete,
     toBeDeleted: toBeDeleted,
     toBeUpdated: toBeUpdated,
   };
 };
+//work ok

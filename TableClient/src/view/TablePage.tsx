@@ -142,7 +142,7 @@ function TablePage() {
       )
     );
     if (successDeleteCells) console.log("At TablePage row deleted successfully from DB")
-  }
+  } //?works
 
   const handleTableRenameUpdate = async (rename: string) => {
     try {
@@ -235,8 +235,7 @@ function TablePage() {
     setCells(newCellsAfterAddingRow.newCellsArray);
     handleUpdateDB(newCellsAfterAddingRow.toBeUpdateInDB)
     handleAddToDB(newCellsAfterAddingRow.newToAddInDB)
-
-  }; //
+  }; //works
 
   const handleAddColumnBtnClicked = async (
     addBefore: boolean,
@@ -251,14 +250,11 @@ function TablePage() {
       cells,
       addBefore,
     });
-    const newCells = newColumnAndCellsAfterAddingColumn.updatedCells
-    const newColumns = newColumnAndCellsAfterAddingColumn.updatedColumns
-    setCells(newCells)
-    setColumns(newColumns)
-
+    setCells(newColumnAndCellsAfterAddingColumn.updatedCells)
+    setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns)
     handleUpdateDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB)
     handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB)
-  }; //
+  }; //works
 
   const handleDeleteRowBtnClicked = async (currentRowIndex: number) => {
     try {
@@ -274,11 +270,11 @@ function TablePage() {
       setCells(result.newCellsArrayAfterDelete)
       handelDeleteInDB(result.toBeDeleted)
       handleUpdateDB(result.toBeUpdated)
-
+      console.log("Row deleted successfully");
     } catch (error) {
       console.error("Error handling delete row:", error);
     }
-  };
+  }; //works
 
   const handleDeleteColumnBtnClicked = async (currentColumnIndex: number) => {
     try {
