@@ -18,8 +18,8 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   tableId,
   tableIndex,
 }) => {
-  const [rowsNo, setRowsNo] = useState<number>(0);
-  const [columnsNo, setColumnsNo] = useState<number>(0);
+  const [rowsNo, setRowsNo] = useState<number>(1);
+  const [columnsNo, setColumnsNo] = useState<number>(1);
   const [message, setMessage] = useState<string>("");
   const serverUrl = useContext(ServerContext);
   const tableContext = useContext(TableContext);
@@ -41,6 +41,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   const handleInitial = async (event: React.FormEvent) => {
     event.preventDefault(); // Prevent form from reloading the page
     console.log("InitialNewTable handleInitial");
+    onClose();
 
     if (rowsNo <= 0 || columnsNo <= 0) {
       setMessage("Please fill in valid numbers for rows and columns.");
@@ -133,7 +134,6 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
       }
 
       setMessage("Table successfully initialized!");
-      onClose();
     } catch (error) {
       console.error("Error in handleInitial:", error);
       setMessage("An error occurred while initializing the table.");
@@ -149,7 +149,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
             type="number"
             placeholder="Rows"
             value={rowsNo}
-            onChange={(ev) => setRowsNo(parseInt(ev.target.value))}
+            onChange={(ev) => setRowsNo(Math.max((parseInt(ev.target.value)),1))}
             className="border border-black m-2 rounded-2xl indent-4"
           />
         </div>
@@ -159,7 +159,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
             type="number"
             placeholder="Columns"
             value={columnsNo}
-            onChange={(ev) => setColumnsNo(parseInt(ev.target.value))}
+            onChange={(ev) => setColumnsNo(Math.max((parseInt(ev.target.value)),1))}
             className="border border-black m-2 rounded-2xl indent-4"
           />
         </div>

@@ -98,9 +98,9 @@ function TablePage() {
     fetchColumnsAndCells();
   }, [setColumns, setCells, fetchAgain]);
 
+  // Close the menu if the click is outside the table
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Close the menu if the click is outside the table
       const target = event.target as HTMLElement;
       if (
         !target.closest(".table-container") &&
@@ -266,19 +266,24 @@ function TablePage() {
 
   const handleDeleteRowBtnClicked = async (currentRowIndex: number) => {
     try {
-      const result = await DeleteRowCells({
-        currentRowIndex,
-        columns,
-        cells,
-      });
+      if (currentRowIndex === 0) {
+        handelDeleteInDB(columns);
+        setColumns([])
+      } else {
+        const result = await DeleteRowCells({
+          currentRowIndex,
+          columns,
+          cells,
+        });
 
-      if (result === undefined) {
-        throw new Error("Result is undefined - delete row failed");
+        if (result === undefined) {
+          throw new Error("Result is undefined - delete row failed");
+        }
+        setCells(result.newCellsArrayAfterDelete);
+        handelDeleteInDB(result.toBeDeleted);
+        handleUpdateDB(result.toBeUpdated);
+        console.log("Row deleted successfully");
       }
-      setCells(result.newCellsArrayAfterDelete);
-      handelDeleteInDB(result.toBeDeleted);
-      handleUpdateDB(result.toBeUpdated);
-      console.log("Row deleted successfully");
     } catch (error) {
       console.error("Error handling delete row:", error);
     }
