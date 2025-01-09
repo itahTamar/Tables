@@ -30,6 +30,7 @@ function TablePage() {
     rowIndex: number;
     columnIndex: number;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
+  const [loading, setLoading] = useState(true);
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
@@ -41,7 +42,8 @@ function TablePage() {
 
   const { tables, columns, cells, setColumns, setCells } = tableContext;
 
-  const showGenerateTable = columns.length === 0 && cells.length === 0; // Check if arrays are empty
+  const showGenerateTable =
+    !loading && columns.length === 0 && cells.length === 0;
 
   useEffect(() => {
     if (tables.length === 0) {
@@ -64,6 +66,7 @@ function TablePage() {
   useEffect(() => {
     const fetchColumnsAndCells = async () => {
       try {
+        setLoading(true);
         const fetchedColumns = await getAllTablesColumns({
           serverUrl,
           tableId,
@@ -87,6 +90,8 @@ function TablePage() {
         console.log("At TablePage fetched cells:", fetchedCells);
       } catch (error) {
         console.error("Error fetching columns or cells:", error);
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
 
@@ -112,19 +117,20 @@ function TablePage() {
   const handleUpdateDB = async (toBeUpdateInDB: CellData[]) => {
     const successUpdate = await Promise.all(
       toBeUpdateInDB.map((item) =>
-            DocumentRestAPIMethods.update(
-              serverUrl,
-              "tables",
-              { _id: item._id },
-              {
-                columnIndex: item.columnIndex,
-                ...(item.rowIndex !== undefined && { rowIndex: item.rowIndex }), 
-              }
-            )
-          )
-        );
-    if (successUpdate) console.log("At TablePage rows and columns updated successfully to DB");
-  } //works
+        DocumentRestAPIMethods.update(
+          serverUrl,
+          "tables",
+          { _id: item._id },
+          {
+            columnIndex: item.columnIndex,
+            ...(item.rowIndex !== undefined && { rowIndex: item.rowIndex }),
+          }
+        )
+      )
+    );
+    if (successUpdate)
+      console.log("At TablePage rows and columns updated successfully to DB");
+  }; //works
 
   const handleAddToDB = async (newToAddInDB: CellData[]) => {
     const successAddCells = await Promise.all(
@@ -132,8 +138,9 @@ function TablePage() {
         DocumentRestAPIMethods.add(serverUrl, "tables", cell, "addDoc")
       )
     );
-    if (successAddCells) console.log("At TablePage rows and columns added successfully to DB");
-  } //works
+    if (successAddCells)
+      console.log("At TablePage rows and columns added successfully to DB");
+  }; //works
 
   const handelDeleteInDB = async (cellsToDelete: CellData[]) => {
     const successDeleteCells = await Promise.all(
@@ -141,8 +148,9 @@ function TablePage() {
         DocumentRestAPIMethods.delete(serverUrl, "tables", cell, "deleteDoc")
       )
     );
-    if (successDeleteCells) console.log("At TablePage row deleted successfully from DB")
-  } //?works
+    if (successDeleteCells)
+      console.log("At TablePage row deleted successfully from DB");
+  }; //works
 
   const handleTableRenameUpdate = async (rename: string) => {
     try {
@@ -165,7 +173,7 @@ function TablePage() {
     } catch (error) {
       console.error("Error in handleTableRenameUpdate:", error);
     }
-  };
+  }; //works
 
   const handleRightClick = (
     event: React.MouseEvent,
@@ -174,25 +182,25 @@ function TablePage() {
   ): boolean => {
     try {
       setMenuState({
-            visible: true,
-            x: event.pageX,
-            y: event.pageY,
-            rowIndex,
-            columnIndex,
-          });
+        visible: true,
+        x: event.pageX,
+        y: event.pageY,
+        rowIndex,
+        columnIndex,
+      });
       console.log(`Right-clicked on row ${rowIndex}, column ${columnIndex}`);
       return true; // Return true on success
     } catch (error) {
       console.error("Error in handleRightClick:", error);
       return false; // Return false on failure
     }
-  };
+  }; //works
 
   const handleBackBtnClicked = async () => {
     setColumns([]);
     setCells([]);
     navigate("/mainTablesPage");
-  };
+  }; //works
 
   const handleMenuAction = async (action: string) => {
     const { rowIndex, columnIndex } = menuState;
@@ -233,8 +241,8 @@ function TablePage() {
     });
     console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
     setCells(newCellsAfterAddingRow.newCellsArray);
-    handleUpdateDB(newCellsAfterAddingRow.toBeUpdateInDB)
-    handleAddToDB(newCellsAfterAddingRow.newToAddInDB)
+    handleUpdateDB(newCellsAfterAddingRow.toBeUpdateInDB);
+    handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
   }; //works
 
   const handleAddColumnBtnClicked = async (
@@ -250,10 +258,10 @@ function TablePage() {
       cells,
       addBefore,
     });
-    setCells(newColumnAndCellsAfterAddingColumn.updatedCells)
-    setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns)
-    handleUpdateDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB)
-    handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB)
+    setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
+    setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
+    handleUpdateDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB);
+    handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB);
   }; //works
 
   const handleDeleteRowBtnClicked = async (currentRowIndex: number) => {
@@ -267,9 +275,9 @@ function TablePage() {
       if (result === undefined) {
         throw new Error("Result is undefined - delete row failed");
       }
-      setCells(result.newCellsArrayAfterDelete)
-      handelDeleteInDB(result.toBeDeleted)
-      handleUpdateDB(result.toBeUpdated)
+      setCells(result.newCellsArrayAfterDelete);
+      handelDeleteInDB(result.toBeDeleted);
+      handleUpdateDB(result.toBeUpdated);
       console.log("Row deleted successfully");
     } catch (error) {
       console.error("Error handling delete row:", error);
@@ -287,10 +295,10 @@ function TablePage() {
       if (result === undefined) {
         throw new Error("Result is undefined - delete row failed");
       }
-      setColumns(result.newColumnsArrayAfterDelete)
-      setCells(result.newCellsArrayAfterDelete)
-      handelDeleteInDB(result.toBeDeleted)
-      handleUpdateDB(result.toBeUpdated)
+      setColumns(result.newColumnsArrayAfterDelete);
+      setCells(result.newCellsArrayAfterDelete);
+      handelDeleteInDB(result.toBeDeleted);
+      handleUpdateDB(result.toBeUpdated);
       console.log("Column deleted successfully");
     } catch (error) {
       console.error("Error handling delete row:", error);
@@ -319,81 +327,87 @@ function TablePage() {
         {tableName}
       </h1>
 
-      <SearchInTableCells tableIndex={tableIndex} tableId={tableId} />
-      <div className="m-4"></div>
+      {loading ? ( // Show loading message if data is being fetched
+        <div className="text-center text-6xl text-gray-500">Loading...</div>
+      ) : (
+        <>
+          <SearchInTableCells tableIndex={tableIndex} tableId={tableId} />
+          <div className="m-4"></div>
 
-      {/*Initial the table*/}
-      {showGenerateTable && (
-        <button
-          onClick={() => setShowPopupInitialTable(true)}
-          className="absolute flex items-center justify-center w-30 h-12 bg-blue-500 hover:bg-blue-600"
-          title="Generate Table" // Tooltip message on hover
-        >
-          <span
-            className="text-white text-2xl text-center"
-            style={{ paddingBottom: "0.33rem" }}
-          >
-            Generate Table
-          </span>
-        </button>
-      )}
+          {/*Initial the table*/}
+          {showGenerateTable && (
+            <button
+              onClick={() => setShowPopupInitialTable(true)}
+              className="absolute flex items-center justify-center w-30 h-12 bg-blue-500 hover:bg-blue-600"
+              title="Generate Table" // Tooltip message on hover
+            >
+              <span
+                className="text-white text-2xl text-center"
+                style={{ paddingBottom: "0.33rem" }}
+              >
+                Generate Table
+              </span>
+            </button>
+          )}
 
-      {showPopupInitialTable && (
-        <PopupWithAnimation
-          open={showPopupInitialTable}
-          onClose={() => setShowPopupInitialTable(false)}
-        >
-          <InitialNewTable
-            onClose={() => {
-              setFetchAgain(true);
-              setShowPopupInitialTable(false);
-            }}
-            tableId={tableId}
-            tableIndex={tableIndex}
-          />
-        </PopupWithAnimation>
-      )}
-      <PlotTable handleRightClick={handleRightClick} />
-      {menuState.visible && (
-        <SelectionMenu x={menuState.x} y={menuState.y}>
-          <ul className="list-none space-y-2">
-            <li>
-              <button onClick={() => handleMenuAction("addRowAfter")}>
-                Add Row After
-              </button>
-            </li>
-            <li>
-              {menuState.rowIndex != 0 ? (
-                <button onClick={() => handleMenuAction("addRowBefore")}>
-                  Add Row Before
-                </button>
-              ) : null}
-            </li>
-            <li>
-              <button onClick={() => handleMenuAction("addColumnAfter")}>
-                Add Column After
-              </button>
-            </li>
-            <li>
-              <button onClick={() => handleMenuAction("addColumnBefore")}>
-                Add Column Before
-              </button>
-            </li>
-            <li>
-              {(cells.length !== 0 && menuState.rowIndex !== 0) ||
-              (cells.length === 0 && menuState.rowIndex === 0) ? (
-                <button onClick={() => handleMenuAction("deleteRow")}>
-                  Delete Row
-                </button>
-              ) : null}
-            </li>
-            <li>
-              <button onClick={() => handleMenuAction("deleteColumn")}>
-                Delete Column
-              </button>
-            </li>
-          </ul>
-        </SelectionMenu>
+          {showPopupInitialTable && (
+            <PopupWithAnimation
+              open={showPopupInitialTable}
+              onClose={() => setShowPopupInitialTable(false)}
+            >
+              <InitialNewTable
+                onClose={() => {
+                  setFetchAgain(true);
+                  setShowPopupInitialTable(false);
+                }}
+                tableId={tableId}
+                tableIndex={tableIndex}
+              />
+            </PopupWithAnimation>
+          )}
+          <PlotTable handleRightClick={handleRightClick} />
+          {menuState.visible && (
+            <SelectionMenu x={menuState.x} y={menuState.y}>
+              <ul className="list-none space-y-2">
+                <li>
+                  <button onClick={() => handleMenuAction("addRowAfter")}>
+                    Add Row After
+                  </button>
+                </li>
+                <li>
+                  {menuState.rowIndex != 0 ? (
+                    <button onClick={() => handleMenuAction("addRowBefore")}>
+                      Add Row Before
+                    </button>
+                  ) : null}
+                </li>
+                <li>
+                  <button onClick={() => handleMenuAction("addColumnAfter")}>
+                    Add Column After
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => handleMenuAction("addColumnBefore")}>
+                    Add Column Before
+                  </button>
+                </li>
+                <li>
+                  {(cells.length !== 0 && menuState.rowIndex !== 0) ||
+                  (cells.length === 0 && menuState.rowIndex === 0) ? (
+                    <button onClick={() => handleMenuAction("deleteRow")}>
+                      Delete Row
+                    </button>
+                  ) : null}
+                </li>
+                <li>
+                  <button onClick={() => handleMenuAction("deleteColumn")}>
+                    Delete Column
+                  </button>
+                </li>
+              </ul>
+            </SelectionMenu>
+          )}
+        </>
       )}
     </div>
   );
