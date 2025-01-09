@@ -54,7 +54,7 @@ export const DeleteRowCells = ({
     .filter((cell) => cell.rowIndex > currentRowIndex)
     .map((cell) => ({ ...cell, rowIndex: cell.rowIndex - 1 }));
 
-  //step 3: Create the new array excluding the deleted cells and all row-cells after
+  //Step 3: Create the new array excluding the deleted cells and all row-cells after
   const tempArray = [...cells.filter((cell) => cell.rowIndex < currentRowIndex)]
   console.log("At DeleteRowCells the currentRowIndex:", currentRowIndex);
   console.log("At DeleteRowCells the tempArray:", tempArray);

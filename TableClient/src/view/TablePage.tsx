@@ -1,20 +1,20 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { DocumentRestAPIMethods } from "../api/docApi";
+import PopupWithAnimation from "../components/popups/popupWithAnimation";
+import InitialNewTable from "../components/tables/InitialNewTable";
 import PlotTable from "../components/tables/PlotTable";
 import SearchInTableCells from "../components/tables/SearchInTableCells";
 import { ServerContext } from "../context/ServerUrlContext";
 import { TableContext } from "../context/tableContext";
 import { addNewColumnWithCells } from "../functions/table/column/addNewColumnWithCells";
-import { DeleteColumnCells } from "../functions/table/column/deleteColumnCells";
-import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
 import { getAllTablesColumns } from "../functions/table/column/getAllTablesColumns";
-import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
-import SelectionMenu from "./../components/tables/SelectionMenu";
-import { DocumentRestAPIMethods } from "../api/docApi";
-import PopupWithAnimation from "../components/popups/popupWithAnimation";
-import InitialNewTable from "../components/tables/InitialNewTable";
 import { addNewRow } from "../functions/table/row/addNewRow";
+import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
+import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 import { CellData } from "../types/cellType";
+import SelectionMenu from "./../components/tables/SelectionMenu";
+import { deleteColumnCells } from "../functions/table/column/deleteColumnCells";
 
 function TablePage() {
   //variables:
@@ -278,10 +278,7 @@ function TablePage() {
 
   const handleDeleteColumnBtnClicked = async (currentColumnIndex: number) => {
     try {
-      const result = await DeleteColumnCells({
-        serverUrl,
-        tableId,
-        tableIndex,
+      const result = await deleteColumnCells({
         currentColumnIndex,
         columns,
         cells,
@@ -290,12 +287,15 @@ function TablePage() {
       if (result === undefined) {
         throw new Error("Result is undefined - delete row failed");
       }
-
-      setFetchAgain(result);
+      setColumns(result.newColumnsArrayAfterDelete)
+      setCells(result.newCellsArrayAfterDelete)
+      handelDeleteInDB(result.toBeDeleted)
+      handleUpdateDB(result.toBeUpdated)
+      console.log("Column deleted successfully");
     } catch (error) {
       console.error("Error handling delete row:", error);
     }
-  };
+  }; //works
 
   return (
     <div>
