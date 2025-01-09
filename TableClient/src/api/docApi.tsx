@@ -64,18 +64,18 @@ class DocumentRestAPIMethods {
       console.log("at DocumentRestAPIMethods.update the query is:", query);
       console.log("at DocumentRestAPIMethods.update the update is:", update);
 
-      const response = await axios.patch(`${serverUrl}/api/doc/updateDoc`, {
+      const response = await axios.patch(`${serverUrl}/api/doc/updateDocs`, {
         collectionName,
         query,
         update,
       }, {withCredentials: true});
       console.log("at DocumentRestAPIMethods.update the response is:", response);
       console.log(
-        "at DocumentRestAPIMethods.update the response.data.acknowledged is:",
-        response.data.acknowledged
+        "at DocumentRestAPIMethods.update the response.data is:",
+        response.data
       );
-      if (!response.data.acknowledged)
-        throw new Error("No response in DocumentRestAPIMethods.update");
+      if (!response.data)
+        throw new Error("No document updated in DocumentRestAPIMethods.update");
       return true;
     } catch (error) {
       console.error("Error DocumentRestAPIMethods.update document");

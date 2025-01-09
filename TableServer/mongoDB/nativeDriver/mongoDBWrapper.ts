@@ -119,7 +119,7 @@ class MongoDBWrapper {
       console.error("Error updating document:", err);
       throw err;
     }
-  } //work ok - not returning the updated document - not using it
+  } //work ok - //!not returning the updated document - not using it
 
   // UPDATE: Update multiple documents based on a filter
   static async updateDocuments(
@@ -128,6 +128,11 @@ class MongoDBWrapper {
     updateDoc: object
   ) {
     this.ensureConnected();
+
+    console.log("At MongoDBwrapper.updateDocuments the collectionName:", collectionName)
+    console.log("At MongoDBwrapper.updateDocuments the filter:", filter)
+    console.log("At MongoDBwrapper.updateDocuments the updateDoc:", updateDoc)
+
     const collection: Collection = this.db!.collection(collectionName);
 
     try {
@@ -135,10 +140,14 @@ class MongoDBWrapper {
       // you can pass multiple fields inside a single $set object to update multiple fields in a single update operation
       const result = await collection.updateMany(filter, { $set: updateDoc });
 
-      console.log(`Matched ${result.matchedCount} document(s)`);
-      console.log(`Modified ${result.modifiedCount} document(s)`);
+      console.log(`Matched ${result.matchedCount} document(s) For filter:`, filter);
+      console.log(`Modified ${result.modifiedCount} document(s) For filter:`, filter);
 
-      return result;
+      // if (result.matchedCount===0) return false  //no document found!
+      // else return result.modifiedCount;
+
+      return result
+
     } catch (error) {
       console.error("Error updating documents:", error);
       throw error;

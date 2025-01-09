@@ -38,10 +38,10 @@ console.log("At updateIndexes the currentIndex:", currentIndex)
       .filter((item) => item[indexType as keyof typeof item] > currentIndex)
       .map(async (item) => {
         const oldIndex = item[indexType as keyof typeof item] as number;
-console.log("At updateIndexes updates the oldIndex:", oldIndex)
+        console.log("At updateIndexes updates the oldIndex:", oldIndex)
         // Calculate newIndex based on action
         const newIndex = action === "subtraction" ? oldIndex - 1 : oldIndex + 1;
-console.log("At updateIndexes updates the newIndex:", newIndex)
+        console.log("At updateIndexes updates the newIndex:", newIndex)
         // Update the item in the array
         //@ts-ignore
         item[indexType as keyof (CellData | TableData)] = newIndex as any;

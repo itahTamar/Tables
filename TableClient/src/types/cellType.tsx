@@ -6,6 +6,7 @@ export interface CellData {
     rowIndex: number;
     columnIndex: number;
     tableIndex: number;
+    tableId: string;
     __v: number;
   }
   

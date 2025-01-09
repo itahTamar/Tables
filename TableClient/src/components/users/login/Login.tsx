@@ -9,15 +9,16 @@ import { login } from "../../../api/userApi";
 
 //work ok
 const Login = () => {
-  const [password, setPassword] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const { setUserEmail } = useContext(UserContext);
   const navigate = useNavigate();
-  const [visible, setVisible] = useState(false);
-  const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const serverUrl = useContext(ServerContext);
   const getAllUserTables = useGetAllUserTables();
-  const tableContext = useContext(TableContext);
+  const tableContext = useContext(TableContext); 
+  const { setUserEmail } = useContext(UserContext);
+  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [visible, setVisible] = useState(false);
+  const [timeoutId, setTimeoutId] = useState<number | null>(null);
+
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
   }

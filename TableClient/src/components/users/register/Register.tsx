@@ -6,15 +6,15 @@ import { ServerContext } from "../../../context/ServerUrlContext";
 import { register } from "../../../api/userApi";
 
 const Register = () => {
+  const navigate = useNavigate();
+  const serverUrl = useContext(ServerContext); 
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [match, setMatch] = useState(false);
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   const [email, setEmail] = useState<string>("")
-  const serverUrl = useContext(ServerContext);
 
   const validate = () => {
     if (password == confirmPassword) {
