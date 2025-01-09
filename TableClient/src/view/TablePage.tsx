@@ -30,7 +30,6 @@ function TablePage() {
     rowIndex: number;
     columnIndex: number;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
-
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
@@ -110,9 +109,9 @@ function TablePage() {
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const handleUpdateDB = async (adjustedColumns: CellData[], adjustedCells: CellData[]) => {
+  const handleUpdateDB = async (toBeUpdateInDB: CellData[]) => {
     const successUpdate = await Promise.all(
-          [...adjustedColumns, ...adjustedCells].map((item) =>
+      toBeUpdateInDB.map((item) =>
             DocumentRestAPIMethods.update(
               serverUrl,
               "tables",
@@ -124,21 +123,25 @@ function TablePage() {
             )
           )
         );
-    if (successUpdate) console.log("rows and columns updated successfully");
-  }
+    if (successUpdate) console.log("At TablePage rows and columns updated successfully to DB");
+  } //works
 
-  const handleAddToDB = async (newCells: CellData[], newColumn: CellData | null) => {
-    if(newColumn != null) {
-      const successAddColum = await DocumentRestAPIMethods.add(serverUrl, "tables", newColumn, "addDoc");
-      if (successAddColum) console.log("column added successfully");
-    }
+  const handleAddToDB = async (newToAddInDB: CellData[]) => {
     const successAddCells = await Promise.all(
-      newCells.map((cell) =>
+      newToAddInDB.map((cell) =>
         DocumentRestAPIMethods.add(serverUrl, "tables", cell, "addDoc")
       )
     );
-    if (successAddCells) console.log("rows and columns added successfully");
+    if (successAddCells) console.log("At TablePage rows and columns added successfully to DB");
+  } //works
 
+  const handelDeleteInDB = async (cellsToDelete: CellData[]) => {
+    const successDeleteCells = await Promise.all(
+      cellsToDelete.map((cell) =>
+        DocumentRestAPIMethods.delete(serverUrl, "tables", cell, "deleteDoc")
+      )
+    );
+    if (successDeleteCells) console.log("At TablePage row deleted successfully from DB")
   }
 
   const handleTableRenameUpdate = async (rename: string) => {
@@ -168,14 +171,21 @@ function TablePage() {
     event: React.MouseEvent,
     rowIndex: number,
     columnIndex: number
-  ) => {
-    setMenuState({
-      visible: true,
-      x: event.pageX,
-      y: event.pageY,
-      rowIndex,
-      columnIndex,
-    });
+  ): boolean => {
+    try {
+      setMenuState({
+            visible: true,
+            x: event.pageX,
+            y: event.pageY,
+            rowIndex,
+            columnIndex,
+          });
+      console.log(`Right-clicked on row ${rowIndex}, column ${columnIndex}`);
+      return true; // Return true on success
+    } catch (error) {
+      console.error("Error in handleRightClick:", error);
+      return false; // Return false on failure
+    }
   };
 
   const handleBackBtnClicked = async () => {
@@ -222,11 +232,11 @@ function TablePage() {
       addBefore,
     });
     console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
-    setCells(newCellsAfterAddingRow.updatedCells);
-    handleUpdateDB([], newCellsAfterAddingRow.adjustedCells)
-    handleAddToDB(newCellsAfterAddingRow.newRowCells, null )
+    setCells(newCellsAfterAddingRow.newCellsArray);
+    handleUpdateDB(newCellsAfterAddingRow.toBeUpdateInDB)
+    handleAddToDB(newCellsAfterAddingRow.newToAddInDB)
 
-  }; //works
+  }; //
 
   const handleAddColumnBtnClicked = async (
     addBefore: boolean,
@@ -246,16 +256,13 @@ function TablePage() {
     setCells(newCells)
     setColumns(newColumns)
 
-    handleUpdateDB(newColumnAndCellsAfterAddingColumn.adjustedColumns, newColumnAndCellsAfterAddingColumn.adjustedCells)
-    handleAddToDB(newColumnAndCellsAfterAddingColumn.newColumnCells, newColumnAndCellsAfterAddingColumn.newColumn)
-  }; //works
+    handleUpdateDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB)
+    handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB)
+  }; //
 
   const handleDeleteRowBtnClicked = async (currentRowIndex: number) => {
     try {
       const result = await DeleteRowCells({
-        serverUrl,
-        tableId,
-        tableIndex,
         currentRowIndex,
         columns,
         cells,
@@ -264,8 +271,10 @@ function TablePage() {
       if (result === undefined) {
         throw new Error("Result is undefined - delete row failed");
       }
+      setCells(result.newCellsArrayAfterDelete)
+      handelDeleteInDB(result.toBeDeleted)
+      handleUpdateDB(result.toBeUpdated)
 
-      setFetchAgain(result);
     } catch (error) {
       console.error("Error handling delete row:", error);
     }
@@ -348,7 +357,6 @@ function TablePage() {
           />
         </PopupWithAnimation>
       )}
-
       <PlotTable handleRightClick={handleRightClick} />
       {menuState.visible && (
         <SelectionMenu x={menuState.x} y={menuState.y}>

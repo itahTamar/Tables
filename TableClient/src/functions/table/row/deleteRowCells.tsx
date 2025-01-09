@@ -1,28 +1,23 @@
-import { DocumentRestAPIMethods } from "../../../api/docApi";
 import { CellData } from "../../../types/cellType";
-import { updateIndexes } from "./../updateIndex";
 import { findTheLastIndex } from "./../findTheLastIndex";
 
 interface deleteRowProp {
-  serverUrl: string;
-  tableId: string;
-  tableIndex: number;
   currentRowIndex: number;
   columns: CellData[];
   cells: CellData[];
 }
 
-//regular function to delete one row of the table
-export const DeleteRowCells = async ({
-  serverUrl,
-  tableId,
-  tableIndex,
+// Function to delete one row of the table locally and return items to be deleted
+export const DeleteRowCells = ({
   currentRowIndex,
   columns,
   cells,
-}: deleteRowProp) => {
-  //find the last (max) column index
-  //@ts-ignore
+}: deleteRowProp): {
+  toBeDeleted: CellData[];
+  toBeUpdated: CellData[];
+  newCellsArrayAfterDelete: CellData[];
+} => {
+  // Find the last (max) column index
   const lastColumnIndex = findTheLastIndex({
     arr: columns,
     indexType: "columnIndex",
@@ -30,74 +25,64 @@ export const DeleteRowCells = async ({
   if (lastColumnIndex === undefined)
     throw new Error("At DeleteRowCells the lastColumnIndex not defined");
 
-  //find the last row index
-  //@ts-ignore
-  const lastCellIndex = findTheLastIndex({ arr: cells, indexType: "rowIndex" });
+  // Find the last row index
+  const lastCellIndex = findTheLastIndex({
+    arr: cells,
+    indexType: "rowIndex",
+  });
   if (lastColumnIndex === undefined || lastCellIndex === undefined)
     throw new Error(
       "At DeleteRowCells the lastColumnIndex and lastCellIndex not defined"
     );
 
-  console.log("At DeleteRowCells the tableIndex:", tableIndex);
   console.log("At DeleteRowCells the lastCellIndex:", lastCellIndex);
   console.log("At DeleteRowCells the lastColumnIndex:", lastColumnIndex);
 
-  //delete the row
-  //case 1 : rowIndex=0 -> delete the columns row //!only if their no cell-type rows
-  if(currentRowIndex === 0 && lastCellIndex === 0) {
-    let i = 1;
-    while (i <= lastColumnIndex) {
-      try {
-        const success = await DocumentRestAPIMethods.delete(serverUrl, "tables", {
-          type: "column",
-          columnIndex: i,
-          rowIndex: currentRowIndex,
-          tableIndex: tableIndex,
-          tableId,
-        }, "deleteDoc");
-        if (success) {
-          console.log("Cell deleted successfully!");
-        }
-      } catch (error) {
-        console.error("Failed to delete Cell");
-      }
-      i++;
+  // Case 1: Prevent deleting `rowIndex = 0` if there are other rows
+  if (currentRowIndex === 0 && lastCellIndex > 0) {
+    throw new Error(
+      "Cannot delete rowIndex 0 before all other rows are deleted"
+    );
+  }
+
+  // Array to store the cells to be deleted
+  const toBeDeleted: CellData[] = [];
+
+  // Array to store the cells whose rowIndex will be updated
+  const toBeUpdated: CellData[] = [];
+
+  // Find and store the cells to be deleted from the current row
+  for (let i = 1; i <= lastColumnIndex; i++) {
+    const cellToDelete = cells.find(
+      (cell) => cell.rowIndex === currentRowIndex && cell.columnIndex === i
+    );
+    if (cellToDelete) {
+      toBeDeleted.push(cellToDelete);
     }
   }
 
-  //case 2: other row
-  let i = 1;
-  while (i <= lastColumnIndex) {
-    try {
-      const success = await DocumentRestAPIMethods.delete(serverUrl, "tables", {
-        type: "cell",
-        columnIndex: i,
-        rowIndex: currentRowIndex,
-        tableIndex: tableIndex,
-        tableId,
-      }, "deleteDoc");
-      if (success) {
-        console.log("Cell deleted successfully!");
-      }
-    } catch (error) {
-      console.error("Failed to delete Cell");
+  // Remove the cells to be deleted from the `cells` array
+  for (const cell of toBeDeleted) {
+    const index = cells.indexOf(cell);
+    if (index !== -1) {
+      cells.splice(index, 1);
     }
-    i++;
   }
-  if (currentRowIndex === lastCellIndex) {
-    return true;
-  }
+
+  // Update the rowIndexes of the remaining cells and collect the updated cells
   if (currentRowIndex < lastCellIndex) {
-    const success = updateIndexes({
-      serverUrl,
-      arr: cells,
-      currentIndex: currentRowIndex,
-      indexType: "rowIndex",
-      action: "subtraction",
-    });
-    if (!success) throw new Error("Invalid currentIndex at deleteRowCells");
-    if (success === undefined) throw new Error("updateIndexes caught an error");
-    return true;
+    for (const cell of cells) {
+      if (cell.rowIndex > currentRowIndex) {
+        cell.rowIndex -= 1;
+        toBeUpdated.push(cell);
+      }
+    }
   }
+
+  // Return the arrays of cells to be deleted and updated
+  return {
+    newCellsArrayAfterDelete: cells,
+    toBeDeleted: toBeDeleted,
+    toBeUpdated: toBeUpdated,
+  };
 };
-//work ok

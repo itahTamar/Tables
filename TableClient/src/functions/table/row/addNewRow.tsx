@@ -67,8 +67,9 @@ export const addNewRow = async ({
     tableId: tableId,
     __v: 0,
   }));
+  console.log("New Row Cells array:", newRowCells);
 
-  // Adjust rowIndex for existing cells
+  // Adjust rowIndex for existing cells - the row before the current row to insert and the row after with adjusted rowIndex
   const adjustedCells = cells.map((cell) => {
     if (cell.rowIndex >= newRowIndex) {
       return { ...cell, rowIndex: cell.rowIndex + 1 };
@@ -93,9 +94,9 @@ export const addNewRow = async ({
   console.log("at addNewRow the affectedCells:", affectedCells);
 
   return {
-    updatedCells: sortedUpdatedCells,
-    adjustedCells: affectedCells,
-    newRowCells: newRowCells
+    newCellsArray: updatedCells,     //the combined new cells array with the new row
+    toBeUpdateInDB: affectedCells,  //the cell were rowIndex changed
+    newToAddInDB: newRowCells       //the new row cells to add to the DB
   };
 };
 

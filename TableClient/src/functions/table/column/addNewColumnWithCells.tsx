@@ -102,12 +102,13 @@ export const addNewColumnWithCells = async ({
   console.log("Updated columns:", sortedUpdatedColumns);
   console.log("Updated cells:", sortedUpdatedCells);
 
+  const toBeUpdateInDB = [...adjustedColumns,...adjustedCells]
+  const NewToAddInDB = [...newColumnCells, newColumn]
+
   return {
     updatedColumns: sortedUpdatedColumns,
     updatedCells: sortedUpdatedCells,
-    adjustedColumns: adjustedColumns,
-    adjustedCells: adjustedCells,
-    newColumn: newColumn,
-    newColumnCells: newColumnCells,
+    toBeUpdateInDB: toBeUpdateInDB,
+    newToAddInDB:NewToAddInDB,
   };
 };
