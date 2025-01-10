@@ -12,9 +12,11 @@ interface PlotTableProps {
   handleCellUpdate: (cell: CellData, newData: any) => Promise<void>;
 }
 
-const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick, handleCellUpdate }) => {
+const PlotTable: React.FC<PlotTableProps> = ({
+  handleRightClick,
+  handleCellUpdate,
+}) => {
   const tableContext = useContext(TableContext);
-
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
@@ -22,6 +24,8 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick, handleCellUpdat
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
+  // const [columnsWidths, setColumnsWidths] = useState<number[]>([]);
+  // const [rowsHeights, setRowsHeights] = useState<number[]>([]);
 
   const handleRightClickWithFlag = (
     e: React.MouseEvent,
@@ -30,13 +34,19 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick, handleCellUpdat
   ) => {
     e.preventDefault();
     setRightClickFlag(true); // Set flag to true
-    const target = e.target as HTMLElement
-    if (target.tagName === "A"  || target.tagName === "IMG") {
-      handleRightClick(e, rowIndex, columnIndex)
+    const target = e.target as HTMLElement;
+    if (target.tagName === "A" || target.tagName === "IMG") {
+      handleRightClick(e, rowIndex, columnIndex);
     }
     const success = handleRightClick(e, rowIndex, columnIndex); // Call the prop function
-    console.log("at handleRightClickWithFlag after handleRightClick rightClickFlag:", rightClickFlag)
-    console.log("at handleRightClickWithFlag after handleRightClick success:", success)
+    console.log(
+      "at handleRightClickWithFlag after handleRightClick rightClickFlag:",
+      rightClickFlag
+    );
+    console.log(
+      "at handleRightClickWithFlag after handleRightClick success:",
+      success
+    );
     // Reset the flag based on the result
     if (success) {
       setRightClickFlag(false);
@@ -73,6 +83,29 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick, handleCellUpdat
     console.log("PlotTable columns updated:", columns);
   }, [cells, columns]);
 
+  // const handleMouseDown = (e: React.MouseEvent, columnIndex: number) => {
+  //   e.preventDefault();
+  //   const startX = e.clientX;
+
+  //   const moveHandler = (moveEvent: MouseEvent) => {
+  //     const diff = moveEvent.clientX - startX;
+
+  //     setColumnsWidths((prev) => {
+  //       const newWidths = [...prev];
+  //       newWidths[columnIndex] = (newWidths[columnIndex] || 100) + diff;
+  //       return newWidths;
+  //     });
+  //   };
+
+  //   const upHandler = () => {
+  //     window.removeEventListener("mousemove", moveHandler);
+  //     window.removeEventListener("mouseup", upHandler);
+  //   };
+
+  //   window.addEventListener("mousemove", moveHandler);
+  //   window.addEventListener("mouseup", upHandler);
+  // };
+
   return (
     <div className="table-container">
       <table className="table-auto border-collapse border border-gray-400 w-full text-center">
@@ -90,17 +123,30 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick, handleCellUpdat
                   }
                 }}
                 onContextMenu={(e) =>
-                  handleRightClickWithFlag(e, column.rowIndex, column.columnIndex)
+                  handleRightClickWithFlag(
+                    e,
+                    column.rowIndex,
+                    column.columnIndex
+                  )
                 }
               >
                 {column.data}
+                {/* <div
+                  className="resizer column"
+                  onMouseDown={(e) =>
+                    handleMouseDown(e, column.columnIndex)
+                  }
+                ></div> */}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {sortedRows.map((row, rowIndex) => (
-            <tr key={`row-${rowIndex}`}>
+            <tr
+              key={`row-${rowIndex}`}
+              // style={{ height: rowsHeights[rowIndex] || "auto" }}
+            >
               {row.map((cell) => (
                 <td
                   key={cell._id}
@@ -108,13 +154,22 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick, handleCellUpdat
                   onContextMenu={(e) =>
                     handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)
                   }
+                  // style={{
+                  //   width: columnsWidths[cell.columnIndex] || "auto",
+                  // }}
                 >
                   {cell.data && cell.data.startsWith("data:image") ? (
                     <img
                       src={cell.data}
                       alt="Pasted Image"
                       className="max-w-full h-auto"
-                      onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)}
+                      onContextMenu={(e) =>
+                        handleRightClickWithFlag(
+                          e,
+                          cell.rowIndex,
+                          cell.columnIndex
+                        )
+                      }
                     />
                   ) : cell.data && cell.data.startsWith("http") ? (
                     <a
@@ -122,7 +177,13 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick, handleCellUpdat
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:underline"
-                      onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)}
+                      onContextMenu={(e) =>
+                        handleRightClickWithFlag(
+                          e,
+                          cell.rowIndex,
+                          cell.columnIndex
+                        )
+                      }
                     >
                       {cell.data}
                     </a>
