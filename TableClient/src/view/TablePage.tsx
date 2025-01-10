@@ -29,6 +29,7 @@ function TablePage() {
     y: number;
     rowIndex: number;
     columnIndex: number;
+    elementType?: string;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
   const [loading, setLoading] = useState(true);
   const tableContext = useContext(TableContext);
@@ -175,18 +176,53 @@ function TablePage() {
     }
   }; //works
 
+  const handleCellUpdate = async (cell: CellData, newData: any) => {
+      // console.log("rightClickFlag in handleCellUpdate:", rightClickFlag);
+      // if (rightClickFlag) return; // Skip update if a right-click occurred
+      try {
+        const updatedCell = { ...cell, data: newData };
+        console.log(
+          "at PlotTable handleCellUpdate the updatedCell:",
+          updatedCell
+        );
+  
+        if (cell.rowIndex === 0) {
+          setColumns((prevColumns) =>
+            prevColumns.map((c) => (c._id === cell._id ? updatedCell : c))
+          );
+        } else {
+          setCells((prevCells) =>
+            prevCells.map((c) => (c._id === cell._id ? updatedCell : c))
+          );
+        }
+  
+          const success = await DocumentRestAPIMethods.update(
+          serverUrl,
+          "tables",
+          { _id: cell._id },
+          { data: newData }
+        );
+        if (success) console.log("at handleCellUpdate Cell updated successfully in db");
+      } catch (error) {
+        console.error("Error in handleCellUpdate:", error);
+      }
+    };
+
   const handleRightClick = (
     event: React.MouseEvent,
     rowIndex: number,
     columnIndex: number
   ): boolean => {
     try {
+      const target = event.target as HTMLElement;
+      const elementType = target.tagName;
       setMenuState({
         visible: true,
         x: event.pageX,
         y: event.pageY,
         rowIndex,
         columnIndex,
+        elementType,
       });
       console.log(`Right-clicked on row ${rowIndex}, column ${columnIndex}`);
       return true; // Return true on success
@@ -223,6 +259,14 @@ function TablePage() {
     } else if (action === "deleteColumn") {
       setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleDeleteColumnBtnClicked(columnIndex);
+    } else if (action === "clearData") {
+      const cellToClear = cells.find(
+        (cell) => cell.rowIndex === rowIndex && cell.columnIndex === columnIndex
+      );
+      if (cellToClear) {
+        await handleCellUpdate(cellToClear, null); // Clear the cell data
+      }
+      setMenuState({ ...menuState, visible: false }); // Close menu
     }
   }; //works
 
@@ -268,7 +312,7 @@ function TablePage() {
     try {
       if (currentRowIndex === 0) {
         handelDeleteInDB(columns);
-        setColumns([])
+        setColumns([]);
       } else {
         const result = await DeleteRowCells({
           currentRowIndex,
@@ -370,10 +414,18 @@ function TablePage() {
               />
             </PopupWithAnimation>
           )}
-          <PlotTable handleRightClick={handleRightClick} />
+          <PlotTable handleRightClick={handleRightClick} handleCellUpdate={handleCellUpdate} />
           {menuState.visible && (
             <SelectionMenu x={menuState.x} y={menuState.y}>
               <ul className="list-none space-y-2">
+                {menuState.elementType === "A" ||
+                menuState.elementType === "IMG" ? (
+                  <li>
+                    <button onClick={() => handleMenuAction("clearData")}>
+                      Clear Data
+                    </button>
+                  </li>
+                ) : null}
                 <li>
                   <button onClick={() => handleMenuAction("addRowAfter")}>
                     Add Row After

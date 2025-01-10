@@ -16,8 +16,8 @@ thead {
 
 /* Table cell styles */
 td, th {
-  max-width: 10rem; /* Maximum width for each cell */
-  max-height: 7rem; /* Maximum height for each cell */
+  min-width: 5rem; /* minimum width for each cell */
+ /* max-height: 7rem; /* Maximum height for each cell */
   word-wrap: break-word; /* Ensure long text wraps within the cell */
   word-break: break-word;
   overflow: hidden; /* Prevent overflow */
@@ -32,8 +32,8 @@ td, th {
   resize: none; /* Disable resize handle */
   width: 100%; /* Full width of the cell */
   height: 100%; /* Full height of the cell */
-  max-width: 10rem; /* Constrain the width */
-  max-height: 7rem; /* Constrain the height */
+  /*max-width: 10rem; /* Constrain the width */
+  /*max-height: 7rem; /* Constrain the height */
   overflow-wrap: break-word; /* Enable word wrapping */
   word-break: break-word; /* Break long words */
   overflow: auto; /* Add scrollbars if content exceeds dimensions */
@@ -42,6 +42,10 @@ td, th {
   padding: 0.25rem; /* Adjust padding for better readability */
   line-height: 1.2; /* Adjust line-height to fit more lines */
   text-overflow: ellipsis; /* Add ellipsis for long text */
+}
+
+.plotTableTextarea:hover {
+  resize: both;  /* Enable resize handle on hover */
 }
 
 /* Image styles */
@@ -56,8 +60,9 @@ img {
 a {
   display: inline-block; /* Ensure the link is block-like */
   max-width: 100%; /* Prevent links from overflowing the cell */
-  text-overflow: ellipsis; /* Add ellipsis for long text */
+  /*text-overflow: ellipsis; /* Add ellipsis for long text */
   white-space: normal; /* Wrap long links */
   word-wrap: break-word;
   word-break: break-word;
+  overflow-wrap: break-word; /* Ensure it breaks if too long */
 }

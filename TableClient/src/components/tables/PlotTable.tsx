@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { TableContext } from "../../context/tableContext";
 import "../../style/tables/tableData.css";
 import { CellData } from "../../types/cellType";
-import { DocumentRestAPIMethods } from "../../api/docApi";
-import { ServerContext } from "../../context/ServerUrlContext";
 
 interface PlotTableProps {
   handleRightClick: (
@@ -11,51 +9,19 @@ interface PlotTableProps {
     rowIndex: number,
     columnIndex: number
   ) => boolean;
+  handleCellUpdate: (cell: CellData, newData: any) => Promise<void>;
 }
 
-const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
+const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick, handleCellUpdate }) => {
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const serverUrl = useContext(ServerContext);
-  const { columns, setColumns, cells, setCells } = tableContext;
+  const { columns, cells } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
-
-  const handleCellUpdate = async (cell: CellData, newData: any) => {
-    console.log("rightClickFlag in handleCellUpdate:", rightClickFlag);
-    if (rightClickFlag) return; // Skip update if a right-click occurred
-    try {
-      const updatedCell = { ...cell, data: newData };
-      console.log(
-        "at PlotTable handleCellUpdate the updatedCell:",
-        updatedCell
-      );
-
-      if (cell.rowIndex === 0) {
-        setColumns((prevColumns) =>
-          prevColumns.map((c) => (c._id === cell._id ? updatedCell : c))
-        );
-      } else {
-        setCells((prevCells) =>
-          prevCells.map((c) => (c._id === cell._id ? updatedCell : c))
-        );
-      }
-
-        const success = await DocumentRestAPIMethods.update(
-        serverUrl,
-        "tables",
-        { _id: cell._id },
-        { data: newData }
-      );
-      if (success) console.log("at handleCellUpdate Cell updated successfully in db");
-    } catch (error) {
-      console.error("Error in handleCellUpdate:", error);
-    }
-  };
 
   const handleRightClickWithFlag = (
     e: React.MouseEvent,
@@ -64,6 +30,10 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
   ) => {
     e.preventDefault();
     setRightClickFlag(true); // Set flag to true
+    const target = e.target as HTMLElement
+    if (target.tagName === "A"  || target.tagName === "IMG") {
+      handleRightClick(e, rowIndex, columnIndex)
+    }
     const success = handleRightClick(e, rowIndex, columnIndex); // Call the prop function
     console.log("at handleRightClickWithFlag after handleRightClick rightClickFlag:", rightClickFlag)
     console.log("at handleRightClickWithFlag after handleRightClick success:", success)
@@ -102,10 +72,6 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
     console.log("PlotTable cells updated:", cells);
     console.log("PlotTable columns updated:", columns);
   }, [cells, columns]);
-
-  useEffect(() => {
-    console.log("rightClickFlag:", rightClickFlag)
-  }, [rightClickFlag]);
 
   return (
     <div className="table-container">
@@ -148,6 +114,7 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
                       src={cell.data}
                       alt="Pasted Image"
                       className="max-w-full h-auto"
+                      onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)}
                     />
                   ) : cell.data && cell.data.startsWith("http") ? (
                     <a
@@ -155,6 +122,7 @@ const PlotTable: React.FC<PlotTableProps> = ({ handleRightClick }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:underline"
+                      onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)}
                     >
                       {cell.data}
                     </a>
