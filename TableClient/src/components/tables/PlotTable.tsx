@@ -24,8 +24,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
-  // const [columnsWidths, setColumnsWidths] = useState<number[]>([]);
-  // const [rowsHeights, setRowsHeights] = useState<number[]>([]);
 
   const handleRightClickWithFlag = (
     e: React.MouseEvent,
@@ -83,29 +81,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
     console.log("PlotTable columns updated:", columns);
   }, [cells, columns]);
 
-  // const handleMouseDown = (e: React.MouseEvent, columnIndex: number) => {
-  //   e.preventDefault();
-  //   const startX = e.clientX;
-
-  //   const moveHandler = (moveEvent: MouseEvent) => {
-  //     const diff = moveEvent.clientX - startX;
-
-  //     setColumnsWidths((prev) => {
-  //       const newWidths = [...prev];
-  //       newWidths[columnIndex] = (newWidths[columnIndex] || 100) + diff;
-  //       return newWidths;
-  //     });
-  //   };
-
-  //   const upHandler = () => {
-  //     window.removeEventListener("mousemove", moveHandler);
-  //     window.removeEventListener("mouseup", upHandler);
-  //   };
-
-  //   window.addEventListener("mousemove", moveHandler);
-  //   window.addEventListener("mouseup", upHandler);
-  // };
-
   return (
     <div className="table-container">
       <table className="table-auto border-collapse border border-gray-400 w-full text-center">
@@ -131,12 +106,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                 }
               >
                 {column.data}
-                {/* <div
-                  className="resizer column"
-                  onMouseDown={(e) =>
-                    handleMouseDown(e, column.columnIndex)
-                  }
-                ></div> */}
+
               </th>
             ))}
           </tr>
@@ -145,7 +115,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
           {sortedRows.map((row, rowIndex) => (
             <tr
               key={`row-${rowIndex}`}
-              // style={{ height: rowsHeights[rowIndex] || "auto" }}
             >
               {row.map((cell) => (
                 <td
@@ -154,9 +123,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   onContextMenu={(e) =>
                     handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)
                   }
-                  // style={{
-                  //   width: columnsWidths[cell.columnIndex] || "auto",
-                  // }}
                 >
                   {cell.data && cell.data.startsWith("data:image") ? (
                     <img
