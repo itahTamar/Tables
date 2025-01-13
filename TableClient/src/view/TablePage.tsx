@@ -115,7 +115,7 @@ function TablePage() {
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const handleUpdateDB = async (toBeUpdateInDB: CellData[]) => {
+  const handleUpdateIndexInDB = async (toBeUpdateInDB: CellData[]) => {
     const successUpdate = await Promise.all(
       toBeUpdateInDB.map((item) =>
         DocumentRestAPIMethods.update(
@@ -285,7 +285,7 @@ function TablePage() {
     });
     console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
     setCells(newCellsAfterAddingRow.newCellsArray);
-    handleUpdateDB(newCellsAfterAddingRow.toBeUpdateInDB);
+    handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
     handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
   }; //works
 
@@ -304,7 +304,7 @@ function TablePage() {
     });
     setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
     setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
-    handleUpdateDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB);
+    handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB);
     handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB);
   }; //works
 
@@ -325,7 +325,7 @@ function TablePage() {
         }
         setCells(result.newCellsArrayAfterDelete);
         handelDeleteInDB(result.toBeDeleted);
-        handleUpdateDB(result.toBeUpdated);
+        handleUpdateIndexInDB(result.toBeUpdated);
         console.log("Row deleted successfully");
       }
     } catch (error) {
@@ -347,7 +347,7 @@ function TablePage() {
       setColumns(result.newColumnsArrayAfterDelete);
       setCells(result.newCellsArrayAfterDelete);
       handelDeleteInDB(result.toBeDeleted);
-      handleUpdateDB(result.toBeUpdated);
+      handleUpdateIndexInDB(result.toBeUpdated);
       console.log("Column deleted successfully");
     } catch (error) {
       console.error("Error handling delete row:", error);
