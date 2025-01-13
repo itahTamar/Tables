@@ -119,7 +119,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
               {row.map((cell) => (
                 <td
                   key={cell._id}
-                  className="border border-gray-400"
+                  className="border border-gray-400 h-auto"
                   onContextMenu={(e) =>
                     handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)
                   }
@@ -128,7 +128,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     <img
                       src={cell.data}
                       alt="Pasted Image"
-                      className="max-w-full h-auto"
+                      className="max-w-full"
                       onContextMenu={(e) =>
                         handleRightClickWithFlag(
                           e,

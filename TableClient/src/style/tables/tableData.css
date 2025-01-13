@@ -39,10 +39,11 @@ td, th {
   width: 100%; /* Full width of the cell */
   height: 100%; /* Full height of the cell */
   /*max-width: 10rem; /* Constrain the width */
-  /*max-height: 7rem; /* Constrain the height */
+  max-height: 10rem; /* Constrain the height */
+  overflow-y: auto; /* Enable vertical scrollbar if content exceeds max-height */
   overflow-wrap: break-word; /* Enable word wrapping */
   word-break: break-word; /* Break long words */
-  overflow: auto; /* Add scrollbars if content exceeds dimensions */
+  /*overflow: auto; /* Add scrollbar if content exceeds dimensions */
   text-align: center; /* Center-align the text */
   box-sizing: border-box; /* Include padding and border in dimensions */
   padding: 0.25rem; /* Adjust padding for better readability */
@@ -71,27 +72,4 @@ a {
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word; /* Ensure it breaks if too long */
-}
-
-/* resize rows and columns*/
-.resizer {
-  position: absolute;
-  background: #ccc;
-  z-index: 1;
-}
-
-.resizer.column {
-  width: 5px;
-  right: -2px;
-  top: 0;
-  bottom: 0;
-  cursor: col-resize;
-}
-
-.resizer.row {
-  height: 5px;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  cursor: row-resize;
 }
