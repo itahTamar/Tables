@@ -3,20 +3,24 @@
   margin: 2rem auto;
   max-width: 90%;
   overflow-x: auto;
+  overflow-y: auto;
   position: relative; /* For positioning resize handles */
+  max-height: 40rem; /* Set a fixed height for the scrollable container */
 }
 
 /* Table styles */
 .table-auto {
   table-layout: auto;
   width: 100%;
-  /* border-collapse: collapse; */
+  border-collapse: collapse;
   border-spacing: 0;
-  border-collapse: separate; /* Ensure borders don't collapse */
 }
 
 thead {
   background-color: gainsboro;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 /* Table cell styles */
