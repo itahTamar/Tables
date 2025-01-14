@@ -3,6 +3,7 @@ import { TableContext } from "../../context/tableContext";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
 import { getAllTablesCells } from "../../functions/table/row/getAllTablesCells";
+import "../../style/tables/tablePage.css"
 
 //component that search in the DB
 interface SearchInTableCellsProps {
@@ -51,18 +52,11 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIn
 
   return (
     <div style={{ width: "100%", maxWidth: "400px"}} className="my-4 mx-auto">
-      <input
+      <input className="inputSearch"
         type="text"
         value={query}
         onChange={handleChange}
         placeholder={placeholder}
-        style={{
-          width: "100%",
-          padding: "8px",
-          fontSize: "1rem",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
-        }}
       />
     </div>
   );

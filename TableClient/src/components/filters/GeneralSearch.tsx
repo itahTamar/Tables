@@ -37,7 +37,7 @@ const GeneralSearch: React.FC<GeneralSearchProps> = ({
         value={query}
         onChange={handleChange}
         placeholder={placeholder}
-        style={{ width: '100%', padding: '8px', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc' }}
+        className="inputSearch"
       />
     </div>
   );

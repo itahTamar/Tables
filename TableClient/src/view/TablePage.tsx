@@ -16,6 +16,7 @@ import { CellData } from "../types/cellType";
 import SelectionMenu from "./../components/tables/SelectionMenu";
 import { deleteColumnCells } from "../functions/table/column/deleteColumnCells";
 import "../style/tables/tablePage.css"
+import "../style/buttons.css"
 
 function TablePage() {
   //variables:
@@ -362,7 +363,7 @@ function TablePage() {
         {/* Back Button */}
         <button
           onClick={() => handleBackBtnClicked()}
-          className="absolute top-4 left-4 text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600"
+          className="back absolute top-4 left-4 text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600 "
         >
           Back
         </button>

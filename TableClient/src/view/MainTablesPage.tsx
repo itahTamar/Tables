@@ -8,6 +8,7 @@ import SelectionMenu from "../components/tables/SelectionMenu";
 import UserTables from "../components/tables/UserTables";
 import { ServerContext } from "../context/ServerUrlContext";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
+import "../style/search.css"
 
 const MainTablesPage: React.FC = () => {
   //variables
@@ -77,6 +78,7 @@ const MainTablesPage: React.FC = () => {
       setTableRename("");
       await getAllUserTables();
       setMenuState((prev) => ({ ...prev, visible: false }));
+      setIsRenaming(false);
     } else {
       setMessage("Failed to add table.");
     }
@@ -116,7 +118,7 @@ const MainTablesPage: React.FC = () => {
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="absolute top-4 left-4 text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600"
+          className="back absolute top-4 left-4 text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600"
         >
           Logout
         </button>

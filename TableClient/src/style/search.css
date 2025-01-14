@@ -1,0 +1,37 @@
+.inputSearch {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+    
+@media only screen and  (max-width: 950px) {
+    .inputSearch {
+      max-width: 20rem;
+    }
+} 
+
+@media only screen and  (max-width: 850px) {
+    .inputSearch {
+      max-width: 15rem;
+    }
+}
+
+@media only screen and  (max-width: 530px) {
+    .inputSearch {
+      max-width: 10rem;
+    }
+}
+
+@media only screen and  (max-width: 420px) {
+            .inputSearch {
+              max-width: 7rem;
+            }
+  }
+
+  @media only screen and  (max-width: 393px) {
+    .inputSearch {
+      max-width: 5rem;
+    }
+}
