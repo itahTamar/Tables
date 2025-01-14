@@ -368,7 +368,7 @@ function TablePage() {
           Back
         </button>
 
-        <h1 className="absolute top-4 right-4 "
+        <h1 className="tableName absolute top-4 right-4 "
           contentEditable //give the h1 tag an update ability
           suppressContentEditableWarning
           onBlur={(e) =>
