@@ -10,17 +10,19 @@ interface PlotTableProps {
     columnIndex: number
   ) => boolean;
   handleCellUpdate: (cell: CellData, newData: any) => Promise<void>;
+  cells: CellData[]
 }
 
 const PlotTable: React.FC<PlotTableProps> = ({
   handleRightClick,
   handleCellUpdate,
+  cells
 }) => {
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { columns, cells } = tableContext;
+  const { columns } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
@@ -111,6 +113,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
             ))}
           </tr>
         </thead>
+
         <tbody>
           {sortedRows.map((row, rowIndex) => (
             <tr

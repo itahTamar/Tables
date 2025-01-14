@@ -32,7 +32,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIn
     // Set a new timer for 1 seconds
     const newTimer = setTimeout(async() => {
       if (e.target.value != "") {
-        handleSearchResults(e.target.value); // Trigger search with query
+        handleSearchResults(e.target.value); // Trigger search with query in db 
         } else {
           const result = await getAllTablesCells({serverUrl, tableIndex, tableId}); // No query, return empty results
           setCells(result)
@@ -44,7 +44,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIn
 
   const handleSearchResults = async (target: any) => {
     console.log("At handleSearchResults the tableId from prop is:", tableId)
-    const result = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target)
+    const result = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target) //this is a search in db (will be an aggregation search)
     if(!result) throw new Error("no result for search in table cells");
     setCells(result)
   }

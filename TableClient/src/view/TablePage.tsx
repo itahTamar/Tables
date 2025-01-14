@@ -4,7 +4,7 @@ import { DocumentRestAPIMethods } from "../api/docApi";
 import PopupWithAnimation from "../components/popups/popupWithAnimation";
 import InitialNewTable from "../components/tables/InitialNewTable";
 import PlotTable from "../components/tables/PlotTable";
-import SearchInTableCells from "../components/tables/SearchInTableCells";
+import SearchInTableCells from "../components/tables/SearchInTableCellsInDB";
 import { ServerContext } from "../context/ServerUrlContext";
 import { TableContext } from "../context/tableContext";
 import { addNewColumnWithCells } from "../functions/table/column/addNewColumnWithCells";
@@ -15,6 +15,7 @@ import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 import { CellData } from "../types/cellType";
 import SelectionMenu from "./../components/tables/SelectionMenu";
 import { deleteColumnCells } from "../functions/table/column/deleteColumnCells";
+import GeneralSearch from "../components/filters/GeneralSearch";
 
 function TablePage() {
   //variables:
@@ -32,6 +33,7 @@ function TablePage() {
     elementType?: string;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
   const [loading, setLoading] = useState(true);
+  const [filteredData, setFilteredData] = useState<CellData[]>([]); // Store filtered results as CellData[]
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
@@ -177,36 +179,37 @@ function TablePage() {
   }; //works
 
   const handleCellUpdate = async (cell: CellData, newData: any) => {
-      // console.log("rightClickFlag in handleCellUpdate:", rightClickFlag);
-      // if (rightClickFlag) return; // Skip update if a right-click occurred
-      try {
-        const updatedCell = { ...cell, data: newData };
-        console.log(
-          "at PlotTable handleCellUpdate the updatedCell:",
-          updatedCell
+    // console.log("rightClickFlag in handleCellUpdate:", rightClickFlag);
+    // if (rightClickFlag) return; // Skip update if a right-click occurred
+    try {
+      const updatedCell = { ...cell, data: newData };
+      console.log(
+        "at PlotTable handleCellUpdate the updatedCell:",
+        updatedCell
+      );
+
+      if (cell.rowIndex === 0) {
+        setColumns((prevColumns) =>
+          prevColumns.map((c) => (c._id === cell._id ? updatedCell : c))
         );
-  
-        if (cell.rowIndex === 0) {
-          setColumns((prevColumns) =>
-            prevColumns.map((c) => (c._id === cell._id ? updatedCell : c))
-          );
-        } else {
-          setCells((prevCells) =>
-            prevCells.map((c) => (c._id === cell._id ? updatedCell : c))
-          );
-        }
-  
-          const success = await DocumentRestAPIMethods.update(
-          serverUrl,
-          "tables",
-          { _id: cell._id },
-          { data: newData }
+      } else {
+        setCells((prevCells) =>
+          prevCells.map((c) => (c._id === cell._id ? updatedCell : c))
         );
-        if (success) console.log("at handleCellUpdate Cell updated successfully in db");
-      } catch (error) {
-        console.error("Error in handleCellUpdate:", error);
       }
-    };
+
+      const success = await DocumentRestAPIMethods.update(
+        serverUrl,
+        "tables",
+        { _id: cell._id },
+        { data: newData }
+      );
+      if (success)
+        console.log("at handleCellUpdate Cell updated successfully in db");
+    } catch (error) {
+      console.error("Error in handleCellUpdate:", error);
+    }
+  };
 
   const handleRightClick = (
     event: React.MouseEvent,
@@ -354,6 +357,31 @@ function TablePage() {
     }
   }; //works
 
+  
+  // Handle search results from the GeneralSearch component
+  const handleSearchResults = (results: string[]) => {
+    if (results.length === 0) {
+      setFilteredData([]); // Clear filters if no results
+      return;
+    }
+  
+    // Step 1: Find all cells with the search term in their `data` field
+    const resultCells = cells.filter(
+      (cell) =>
+        typeof cell.data === "string" && // Ensure `data` is a string
+        cell.data.toLowerCase().includes(results[0].toLowerCase())
+    );
+  
+    // Step 2: Get all cells that share the same `rowIndex` as the result cells
+    const resultRowIndices = new Set(resultCells.map((cell) => cell.rowIndex)); // Collect unique row indices
+    const filteredRows = cells.filter((cell) => resultRowIndices.has(cell.rowIndex)); // Include all co-row-cells
+  
+    // Update the filtered data state
+    setFilteredData(filteredRows);
+  };
+  
+  
+
   return (
     <div>
       <header className="flex justify-between items-center mb-24">
@@ -380,7 +408,7 @@ function TablePage() {
         <div className="text-center text-6xl text-gray-500">Loading...</div>
       ) : (
         <>
-          <SearchInTableCells tableIndex={tableIndex} tableId={tableId} />
+          <GeneralSearch onSearchResults={handleSearchResults} />
           <div className="m-4"></div>
 
           {/*Initial the table*/}
@@ -414,7 +442,13 @@ function TablePage() {
               />
             </PopupWithAnimation>
           )}
-          <PlotTable handleRightClick={handleRightClick} handleCellUpdate={handleCellUpdate} />
+        
+          <PlotTable
+            handleRightClick={handleRightClick}
+            handleCellUpdate={handleCellUpdate}
+            cells={filteredData.length > 0 ? filteredData : cells}
+          /> 
+
           {menuState.visible && (
             <SelectionMenu x={menuState.x} y={menuState.y}>
               <ul className="list-none space-y-2">
