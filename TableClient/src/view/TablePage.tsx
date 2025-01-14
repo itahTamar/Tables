@@ -15,6 +15,7 @@ import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 import { CellData } from "../types/cellType";
 import SelectionMenu from "./../components/tables/SelectionMenu";
 import { deleteColumnCells } from "../functions/table/column/deleteColumnCells";
+import "../style/tables/tablePage.css"
 
 function TablePage() {
   //variables:
@@ -177,36 +178,37 @@ function TablePage() {
   }; //works
 
   const handleCellUpdate = async (cell: CellData, newData: any) => {
-      // console.log("rightClickFlag in handleCellUpdate:", rightClickFlag);
-      // if (rightClickFlag) return; // Skip update if a right-click occurred
-      try {
-        const updatedCell = { ...cell, data: newData };
-        console.log(
-          "at PlotTable handleCellUpdate the updatedCell:",
-          updatedCell
+    // console.log("rightClickFlag in handleCellUpdate:", rightClickFlag);
+    // if (rightClickFlag) return; // Skip update if a right-click occurred
+    try {
+      const updatedCell = { ...cell, data: newData };
+      console.log(
+        "at PlotTable handleCellUpdate the updatedCell:",
+        updatedCell
+      );
+
+      if (cell.rowIndex === 0) {
+        setColumns((prevColumns) =>
+          prevColumns.map((c) => (c._id === cell._id ? updatedCell : c))
         );
-  
-        if (cell.rowIndex === 0) {
-          setColumns((prevColumns) =>
-            prevColumns.map((c) => (c._id === cell._id ? updatedCell : c))
-          );
-        } else {
-          setCells((prevCells) =>
-            prevCells.map((c) => (c._id === cell._id ? updatedCell : c))
-          );
-        }
-  
-          const success = await DocumentRestAPIMethods.update(
-          serverUrl,
-          "tables",
-          { _id: cell._id },
-          { data: newData }
+      } else {
+        setCells((prevCells) =>
+          prevCells.map((c) => (c._id === cell._id ? updatedCell : c))
         );
-        if (success) console.log("at handleCellUpdate Cell updated successfully in db");
-      } catch (error) {
-        console.error("Error in handleCellUpdate:", error);
       }
-    };
+
+      const success = await DocumentRestAPIMethods.update(
+        serverUrl,
+        "tables",
+        { _id: cell._id },
+        { data: newData }
+      );
+      if (success)
+        console.log("at handleCellUpdate Cell updated successfully in db");
+    } catch (error) {
+      console.error("Error in handleCellUpdate:", error);
+    }
+  };
 
   const handleRightClick = (
     event: React.MouseEvent,
@@ -356,7 +358,7 @@ function TablePage() {
 
   return (
     <div>
-      <header className="flex justify-between items-center mb-24">
+      <header className="flex justify-between items-center">
         {/* Back Button */}
         <button
           onClick={() => handleBackBtnClicked()}
@@ -364,25 +366,25 @@ function TablePage() {
         >
           Back
         </button>
-      </header>
 
-      <h1
-        contentEditable //give the h1 tag an update ability
-        suppressContentEditableWarning
-        onBlur={(e) =>
-          handleTableRenameUpdate(e.currentTarget.textContent || "")
-        }
-      >
-        {tableName}
-      </h1>
+        <h1 className="absolute top-4 right-4 "
+          contentEditable //give the h1 tag an update ability
+          suppressContentEditableWarning
+          onBlur={(e) =>
+            handleTableRenameUpdate(e.currentTarget.textContent || "")
+          }
+        >
+          {tableName}
+        </h1>
+
+        <SearchInTableCells tableIndex={tableIndex} tableId={tableId}/>
+
+      </header>
 
       {loading ? ( // Show loading message if data is being fetched
         <div className="text-center text-6xl text-gray-500">Loading...</div>
       ) : (
         <>
-          <SearchInTableCells tableIndex={tableIndex} tableId={tableId} />
-          <div className="m-4"></div>
-
           {/*Initial the table*/}
           {showGenerateTable && (
             <button
@@ -414,7 +416,10 @@ function TablePage() {
               />
             </PopupWithAnimation>
           )}
-          <PlotTable handleRightClick={handleRightClick} handleCellUpdate={handleCellUpdate} />
+          <PlotTable
+            handleRightClick={handleRightClick}
+            handleCellUpdate={handleCellUpdate}
+          />
           {menuState.visible && (
             <SelectionMenu x={menuState.x} y={menuState.y}>
               <ul className="list-none space-y-2">
