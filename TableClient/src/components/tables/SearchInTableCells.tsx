@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { TableContext } from "../../context/tableContext";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
@@ -10,9 +10,10 @@ interface SearchInTableCellsProps {
   tableId: string;
   tableIndex: number;
   placeholder?: string;
+  setIsSearch: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIndex, placeholder = "Search..." }) => {
+const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIndex, placeholder = "Search...", setIsSearch }) => {
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
@@ -37,6 +38,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIn
         } else {
           const result = await getAllTablesCells({serverUrl, tableIndex, tableId}); // No query, return empty results
           setCells(result)
+          setIsSearch(false)
       }
     }, 1000);
 
@@ -48,6 +50,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIn
     const result = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target)
     if(!result) throw new Error("no result for search in table cells");
     setCells(result)
+    setIsSearch(true)
   }
 
   return (

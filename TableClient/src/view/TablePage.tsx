@@ -34,8 +34,8 @@ function TablePage() {
     elementType?: string;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
   const [loading, setLoading] = useState(true);
+  const [isSearch, setIsSearch] = useState(false)
   const tableContext = useContext(TableContext);
-
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
   }
@@ -378,7 +378,7 @@ function TablePage() {
           {tableName}
         </h1>
 
-        <SearchInTableCells tableIndex={tableIndex} tableId={tableId}/>
+        <SearchInTableCells tableIndex={tableIndex} tableId={tableId} setIsSearch={setIsSearch}/>
 
       </header>
 
@@ -421,7 +421,7 @@ function TablePage() {
             handleRightClick={handleRightClick}
             handleCellUpdate={handleCellUpdate}
           />
-          {menuState.visible && (
+          {menuState.visible && !isSearch && (
             <SelectionMenu x={menuState.x} y={menuState.y}>
               <ul className="list-none space-y-2">
                 {menuState.elementType === "A" ||
