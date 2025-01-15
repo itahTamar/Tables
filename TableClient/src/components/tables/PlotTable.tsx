@@ -9,7 +9,7 @@ interface PlotTableProps {
     rowIndex: number,
     columnIndex: number
   ) => boolean;
-  handleCellUpdate: (cell: CellData, newData: any) => Promise<void>;
+  handleCellUpdate: (cell: CellData, newData: any, prevData:any) => Promise<void>;
 }
 
 const PlotTable: React.FC<PlotTableProps> = ({
@@ -94,7 +94,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                 suppressContentEditableWarning
                 onBlur={(e) => {
                   if (!rightClickFlag) {
-                    handleCellUpdate(column, e.currentTarget.textContent || "");
+                    handleCellUpdate(column, e.currentTarget.textContent || "", column.data);
                   }
                 }}
                 onContextMenu={(e) =>
@@ -106,7 +106,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
                 }
               >
                 {column.data}
-
               </th>
             ))}
           </tr>
@@ -159,7 +158,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       defaultValue={cell.data}
                       onBlur={(e) => {
                         if (!rightClickFlag) {
-                          handleCellUpdate(cell, e.currentTarget.value);
+                          console.log("cell.data=", cell.data)
+                          handleCellUpdate(cell, e.currentTarget.value, cell.data);
                         }
                       }}
                     />

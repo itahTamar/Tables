@@ -15,15 +15,15 @@ import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 import { CellData } from "../types/cellType";
 import SelectionMenu from "./../components/tables/SelectionMenu";
 import { deleteColumnCells } from "../functions/table/column/deleteColumnCells";
-import "../style/tables/tablePage.css"
-import "../style/buttons.css"
+import "../style/tables/tablePage.css";
+import "../style/buttons.css";
 
 function TablePage() {
   //variables:
   const serverUrl = useContext(ServerContext);
+  const { tableId } = useParams();
   const navigate = useNavigate();
   const [showPopupInitialTable, setShowPopupInitialTable] = useState(false);
-  const { tableId } = useParams();
   const [fetchAgain, setFetchAgain] = useState(false);
   const [menuState, setMenuState] = useState<{
     visible: boolean;
@@ -34,7 +34,7 @@ function TablePage() {
     elementType?: string;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
   const [loading, setLoading] = useState(true);
-  const [isSearch, setIsSearch] = useState(false)
+  const [isSearch, setIsSearch] = useState(false);
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
@@ -178,9 +178,31 @@ function TablePage() {
     }
   }; //works
 
-  const handleCellUpdate = async (cell: CellData, newData: any) => {
-    // console.log("rightClickFlag in handleCellUpdate:", rightClickFlag);
-    // if (rightClickFlag) return; // Skip update if a right-click occurred
+  const visualCellsUpdate = (cell: CellData, updatedCell: CellData): CellData[] => {
+    if (cell.rowIndex === 0) {
+      const newColumns = columns.map((c) =>
+        c._id === cell._id ? updatedCell : c
+      );
+      setColumns(newColumns); // Update the state
+      return []; // Return the updated array
+    } else {
+      const newCells = cells.map((c) =>
+        c._id === cell._id ? updatedCell : c
+      );
+      setCells(newCells); // Update the state
+      return newCells; // Return the updated array
+    }
+  }; //works
+
+  const handleCellUpdate = async (
+    cell: CellData,
+    newData: any,
+    prevData: any
+  ) => {
+    console.log("at handleCellUpdate the prevData is:", prevData);
+    console.log("at handleCellUpdate the newData is:", newData);
+    if (prevData === newData) return;
+
     try {
       const updatedCell = { ...cell, data: newData };
       console.log(
@@ -188,15 +210,9 @@ function TablePage() {
         updatedCell
       );
 
-      if (cell.rowIndex === 0) {
-        setColumns((prevColumns) =>
-          prevColumns.map((c) => (c._id === cell._id ? updatedCell : c))
-        );
-      } else {
-        setCells((prevCells) =>
-          prevCells.map((c) => (c._id === cell._id ? updatedCell : c))
-        );
-      }
+      // Update the visual state (columns or cells)
+      const resolve = await visualCellsUpdate(cell, updatedCell);
+      console.log("at handleCellUpdate after visualCellsUpdate the resolve is:", resolve)
 
       const success = await DocumentRestAPIMethods.update(
         serverUrl,
@@ -206,10 +222,25 @@ function TablePage() {
       );
       if (success)
         console.log("at handleCellUpdate Cell updated successfully in db");
+
+      if (resolve.length>0 && newData != "" && newData != null && cell.rowIndex === 1) {
+        const newCellsAfterAddingRow = await addNewRow({
+          serverUrl,
+          tableId,
+          tableIndex,
+          currentRowIndex: 1,
+          columns,
+          cells: resolve,
+          addBefore: true,
+        });
+        setCells(newCellsAfterAddingRow.newCellsArray);
+        handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
+        handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
+      }
     } catch (error) {
       console.error("Error in handleCellUpdate:", error);
     }
-  };
+  }; //works
 
   const handleRightClick = (
     event: React.MouseEvent,
@@ -267,7 +298,7 @@ function TablePage() {
         (cell) => cell.rowIndex === rowIndex && cell.columnIndex === columnIndex
       );
       if (cellToClear) {
-        await handleCellUpdate(cellToClear, null); // Clear the cell data
+        await handleCellUpdate(cellToClear, null, cellToClear.data); // Clear the cell data
       }
       setMenuState({ ...menuState, visible: false }); // Close menu
     }
@@ -368,7 +399,8 @@ function TablePage() {
           Back
         </button>
 
-        <h1 className="tableName absolute top-4 right-4 "
+        <h1
+          className="tableName absolute top-4 right-4 "
           contentEditable //give the h1 tag an update ability
           suppressContentEditableWarning
           onBlur={(e) =>
@@ -378,8 +410,11 @@ function TablePage() {
           {tableName}
         </h1>
 
-        <SearchInTableCells tableIndex={tableIndex} tableId={tableId} setIsSearch={setIsSearch}/>
-
+        <SearchInTableCells
+          tableIndex={tableIndex}
+          tableId={tableId}
+          setIsSearch={setIsSearch}
+        />
       </header>
 
       {loading ? ( // Show loading message if data is being fetched

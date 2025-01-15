@@ -72,6 +72,7 @@ export const addNewRow = async ({
           type: "cell",
           data: null,
           columnIndex,
+          visibility: true,
           rowIndex: currentRowIndex, // Add at the currentRowIndex
           tableIndex,
           tableId
@@ -112,6 +113,7 @@ export const addNewRow = async ({
         type: "cell",
         data: null,
         columnIndex: i,
+        visibility: true,
         rowIndex: newRowIndex,
         tableIndex: tableIndex,
         tableId
