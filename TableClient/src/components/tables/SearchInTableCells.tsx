@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
-import { TableContext } from "../../context/tableContext";
+import React, { useContext, useState } from "react";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
+import { TableContext } from "../../context/tableContext";
 import { getAllTablesCells } from "../../functions/table/row/getAllTablesCells";
-import "../../style/tables/tablePage.css"
+import "../../style/tables/tablePage.css";
 
 //component that search in the DB
 interface SearchInTableCellsProps {
