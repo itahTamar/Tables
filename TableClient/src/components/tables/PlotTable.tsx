@@ -77,8 +77,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
   }, [cells]);
 
   useEffect(() => {
-    console.log("PlotTable cells updated:", cells);
-    console.log("PlotTable columns updated:", columns);
+    console.log("PlotTable cells:", cells);
+    console.log("PlotTable columns:", columns);
   }, [cells, columns]);
 
   return (

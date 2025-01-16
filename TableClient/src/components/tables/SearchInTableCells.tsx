@@ -47,9 +47,11 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIn
 
   const handleSearchResults = async (target: any) => {
     console.log("At handleSearchResults the tableId from prop is:", tableId)
-    const result = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target)
-    if(!result) throw new Error("no result for search in table cells");
-    setCells(result)
+    const resultSearch = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target)
+    const resultFirstEmptyRow = await DocumentRestAPIMethods.get(serverUrl,"tables", {tableId, rowIndex: 1}, "getDoc")
+    const results = [...resultFirstEmptyRow, ...resultSearch]
+    if(!results) throw new Error("no result for search in table cells");
+    setCells(results)
     setIsSearch(true)
   }
 
