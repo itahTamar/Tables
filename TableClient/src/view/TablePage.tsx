@@ -441,7 +441,6 @@ function TablePage() {
         </h1>
 
         <SearchInTableCells
-          tableIndex={tableIndex}
           tableId={tableId}
           setIsSearch={setIsSearch}
         />
