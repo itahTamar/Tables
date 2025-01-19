@@ -34,7 +34,7 @@ function TablePage() {
     elementType?: string;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
   const [loading, setLoading] = useState(true);
-  const [isSearch, setIsSearch] = useState(false);
+  const [isSearch, setIsSearch] = useState(false); //flag for search mode
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
@@ -43,7 +43,15 @@ function TablePage() {
     throw new Error("no tableId in params");
   }
 
-  const { tables, columns, cells, setColumns, setCells } = tableContext;
+  const {
+    tables,
+    columns,
+    cells,
+    setColumns,
+    setCells,
+    setSearchCells,
+    searchCells,
+  } = tableContext;
 
   const showGenerateTable =
     !loading && columns.length === 0 && cells.length === 0;
@@ -178,7 +186,10 @@ function TablePage() {
     }
   }; //works
 
-  const visualCellsUpdate = (cell: CellData, updatedCell: CellData): CellData[] => {
+  const visualCellsUpdate = (
+    cell: CellData,
+    updatedCell: CellData
+  ): CellData[] => {
     if (cell.rowIndex === 0) {
       const newColumns = columns.map((c) =>
         c._id === cell._id ? updatedCell : c
@@ -186,9 +197,7 @@ function TablePage() {
       setColumns(newColumns); // Update the state
       return []; // Return the updated array
     } else {
-      const newCells = cells.map((c) =>
-        c._id === cell._id ? updatedCell : c
-      );
+      const newCells = cells.map((c) => (c._id === cell._id ? updatedCell : c));
       setCells(newCells); // Update the state
       return newCells; // Return the updated array
     }
@@ -212,8 +221,12 @@ function TablePage() {
 
       // Update the visual state (columns or cells)
       const resolve = await visualCellsUpdate(cell, updatedCell);
-      console.log("at handleCellUpdate after visualCellsUpdate the resolve is:", resolve)
+      console.log(
+        "at handleCellUpdate after visualCellsUpdate the resolve is:",
+        resolve
+      );
 
+      //update cell data in db
       const success = await DocumentRestAPIMethods.update(
         serverUrl,
         "tables",
@@ -223,8 +236,15 @@ function TablePage() {
       if (success)
         console.log("at handleCellUpdate Cell updated successfully in db");
 
-      if (resolve.length>0 && newData != "" && newData != null && cell.rowIndex === 1) {
-        const newCellsAfterAddingRow = await addNewRow({
+      //add new empty first row if needed
+      let newCellsAfterAddingRow; // Define outside of the if block
+      if (
+        resolve.length > 0 &&
+        newData != "" &&
+        newData != null &&
+        cell.rowIndex === 1
+      ) {
+        newCellsAfterAddingRow = await addNewRow({
           serverUrl,
           tableId,
           tableIndex,
@@ -234,8 +254,18 @@ function TablePage() {
           addBefore: true,
         });
         setCells(newCellsAfterAddingRow.newCellsArray);
-        handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
-        handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
+        await handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
+        await handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
+      }
+
+      // Handle search state if applicable
+      if (isSearch) {
+        const updatedSearchCells = (
+          newCellsAfterAddingRow?.newCellsArray ?? cells
+        ).filter(
+          (c) => searchCells.some((s) => s._id === c._id) || c.rowIndex === 1
+        );
+        setSearchCells(updatedSearchCells);
       }
     } catch (error) {
       console.error("Error in handleCellUpdate:", error);
@@ -453,8 +483,9 @@ function TablePage() {
             </PopupWithAnimation>
           )}
           <PlotTable
-            handleRightClick={handleRightClick}
+            handleRightClick={handleRightClick || (() => false)} // Provide a no-op fallback if undefined
             handleCellUpdate={handleCellUpdate}
+            isSearch={isSearch}
           />
           {menuState.visible && !isSearch && (
             <SelectionMenu x={menuState.x} y={menuState.y}>

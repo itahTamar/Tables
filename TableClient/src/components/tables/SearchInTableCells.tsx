@@ -1,30 +1,33 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
 import { TableContext } from "../../context/tableContext";
-import { getAllTablesCells } from "../../functions/table/row/getAllTablesCells";
-import "../../style/tables/tablePage.css";
+import "../../style/tables/tablePage.css"
+import { CellData } from "../../types/cellType";
 
 //component that search in the DB
 interface SearchInTableCellsProps {
   tableId: string;
-  tableIndex: number;
   placeholder?: string;
   setIsSearch: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIndex, placeholder = "Search...", setIsSearch }) => {
+const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, placeholder = "Search...", setIsSearch }) => {
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { setCells } = tableContext;
+  const { searchCells, setSearchCells, cells } = tableContext;
   const serverUrl = useContext(ServerContext);
 
   const [query, setQuery] = useState<string>("");
-  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(
-    null
-  ); 
+  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null); 
+  const [resultFirstEmptyRow, setResultFirstEmptyRow] = useState<CellData[]>([])
+
+  useEffect(() => {
+    const firstEmptyRow = cells.filter((cell) => cell.rowIndex === 1);
+    setResultFirstEmptyRow(firstEmptyRow);
+  }, [cells, searchCells]);
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,9 +39,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIn
       if (e.target.value != "") {
         handleSearchResults(e.target.value); // Trigger search with query
         } else {
-          const result = await getAllTablesCells({serverUrl, tableIndex, tableId}); // No query, return empty results
-          setCells(result)
-          setIsSearch(false)
+         setIsSearch(false)
       }
     }, 1000);
 
@@ -46,10 +47,11 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, tableIn
   };
 
   const handleSearchResults = async (target: any) => {
-    console.log("At handleSearchResults the tableId from prop is:", tableId)
-    const result = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target)
-    if(!result) throw new Error("no result for search in table cells");
-    setCells(result)
+    const resultSearch = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target)
+    if(!resultSearch) throw new Error("no result for search in table cells");
+    const combinedResults = [...resultFirstEmptyRow, ...resultSearch]
+    console.log("At handleSearchResults the firstEmptyRow is:", resultFirstEmptyRow)
+    setSearchCells(combinedResults)
     setIsSearch(true)
   }
 
