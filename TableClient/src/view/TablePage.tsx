@@ -254,8 +254,8 @@ function TablePage() {
           addBefore: true,
         });
         setCells(newCellsAfterAddingRow.newCellsArray);
-        await handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
-        await handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
+        handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
+        handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
       }
 
       // Handle search state if applicable
