@@ -9,18 +9,24 @@ interface PlotTableProps {
     rowIndex: number,
     columnIndex: number
   ) => boolean;
-  handleCellUpdate: (cell: CellData, newData: any, prevData:any) => Promise<void>;
+  handleCellUpdate: (
+    cell: CellData,
+    newData: any,
+    prevData: any
+  ) => Promise<void>;
+  isSearch: boolean;
 }
 
 const PlotTable: React.FC<PlotTableProps> = ({
   handleRightClick,
   handleCellUpdate,
+  isSearch,
 }) => {
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { columns, cells } = tableContext;
+  const { columns, cells, searchCells } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
@@ -53,6 +59,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
     }
   };
 
+  //sort the columns array
   useEffect(() => {
     if (columns) {
       const sorted = [...columns].sort((a, b) => a.columnIndex - b.columnIndex);
@@ -60,24 +67,44 @@ const PlotTable: React.FC<PlotTableProps> = ({
     }
   }, [columns]);
 
+  //sort the table rows
   useEffect(() => {
-    const rows = cells.reduce<Record<number, CellData[]>>((acc, cell) => {
-      acc[cell.rowIndex] = acc[cell.rowIndex] || [];
-      acc[cell.rowIndex].push(cell);
-      return acc;
-    }, {});
-    const sortTheRows = Object.keys(rows)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map(
-        (rowIndex) =>
-          rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
-      );
-    setSortedRows(sortTheRows);
-  }, [cells]);
+    //in search mode
+    if (isSearch) {
+      const rows = searchCells.reduce<Record<number, CellData[]>>((acc, cell) => {
+        acc[cell.rowIndex] = acc[cell.rowIndex] || [];
+        acc[cell.rowIndex].push(cell);
+        return acc;
+      }, {});
+      const sortTheRows = Object.keys(rows)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map(
+          (rowIndex) =>
+            rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
+        );
+      setSortedRows(sortTheRows);
+    } else {
+      //in regular mode
+      const rows = cells.reduce<Record<number, CellData[]>>((acc, cell) => {
+        acc[cell.rowIndex] = acc[cell.rowIndex] || [];
+        acc[cell.rowIndex].push(cell);
+        return acc;
+      }, {});
+      const sortTheRows = Object.keys(rows)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map(
+          (rowIndex) =>
+            rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
+        );
+      setSortedRows(sortTheRows);
+    }
+  }, [cells, searchCells, isSearch]);
 
   useEffect(() => {
     console.log("PlotTable cells:", cells);
+    console.log("PlotTable searchCells:", searchCells);
     console.log("PlotTable columns:", columns);
   }, [cells, columns]);
 
@@ -94,7 +121,11 @@ const PlotTable: React.FC<PlotTableProps> = ({
                 suppressContentEditableWarning
                 onBlur={(e) => {
                   if (!rightClickFlag) {
-                    handleCellUpdate(column, e.currentTarget.textContent || "", column.data);
+                    handleCellUpdate(
+                      column,
+                      e.currentTarget.textContent || "",
+                      column.data
+                    );
                   }
                 }}
                 onContextMenu={(e) =>
@@ -112,9 +143,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
         </thead>
         <tbody>
           {sortedRows.map((row, rowIndex) => (
-            <tr
-              key={`row-${rowIndex}`}
-            >
+            <tr key={`row-${rowIndex}`}>
               {row.map((cell) => (
                 <td
                   key={cell._id}
@@ -158,8 +187,12 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       defaultValue={cell.data}
                       onBlur={(e) => {
                         if (!rightClickFlag) {
-                          console.log("cell.data=", cell.data)
-                          handleCellUpdate(cell, e.currentTarget.value, cell.data);
+                          console.log("cell.data=", cell.data);
+                          handleCellUpdate(
+                            cell,
+                            e.currentTarget.value,
+                            cell.data
+                          );
                         }
                       }}
                     />
