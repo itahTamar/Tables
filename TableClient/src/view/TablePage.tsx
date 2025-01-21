@@ -308,9 +308,9 @@ function TablePage() {
     if (action === "addRowAfter") {
       setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleAddRowBtnClick(false, rowIndex);
-    } else if (action === "addRowBefore") {
-      setMenuState({ ...menuState, visible: false }); // Close menu after action
-      await handleAddRowBtnClick(true, rowIndex);
+      // } else if (action === "addRowBefore") {
+      //   setMenuState({ ...menuState, visible: false }); // Close menu after action
+      //   await handleAddRowBtnClick(true, rowIndex);
     } else if (action === "addColumnAfter") {
       setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleAddColumnBtnClicked(false, columnIndex);
@@ -349,6 +349,20 @@ function TablePage() {
     });
     console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
     setCells(newCellsAfterAddingRow.newCellsArray);
+
+    // Handle search state if applicable
+    if (isSearch) {
+      const tempIdArray = new Set(searchCells.map((e) => e._id));
+      // Filter the updated cells based on their _id values and combine with the new row
+      const updatedSearchCells = [
+        ...newCellsAfterAddingRow.newToAddInDB, // Add the newly added row
+        ...newCellsAfterAddingRow.newCellsArray.filter((e) =>
+          tempIdArray.has(e._id) // Add existing cells that match the search IDs
+        ),
+      ];
+      setSearchCells(updatedSearchCells);
+    } //work
+
     handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
     handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
   }; //works
@@ -368,6 +382,30 @@ function TablePage() {
     });
     setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
     setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
+
+    // Handle search state if applicable
+    if (isSearch) {
+      const validRowIndexes = new Set(searchCells.map((item) => item.rowIndex));
+      const tempIdArray = new Set(searchCells.map((e) => e._id));
+      const seenIds = new Set(); // Create a Set to track unique IDs
+      const combinedArray = [
+        ...newColumnAndCellsAfterAddingColumn.updatedColumns,
+        ...newColumnAndCellsAfterAddingColumn.updatedCells,
+      ];
+      // Filter the newCellsArray array
+      const updatedSearchCells = combinedArray.filter((item) => {
+        // Check if rowIndex or id is valid and ensure the id hasn't been seen before
+        const isValid =
+          validRowIndexes.has(item.rowIndex) || tempIdArray.has(item._id);
+        if (isValid && !seenIds.has(item._id)) {
+          seenIds.add(item._id); // Mark the id as seen
+          return true; // Include the item in the result
+        }
+        return false; // Exclude the item
+      });
+      setSearchCells(updatedSearchCells);
+    } //work
+
     handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB);
     handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB);
   }; //works
@@ -388,6 +426,16 @@ function TablePage() {
           throw new Error("Result is undefined - delete row failed");
         }
         setCells(result.newCellsArrayAfterDelete);
+
+        // Handle search state if applicable
+        if (isSearch) {
+          const tempIdArray = new Set(result.toBeDeleted.map((e) => e._id));
+          const updatedSearchCells = searchCells.filter(
+            (e) => !tempIdArray.has(e._id)
+          );
+          setSearchCells(updatedSearchCells);
+        } //work
+
         handelDeleteInDB(result.toBeDeleted);
         handleUpdateIndexInDB(result.toBeUpdated);
         console.log("Row deleted successfully");
@@ -410,6 +458,26 @@ function TablePage() {
       }
       setColumns(result.newColumnsArrayAfterDelete);
       setCells(result.newCellsArrayAfterDelete);
+
+      // Handle search state if applicable
+      if (isSearch) {
+        const tempDeleteIdArray = new Set(result.toBeDeleted.map((e) => e._id));
+        const tempSearchIdArray = new Set(searchCells.map((e) => e._id));
+        // Create a new Set with items in tempSearchIdArray but not in tempDeleteIdArray
+        const filteredSearchIdArray = new Set(
+          [...tempSearchIdArray].filter((_id) => !tempDeleteIdArray.has(_id))
+        );
+        const combinedArray = [
+          ...result.newColumnsArrayAfterDelete,
+          ...result.newCellsArrayAfterDelete,
+        ];
+        // Filter the newCellsArray array
+        const updatedSearchCells = combinedArray.filter((e) =>
+          filteredSearchIdArray.has(e._id)
+        );
+        setSearchCells(updatedSearchCells);
+      } //work
+
       handelDeleteInDB(result.toBeDeleted);
       handleUpdateIndexInDB(result.toBeUpdated);
       console.log("Column deleted successfully");
@@ -440,10 +508,7 @@ function TablePage() {
           {tableName}
         </h1>
 
-        <SearchInTableCells
-          tableId={tableId}
-          setIsSearch={setIsSearch}
-        />
+        <SearchInTableCells tableId={tableId} setIsSearch={setIsSearch} />
       </header>
 
       {loading ? ( // Show loading message if data is being fetched
@@ -486,7 +551,8 @@ function TablePage() {
             handleCellUpdate={handleCellUpdate}
             isSearch={isSearch}
           />
-          {menuState.visible && !isSearch && (
+          {menuState.visible && (
+            // !isSearch &&
             <SelectionMenu x={menuState.x} y={menuState.y}>
               <ul className="list-none space-y-2">
                 {menuState.elementType === "A" ||
@@ -499,25 +565,27 @@ function TablePage() {
                 ) : null}
                 <li>
                   <button onClick={() => handleMenuAction("addRowAfter")}>
-                    Add Row After
+                    Add Row
                   </button>
                 </li>
-                <li>
+                {/* <li>
                   {menuState.rowIndex != 0 ? (
                     <button onClick={() => handleMenuAction("addRowBefore")}>
                       Add Row Before
                     </button>
                   ) : null}
-                </li>
+                </li> */}
                 <li>
                   <button onClick={() => handleMenuAction("addColumnAfter")}>
-                    Add Column After
+                    Add Column
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => handleMenuAction("addColumnBefore")}>
-                    Add Column Before
-                  </button>
+                  {menuState.columnIndex === 1 ? (
+                    <button onClick={() => handleMenuAction("addColumnBefore")}>
+                      Add Column Before
+                    </button>
+                  ) : null}
                 </li>
                 <li>
                   {(cells.length !== 0 && menuState.rowIndex !== 0) ||
