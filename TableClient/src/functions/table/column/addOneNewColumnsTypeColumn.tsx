@@ -7,7 +7,7 @@ interface AddColumnProp {
   columnIndexToInsert: number;
 }
 //regular standalone function to add only one column type cell to table collection
-export const addOneNewColumnsTypeCell = async ({
+export const addOneNewColumnsTypeColumn = async ({
   serverUrl,
   tableId,
   tableIndex,

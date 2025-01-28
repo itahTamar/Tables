@@ -1,5 +1,4 @@
 import { CellData } from "../../../types/cellType";
-import { findTheLastIndex } from "../findTheLastIndex";
 
 interface AddRowProp {
   serverUrl: string;
@@ -8,7 +7,6 @@ interface AddRowProp {
   currentRowIndex: number;
   numOfRows: number;
   numOfColumns: number;
-  // columns: CellData[];
   cells: CellData[];
   addBefore: boolean;
   rowIndexesArr: number[];
@@ -27,7 +25,6 @@ export const addNewRow = async ({
   numOfRows,
   numOfColumns,
   rowIndexesArr,
-  // columns,
   cells,
   addBefore, // parameter to specify adding before/after the current row
 }: AddRowProp) => {
@@ -40,18 +37,19 @@ export const addNewRow = async ({
   console.log("At addNewRowCells the numOfColumns:", numOfColumns);
   console.log("At addNewRowCells the currentRowIndex:", currentRowIndex);
   console.log("At addNewRowCells addBefore:", addBefore);
+  console.log("At addNewRowCells rowIndexesArr:", rowIndexesArr);
+
+  // Determine where to add the new row
+  const newRowIndex = addBefore ? currentRowIndex : currentRowIndex + 1;
 
   // Adjust rowIndex for existing cells - the row before the current row to insert and the row after with adjusted rowIndex
   const adjustedCells = cells.map((cell) => {
-    if (cell.rowIndex >= currentRowIndex) {
+    if (cell.rowIndex >= newRowIndex) {
       return { ...cell, rowIndex: cell.rowIndex + 1 };
     }
     return cell;
   });
   console.log("at addNewRow the adjustedCells:", adjustedCells);
-
-  // Determine where to add the new row
-  // const newRowIndex = addBefore ? currentRowIndex : currentRowIndex + 1;
 
   // Create new cells for the new row based on columns
   const newRowCells: CellData[] = Array.from(
@@ -61,7 +59,7 @@ export const addNewRow = async ({
       type: "cell",
       data: null,
       visibility: true,
-      rowIndex: currentRowIndex,
+      rowIndex: newRowIndex,
       columnIndex: columnIndex,
       tableIndex: tableIndex,
       tableId: tableId,
@@ -74,20 +72,15 @@ export const addNewRow = async ({
   const updatedCells = [...adjustedCells, ...newRowCells];
   console.log("at addNewRow the updatedCells:", updatedCells);
 
-  // const sortedUpdatedCells = updatedCells.sort(
-  //   (a, b) => a.rowIndex - b.rowIndex || a.columnIndex - b.columnIndex
-  // );
-  // console.log("at addNewRow the sortedUpdatedCells:", sortedUpdatedCells);
-
   // Determine affected cells based on the updated state
   const affectedCells = adjustedCells.filter(
-    (cell) => cell.rowIndex >= currentRowIndex + 1
+    (cell) => cell.rowIndex >= newRowIndex
   );
   console.log("at addNewRow the affectedCells:", affectedCells);
 
   // adjust the rowIndexArr for plot
   const adjustedRowIndexes = rowIndexesArr.map((index) =>
-    index >= currentRowIndex ? index + 1 : index
+    index >= newRowIndex ? index + 1 : index
   );
   console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
 
@@ -95,7 +88,7 @@ export const addNewRow = async ({
     newCellsArray: updatedCells, //the combined new cells array with the new row
     toBeUpdateInDB: affectedCells, //the cell were rowIndex changed
     newToAddInDB: newRowCells, //the new row cells to add to the DB
-    updatedRowIndexesArr: [...adjustedRowIndexes, currentRowIndex],
+    updatedRowIndexesArr: [...adjustedRowIndexes, currentRowIndex+1],
   };
 };
 

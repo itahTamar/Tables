@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { ServerContext } from "../../context/ServerUrlContext";
 import { TableContext } from "../../context/tableContext";
-import { addOneNewColumnsTypeCell } from "../../functions/table/column/addOneNewColumnsTypeCell";
+import { addOneNewColumnsTypeColumn } from "../../functions/table/column/addOneNewColumnsTypeColumn";
 import { addNewRow } from "../../functions/table/row/old_v/addNewRow_old_v";
 import "../../style/buttons.css";
 import { getAllTablesColumns } from "../../functions/table/column/getAllTablesColumns";
@@ -64,7 +64,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
       for (let columnIndexToInsert = 1; columnIndexToInsert <= columnsNo; columnIndexToInsert++) {
         console.log("Adding column:", columnIndexToInsert);
 
-        const success = await addOneNewColumnsTypeCell({
+        const success = await addOneNewColumnsTypeColumn({
           serverUrl,
           tableId,
           tableIndex,

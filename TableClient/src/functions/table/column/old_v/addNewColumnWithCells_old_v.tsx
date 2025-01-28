@@ -2,7 +2,7 @@ import { CellData } from "../../../../types/cellType";
 import { findTheLastIndex } from "../../findTheLastIndex";
 import { addOneNewRowsTypeCell } from "../../row/addOneNewRowsTypeCell";
 import { updateIndexes } from "../../updateIndex";
-import { addOneNewColumnsTypeCell } from "../addOneNewColumnsTypeCell";
+import { addOneNewColumnsTypeCell } from "../addOneNewColumnsTypeColumn";
 //function to handle all cases of inserting a new column (with or without new row's-cells)
 interface AddColumnProp {
   serverUrl: string;

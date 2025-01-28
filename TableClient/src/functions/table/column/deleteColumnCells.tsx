@@ -1,5 +1,4 @@
 import { CellData } from "../../../types/cellType";
-import { findTheLastIndex } from "./../findTheLastIndex";
 
 interface DeleteColumnProp {
   currentColumnIndex: number;
@@ -19,16 +18,6 @@ export const deleteColumnCells = ({
   newColumnsArrayAfterDelete: CellData[];
 } => {
   console.log("HELLO FROM DELETE COLUMN");
-
-  // Find the last (max) column index
-  const lastColumnIndex = findTheLastIndex({
-    arr: columns,
-    indexType: "columnIndex",
-  });
-  if (lastColumnIndex === undefined)
-    throw new Error("At deleteColumnCells the lastColumnIndex not defined");
-
-  console.log("At deleteColumnCells the lastColumnIndex:", lastColumnIndex);
 
   // Step 1.1: Identify column to be deleted
   const columnsToBeDeleted = columns.filter(

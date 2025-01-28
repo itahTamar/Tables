@@ -83,12 +83,12 @@ function TablePage() {
     const fetchColumnsAndCells = async () => {
       try {
         setLoading(true);
-        const fetchedColumns = await getAllTablesColumns({
+        const fetchedColumns: CellData[] = await getAllTablesColumns({
           serverUrl,
           tableId,
           tableIndex,
         });
-        const fetchedCells = await getAllTablesCells({
+        const fetchedCells: CellData[] = await getAllTablesCells({
           serverUrl,
           tableIndex,
           tableId,
@@ -102,7 +102,7 @@ function TablePage() {
 
         // Ensure all rows are displayed on initial load or when search is cleared
         if (!rowIndexesArr || rowIndexesArr.length === 0) {
-          setRowIndexesArr([...new Set(cells.map((cell) => cell.rowIndex))]);
+          setRowIndexesArr([...new Set(fetchedCells.map((cell) => cell.rowIndex))]);
         }
 
         //find the highest number of row and column
@@ -330,6 +330,7 @@ function TablePage() {
   const handleBackBtnClicked = async () => {
     setColumns([]);
     setCells([]);
+    setRowIndexesArr([])
     navigate("/mainTablesPage");
   }; //works
 
@@ -369,6 +370,7 @@ function TablePage() {
     addBefore: boolean,
     currentRowIndex: number
   ) => {
+    console.log("At TablePage/handleAddRowBtnClick the rowIndexesArr:", rowIndexesArr);
     console.log("At TablePage/handleAddRowBtnClick the numOfRows:", numOfRows);
     console.log(
       "At TablePage/handleAddRowBtnClick the numOfColumns:",
@@ -381,7 +383,6 @@ function TablePage() {
       currentRowIndex,
       numOfRows,
       numOfColumns,
-      // columns,
       cells,
       rowIndexesArr,
       addBefore,
@@ -403,35 +404,13 @@ function TablePage() {
       tableId,
       tableIndex,
       currentColumnIndex,
+      numOfRows,
       columns,
       cells,
       addBefore,
     });
     setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
     setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
-
-    // Handle search state if applicable
-    // if (isSearch) {
-    //   const validRowIndexes = new Set(searchCells.map((item) => item.rowIndex));
-    //   const tempIdArray = new Set(searchCells.map((e) => e._id));
-    //   const seenIds = new Set(); // Create a Set to track unique IDs
-    //   const combinedArray = [
-    //     ...newColumnAndCellsAfterAddingColumn.updatedColumns,
-    //     ...newColumnAndCellsAfterAddingColumn.updatedCells,
-    //   ];
-    //   // Filter the newCellsArray array
-    //   const updatedSearchCells = combinedArray.filter((item) => {
-    //     // Check if rowIndex or id is valid and ensure the id hasn't been seen before
-    //     const isValid =
-    //       validRowIndexes.has(item.rowIndex) || tempIdArray.has(item._id);
-    //     if (isValid && !seenIds.has(item._id)) {
-    //       seenIds.add(item._id); // Mark the id as seen
-    //       return true; // Include the item in the result
-    //     }
-    //     return false; // Exclude the item
-    //   });
-    //   setSearchCells(updatedSearchCells);
-    // } //work
 
     handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB);
     handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB);
@@ -445,24 +424,16 @@ function TablePage() {
       } else {
         const result = await DeleteRowCells({
           currentRowIndex,
-          columns,
           cells,
+          numOfRows,
+          rowIndexesArr,
         });
 
         if (result === undefined) {
           throw new Error("Result is undefined - delete row failed");
         }
         setCells(result.newCellsArrayAfterDelete);
-
-        // Handle search state if applicable
-        //   if (isSearch) {
-        //     const tempIdArray = new Set(result.toBeDeleted.map((e) => e._id));
-        //     const updatedSearchCells = searchCells.filter(
-        //       (e) => !tempIdArray.has(e._id)
-        //     );
-        //     setSearchCells(updatedSearchCells);
-        //   } //work
-
+        setRowIndexesArr([...new Set(result.updatedRowIndexesArr)]);
         handelDeleteInDB(result.toBeDeleted);
         handleUpdateIndexInDB(result.toBeUpdated);
         console.log("Row deleted successfully");
@@ -485,25 +456,6 @@ function TablePage() {
       }
       setColumns(result.newColumnsArrayAfterDelete);
       setCells(result.newCellsArrayAfterDelete);
-
-      // Handle search state if applicable
-      // if (isSearch) {
-      //   const tempDeleteIdArray = new Set(result.toBeDeleted.map((e) => e._id));
-      //   const tempSearchIdArray = new Set(searchCells.map((e) => e._id));
-      //   // Create a new Set with items in tempSearchIdArray but not in tempDeleteIdArray
-      //   const filteredSearchIdArray = new Set(
-      //     [...tempSearchIdArray].filter((_id) => !tempDeleteIdArray.has(_id))
-      //   );
-      //   const combinedArray = [
-      //     ...result.newColumnsArrayAfterDelete,
-      //     ...result.newCellsArrayAfterDelete,
-      //   ];
-      //   // Filter the newCellsArray array
-      //   const updatedSearchCells = combinedArray.filter((e) =>
-      //     filteredSearchIdArray.has(e._id)
-      //   );
-      //   setSearchCells(updatedSearchCells);
-      // } //work
 
       handelDeleteInDB(result.toBeDeleted);
       handleUpdateIndexInDB(result.toBeUpdated);
@@ -606,6 +558,14 @@ function TablePage() {
                   ) : null}
                 </li> */}
                 <li>
+                  {(cells.length !== 0 && menuState.rowIndex !== 0) ||
+                  (cells.length === 0 && menuState.rowIndex === 0) ? (
+                    <button onClick={() => handleMenuAction("deleteRow")}>
+                      Delete Row
+                    </button>
+                  ) : null}
+                </li>                
+                <li>
                   <button onClick={() => handleMenuAction("addColumnAfter")}>
                     Add Column
                   </button>
@@ -614,14 +574,6 @@ function TablePage() {
                   {menuState.columnIndex === 1 ? (
                     <button onClick={() => handleMenuAction("addColumnBefore")}>
                       Add Column Before
-                    </button>
-                  ) : null}
-                </li>
-                <li>
-                  {(cells.length !== 0 && menuState.rowIndex !== 0) ||
-                  (cells.length === 0 && menuState.rowIndex === 0) ? (
-                    <button onClick={() => handleMenuAction("deleteRow")}>
-                      Delete Row
                     </button>
                   ) : null}
                 </li>

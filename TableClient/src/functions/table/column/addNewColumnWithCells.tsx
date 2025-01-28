@@ -1,5 +1,4 @@
 import { CellData } from "../../../types/cellType";
-import { findTheLastIndex } from "../findTheLastIndex";
 import { generateObjectId } from "../row/addNewRow";
 
 //Function to add a new column to the table
@@ -11,12 +10,14 @@ interface AddColumnProp {
   columns: CellData[];
   cells: CellData[];
   addBefore: boolean;
+  numOfRows: number;
 }
 
 export const addNewColumnWithCells = async ({
   tableId,
   tableIndex,
   currentColumnIndex,
+  numOfRows,
   columns,
   cells,
   addBefore, // parameter to specify adding before/after the current column
@@ -25,24 +26,8 @@ export const addNewColumnWithCells = async ({
     throw new Error("Invalid input data for addNewColumnWithCells");
   }
 
-  // Find the last column index and last row index
-  const lastColumnIndex = findTheLastIndex({
-    arr: columns,
-    indexType: "columnIndex",
-  });
-
-  //find the last row index
-  const lastRowIndex = findTheLastIndex({ arr: cells, indexType: "rowIndex" });
-
-  if (lastColumnIndex === undefined || lastRowIndex === undefined)
-    throw new Error(
-      "At addNewRowCells the lastColumnIndex and lastCellIndex not defined"
-    );
-
   // Determine the new column index
-  const newColumnIndex = addBefore
-    ? currentColumnIndex
-    : currentColumnIndex + 1;
+  const newColumnIndex = addBefore ? currentColumnIndex : currentColumnIndex + 1;
 
   // Adjust indices of existing columns and cells
   const adjustedColumns = columns.map((col) => {
@@ -75,7 +60,7 @@ export const addNewColumnWithCells = async ({
 
   // Add new cells for the rows corresponding to the new column
   const newColumnCells: CellData[] = Array.from(
-    { length: lastRowIndex },
+    { length: numOfRows },
     (_, rowIndex) => ({
       _id: generateObjectId(),
       type: "cell",

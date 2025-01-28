@@ -9,8 +9,6 @@ interface TableContextType {
   setColumns: (columns: CellData[] | ((prev: CellData[]) => CellData[])) => void; // Allow updater function
   cells: CellData[]; //all table document row&column cells
   setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
-  // searchCells: CellData[];
-  // setSearchCells: (searchCells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
   rowIndexesArr: number[];
   setRowIndexesArr: (indexesArr: number[] | ((prev: number[]) => number[])) => void;
   numOfColumns: number;
@@ -25,7 +23,6 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [tables, setTables] = useState<TableData[]>([]); // Initialize as an empty array
   const [columns, setColumns] = useState<CellData[]>([])
   const [cells, setCells] = useState<CellData[]>([])
-  // const [searchCells, setSearchCells] = useState<CellData[]>([])
   const [rowIndexesArr, setRowIndexesArr] = useState<number[]>([])
   const [numOfRows, setNumOfRows] = useState<number>(1)
   const [numOfColumns, setNumOfColumns] = useState<number>(1)
@@ -36,7 +33,6 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           value={{ tables, setTables, 
           columns, setColumns, 
           cells, setCells, 
-          // searchCells, setSearchCells,
           numOfRows, setNumOfRows,
           numOfColumns, setNumOfColumns,
           rowIndexesArr, setRowIndexesArr}}>

@@ -1,46 +1,27 @@
 import { CellData } from "../../../types/cellType";
-import { findTheLastIndex } from "./../findTheLastIndex";
 
 interface deleteRowProp {
   currentRowIndex: number;
-  columns: CellData[];
   cells: CellData[];
+  numOfRows: number;
+  rowIndexesArr: number[];
 }
 
 // Function to delete one row of the table locally and return items to be deleted
 export const DeleteRowCells = ({
   currentRowIndex,
-  columns,
   cells,
+  numOfRows,
+  rowIndexesArr,
 }: deleteRowProp): {
   toBeDeleted: CellData[];
   toBeUpdated: CellData[];
   newCellsArrayAfterDelete: CellData[];
+  updatedRowIndexesArr: number[];
 } => {
   console.log("HELLO FROM DELETE ROW")
-  // Find the last (max) column index
-  const lastColumnIndex = findTheLastIndex({
-    arr: columns,
-    indexType: "columnIndex",
-  });
-  if (lastColumnIndex === undefined)
-    throw new Error("At DeleteRowCells the lastColumnIndex not defined");
-
-  // Find the last row index
-  const lastCellIndex = findTheLastIndex({
-    arr: cells,
-    indexType: "rowIndex",
-  });
-  if (lastColumnIndex === undefined || lastCellIndex === undefined)
-    throw new Error(
-      "At DeleteRowCells the lastColumnIndex and lastRowIndex not defined"
-    );
-
-  console.log("At DeleteRowCells the lastCellIndex:", lastCellIndex);
-  console.log("At DeleteRowCells the lastColumnIndex:", lastColumnIndex);
-
   // Case 1: Prevent deleting `rowIndex = 0` if there are other rows
-  if (currentRowIndex === 0 && lastCellIndex > 0) {
+  if (currentRowIndex === 0 && numOfRows > 0) {
     throw new Error(
       "Cannot delete rowIndex 0 before all other rows are deleted"
     );
@@ -66,10 +47,17 @@ export const DeleteRowCells = ({
   console.log("At DeleteRowCells the toBeUpdated:", toBeUpdated);
   console.log("At DeleteRowCells the newCellsArrayAfterDelete:", newCellsArrayAfterDelete);
 
+    // adjust the rowIndexArr for plot
+    const adjustedRowIndexes = rowIndexesArr.map((index) =>
+      index >= currentRowIndex ? index - 1 : index
+    );
+    console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
+
   return {
     newCellsArrayAfterDelete: newCellsArrayAfterDelete,
     toBeDeleted: toBeDeleted,
     toBeUpdated: toBeUpdated,
+    updatedRowIndexesArr: adjustedRowIndexes,
   };
 };
 //work ok
