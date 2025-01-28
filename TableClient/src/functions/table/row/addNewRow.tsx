@@ -84,11 +84,13 @@ export const addNewRow = async ({
   );
   console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
 
+  const addedIndex = addBefore ? 1 : currentRowIndex+1;
+
   return {
     newCellsArray: updatedCells, //the combined new cells array with the new row
     toBeUpdateInDB: affectedCells, //the cell were rowIndex changed
     newToAddInDB: newRowCells, //the new row cells to add to the DB
-    updatedRowIndexesArr: [...adjustedRowIndexes, currentRowIndex+1],
+    updatedRowIndexesArr: [...adjustedRowIndexes, addedIndex],
   };
 };
 

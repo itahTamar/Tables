@@ -215,7 +215,7 @@ function TablePage() {
     }
   }; //works
 
-  const visualCellsUpdate = (
+  const visualDataCellsUpdate = (
     cell: CellData,
     updatedCell: CellData
   ): CellData[] => {
@@ -248,8 +248,8 @@ function TablePage() {
         updatedCell
       );
 
-      // Update the visual state (columns or cells)
-      const resolve = await visualCellsUpdate(cell, updatedCell);
+      // Update the visual state (columns or cells data)
+      const resolve = await visualDataCellsUpdate(cell, updatedCell);
       console.log(
         "at handleCellUpdate after visualCellsUpdate the resolve is:",
         resolve
@@ -285,19 +285,12 @@ function TablePage() {
           rowIndexesArr,
         });
         setCells(newCellsAfterAddingRow.newCellsArray);
+        setRowIndexesArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
+
         handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
         handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
       }
 
-      // Handle search state if applicable
-      // if (isSearch) {
-      //   const updatedSearchCells = (
-      //     newCellsAfterAddingRow?.newCellsArray ?? cells
-      //   ).filter(
-      //     (c) => searchCells.some((s) => s._id === c._id) || c.rowIndex === 1
-      //   );
-      //   setSearchCells(updatedSearchCells);
-      // }
     } catch (error) {
       console.error("Error in handleCellUpdate:", error);
     }
