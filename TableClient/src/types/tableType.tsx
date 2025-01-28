@@ -4,6 +4,8 @@ export interface TableData {
     tableName: string;
     visibility: true;
     tableIndex: number;
+    rowNumber: number;
+    columnNumber: number;
     __v: number;
   }
   

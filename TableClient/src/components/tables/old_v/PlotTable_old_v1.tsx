@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { TableContext } from "../../context/tableContext";
+import { TableContext } from "../../../context/tableContext";
 import "../../style/tables/tableData.css";
-import { CellData } from "../../types/cellType";
+import { CellData } from "../../../types/cellType";
 
 interface PlotTableProps {
   handleRightClick: (
@@ -14,19 +14,19 @@ interface PlotTableProps {
     newData: any,
     prevData: any
   ) => Promise<void>;
-  displayArr: CellData[];
+  isSearch: boolean;
 }
 
 const PlotTable: React.FC<PlotTableProps> = ({
   handleRightClick,
   handleCellUpdate,
-  displayArr,
+  isSearch,
 }) => {
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { columns } = tableContext;
+  const { columns, cells } = tableContext;
   // const { columns, cells, searchCells } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
@@ -69,26 +69,45 @@ const PlotTable: React.FC<PlotTableProps> = ({
   }, [columns]);
 
   //sort the table rows
-  useEffect(()=>{
-    const rows = displayArr.reduce<Record<number, CellData[]>>((acc, cell) => {
-    acc[cell.rowIndex] = acc[cell.rowIndex] || [];
-    acc[cell.rowIndex].push(cell);
-    return acc;
-  }, {});
-  const sortTheRows = Object.keys(rows)
-    .map(Number)
-    .sort((a, b) => a - b)
-    .map(
-      (rowIndex) =>
-        rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
-    );
-  setSortedRows(sortTheRows);
-}, [displayArr]); // Only depend on `displayArr`
+  useEffect(() => {
+    //in search mode
+    if (isSearch) {
+      const rows = searchCells.reduce<Record<number, CellData[]>>((acc, cell) => {
+        acc[cell.rowIndex] = acc[cell.rowIndex] || [];
+        acc[cell.rowIndex].push(cell);
+        return acc;
+      }, {});
+      const sortTheRows = Object.keys(rows)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map(
+          (rowIndex) =>
+            rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
+        );
+      setSortedRows(sortTheRows);
+    } else {
+      //in regular mode
+      const rows = cells.reduce<Record<number, CellData[]>>((acc, cell) => {
+        acc[cell.rowIndex] = acc[cell.rowIndex] || [];
+        acc[cell.rowIndex].push(cell);
+        return acc;
+      }, {});
+      const sortTheRows = Object.keys(rows)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map(
+          (rowIndex) =>
+            rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
+        );
+      setSortedRows(sortTheRows);
+    }
+  }, [cells, searchCells, isSearch]);
 
   useEffect(() => {
-    console.log("PlotTable displayArr:", displayArr);
+    console.log("PlotTable cells:", cells);
+    console.log("PlotTable searchCells:", searchCells);
     console.log("PlotTable columns:", columns);
-  }, [columns]);
+  }, [cells, columns]);
 
   return (
     <div className="table-container">

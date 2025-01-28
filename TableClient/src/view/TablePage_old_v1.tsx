@@ -13,12 +13,10 @@ import { addNewRow } from "../functions/table/row/addNewRow";
 import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
 import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
 import { CellData } from "../types/cellType";
-import SelectionMenu from "./../components/tables/SelectionMenu";
+import SelectionMenu from "../components/tables/SelectionMenu";
 import { deleteColumnCells } from "../functions/table/column/deleteColumnCells";
 import "../style/tables/tablePage.css";
 import "../style/buttons.css";
-import generateCellsForPlot from "../functions/table/generateCellsForPlot";
-import { findTheLastIndex } from "../functions/table/findTheLastIndex";
 
 function TablePage() {
   //variables:
@@ -36,6 +34,7 @@ function TablePage() {
     elementType?: string;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
   const [loading, setLoading] = useState(true);
+  const [isSearch, setIsSearch] = useState(false); //flag for search mode
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
@@ -50,12 +49,8 @@ function TablePage() {
     cells,
     setColumns,
     setCells,
-    rowIndexesArr,
-    setRowIndexesArr,
-    setNumOfColumns,
-    setNumOfRows,
-    numOfRows,
-    numOfColumns,
+    setSearchCells,
+    searchCells,
   } = tableContext;
 
   const showGenerateTable =
@@ -97,40 +92,16 @@ function TablePage() {
         if (!fetchedColumns || !fetchedCells) {
           throw new Error("Failed to fetch columns or cells");
         }
-        console.log("At TablePage fetched columns:", fetchedColumns);
-        console.log("At TablePage fetched cells:", fetchedCells);
 
-        // Ensure all rows are displayed on initial load or when search is cleared
-        if (!rowIndexesArr || rowIndexesArr.length === 0) {
-          setRowIndexesArr([...new Set(cells.map((cell) => cell.rowIndex))]);
-        }
-
-        //find the highest number of row and column
-        const highestColumnIndex = findTheLastIndex({
-          arr: fetchedColumns,
-          indexType: "columnIndex",
-        });
-        const highestRowIndex = findTheLastIndex({
-          arr: fetchedCells,
-          indexType: "rowIndex",
-        });
-        if (highestRowIndex === undefined)
-          throw new Error("At TablePage the lastCellIndex not defined");
-        if (highestColumnIndex === undefined)
-          throw new Error("At TablePage the lastColumnIndex not defined");
-        console.log("TablePage highestColumnIndex:", highestColumnIndex);
-        console.log("TablePage highestRowIndex:", highestRowIndex);
-
-        // Set all into the table context
+        // Set the fetched columns and cells into the context
         setColumns(fetchedColumns);
         setCells(fetchedCells);
         setFetchAgain(false);
-        setNumOfColumns(highestColumnIndex);
-        setNumOfRows(highestRowIndex);
+        console.log("At TablePage fetched columns:", fetchedColumns);
+        console.log("At TablePage fetched cells:", fetchedCells);
       } catch (error) {
         console.error("Error fetching columns or cells:", error);
       } finally {
-        console.log("TablePage fetchColumnsAndCells finally");
         setLoading(false); // Stop loading
       }
     };
@@ -278,11 +249,9 @@ function TablePage() {
           tableId,
           tableIndex,
           currentRowIndex: 1,
-          numOfColumns,
-          numOfRows,
+          columns,
           cells: resolve,
           addBefore: true,
-          rowIndexesArr,
         });
         setCells(newCellsAfterAddingRow.newCellsArray);
         handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
@@ -290,14 +259,14 @@ function TablePage() {
       }
 
       // Handle search state if applicable
-      // if (isSearch) {
-      //   const updatedSearchCells = (
-      //     newCellsAfterAddingRow?.newCellsArray ?? cells
-      //   ).filter(
-      //     (c) => searchCells.some((s) => s._id === c._id) || c.rowIndex === 1
-      //   );
-      //   setSearchCells(updatedSearchCells);
-      // }
+      if (isSearch) {
+        const updatedSearchCells = (
+          newCellsAfterAddingRow?.newCellsArray ?? cells
+        ).filter(
+          (c) => searchCells.some((s) => s._id === c._id) || c.rowIndex === 1
+        );
+        setSearchCells(updatedSearchCells);
+      }
     } catch (error) {
       console.error("Error in handleCellUpdate:", error);
     }
@@ -369,26 +338,30 @@ function TablePage() {
     addBefore: boolean,
     currentRowIndex: number
   ) => {
-    console.log("At TablePage/handleAddRowBtnClick the numOfRows:", numOfRows);
-    console.log(
-      "At TablePage/handleAddRowBtnClick the numOfColumns:",
-      numOfColumns
-    );
     const newCellsAfterAddingRow = await addNewRow({
       serverUrl,
       tableId,
       tableIndex,
       currentRowIndex,
-      numOfRows,
-      numOfColumns,
-      // columns,
+      columns,
       cells,
-      rowIndexesArr,
       addBefore,
     });
     console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
     setCells(newCellsAfterAddingRow.newCellsArray);
-    setRowIndexesArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
+
+    // Handle search state if applicable
+    if (isSearch) {
+      const tempIdArray = new Set(searchCells.map((e) => e._id));
+      // Filter the updated cells based on their _id values and combine with the new row
+      const updatedSearchCells = [
+        ...newCellsAfterAddingRow.newToAddInDB, // Add the newly added row
+        ...newCellsAfterAddingRow.newCellsArray.filter((e) =>
+          tempIdArray.has(e._id) // Add existing cells that match the search IDs
+        ),
+      ];
+      setSearchCells(updatedSearchCells);
+    } //work
 
     handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
     handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
@@ -411,27 +384,27 @@ function TablePage() {
     setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
 
     // Handle search state if applicable
-    // if (isSearch) {
-    //   const validRowIndexes = new Set(searchCells.map((item) => item.rowIndex));
-    //   const tempIdArray = new Set(searchCells.map((e) => e._id));
-    //   const seenIds = new Set(); // Create a Set to track unique IDs
-    //   const combinedArray = [
-    //     ...newColumnAndCellsAfterAddingColumn.updatedColumns,
-    //     ...newColumnAndCellsAfterAddingColumn.updatedCells,
-    //   ];
-    //   // Filter the newCellsArray array
-    //   const updatedSearchCells = combinedArray.filter((item) => {
-    //     // Check if rowIndex or id is valid and ensure the id hasn't been seen before
-    //     const isValid =
-    //       validRowIndexes.has(item.rowIndex) || tempIdArray.has(item._id);
-    //     if (isValid && !seenIds.has(item._id)) {
-    //       seenIds.add(item._id); // Mark the id as seen
-    //       return true; // Include the item in the result
-    //     }
-    //     return false; // Exclude the item
-    //   });
-    //   setSearchCells(updatedSearchCells);
-    // } //work
+    if (isSearch) {
+      const validRowIndexes = new Set(searchCells.map((item) => item.rowIndex));
+      const tempIdArray = new Set(searchCells.map((e) => e._id));
+      const seenIds = new Set(); // Create a Set to track unique IDs
+      const combinedArray = [
+        ...newColumnAndCellsAfterAddingColumn.updatedColumns,
+        ...newColumnAndCellsAfterAddingColumn.updatedCells,
+      ];
+      // Filter the newCellsArray array
+      const updatedSearchCells = combinedArray.filter((item) => {
+        // Check if rowIndex or id is valid and ensure the id hasn't been seen before
+        const isValid =
+          validRowIndexes.has(item.rowIndex) || tempIdArray.has(item._id);
+        if (isValid && !seenIds.has(item._id)) {
+          seenIds.add(item._id); // Mark the id as seen
+          return true; // Include the item in the result
+        }
+        return false; // Exclude the item
+      });
+      setSearchCells(updatedSearchCells);
+    } //work
 
     handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB);
     handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB);
@@ -455,13 +428,13 @@ function TablePage() {
         setCells(result.newCellsArrayAfterDelete);
 
         // Handle search state if applicable
-        //   if (isSearch) {
-        //     const tempIdArray = new Set(result.toBeDeleted.map((e) => e._id));
-        //     const updatedSearchCells = searchCells.filter(
-        //       (e) => !tempIdArray.has(e._id)
-        //     );
-        //     setSearchCells(updatedSearchCells);
-        //   } //work
+        if (isSearch) {
+          const tempIdArray = new Set(result.toBeDeleted.map((e) => e._id));
+          const updatedSearchCells = searchCells.filter(
+            (e) => !tempIdArray.has(e._id)
+          );
+          setSearchCells(updatedSearchCells);
+        } //work
 
         handelDeleteInDB(result.toBeDeleted);
         handleUpdateIndexInDB(result.toBeUpdated);
@@ -487,23 +460,23 @@ function TablePage() {
       setCells(result.newCellsArrayAfterDelete);
 
       // Handle search state if applicable
-      // if (isSearch) {
-      //   const tempDeleteIdArray = new Set(result.toBeDeleted.map((e) => e._id));
-      //   const tempSearchIdArray = new Set(searchCells.map((e) => e._id));
-      //   // Create a new Set with items in tempSearchIdArray but not in tempDeleteIdArray
-      //   const filteredSearchIdArray = new Set(
-      //     [...tempSearchIdArray].filter((_id) => !tempDeleteIdArray.has(_id))
-      //   );
-      //   const combinedArray = [
-      //     ...result.newColumnsArrayAfterDelete,
-      //     ...result.newCellsArrayAfterDelete,
-      //   ];
-      //   // Filter the newCellsArray array
-      //   const updatedSearchCells = combinedArray.filter((e) =>
-      //     filteredSearchIdArray.has(e._id)
-      //   );
-      //   setSearchCells(updatedSearchCells);
-      // } //work
+      if (isSearch) {
+        const tempDeleteIdArray = new Set(result.toBeDeleted.map((e) => e._id));
+        const tempSearchIdArray = new Set(searchCells.map((e) => e._id));
+        // Create a new Set with items in tempSearchIdArray but not in tempDeleteIdArray
+        const filteredSearchIdArray = new Set(
+          [...tempSearchIdArray].filter((_id) => !tempDeleteIdArray.has(_id))
+        );
+        const combinedArray = [
+          ...result.newColumnsArrayAfterDelete,
+          ...result.newCellsArrayAfterDelete,
+        ];
+        // Filter the newCellsArray array
+        const updatedSearchCells = combinedArray.filter((e) =>
+          filteredSearchIdArray.has(e._id)
+        );
+        setSearchCells(updatedSearchCells);
+      } //work
 
       handelDeleteInDB(result.toBeDeleted);
       handleUpdateIndexInDB(result.toBeUpdated);
@@ -512,9 +485,6 @@ function TablePage() {
       console.error("Error handling delete row:", error);
     }
   }; //works
-
-  // Dynamically calculate `displayArr` based on `rowIndexesArr` and `cells`
-  const displayArr = generateCellsForPlot(rowIndexesArr, cells);
 
   return (
     <div>
@@ -538,7 +508,7 @@ function TablePage() {
           {tableName}
         </h1>
 
-        <SearchInTableCells />
+        <SearchInTableCells tableId={tableId} setIsSearch={setIsSearch} />
       </header>
 
       {loading ? ( // Show loading message if data is being fetched
@@ -579,7 +549,7 @@ function TablePage() {
           <PlotTable
             handleRightClick={handleRightClick || (() => false)} // Provide a no-op fallback if undefined
             handleCellUpdate={handleCellUpdate}
-            displayArr={displayArr}
+            isSearch={isSearch}
           />
           {menuState.visible && (
             // !isSearch &&

@@ -1,7 +1,7 @@
-import { DocumentRestAPIMethods } from "../../../api/docApi";
-import { CellData } from "../../../types/cellType";
-import { findTheLastIndex } from "../findTheLastIndex";
-import { updateIndexes } from "../updateIndex";
+import { DocumentRestAPIMethods } from "../../../../api/docApi";
+import { CellData } from "../../../../types/cellType";
+import { findTheLastIndex } from "../../findTheLastIndex";
+import { updateIndexes } from "../../updateIndex";
 
 interface AddRowProp {
   serverUrl: string;

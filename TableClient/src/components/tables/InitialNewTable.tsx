@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { ServerContext } from "../../context/ServerUrlContext";
 import { TableContext } from "../../context/tableContext";
 import { addOneNewColumnsTypeCell } from "../../functions/table/column/addOneNewColumnsTypeCell";
-import { addNewRow } from "../../functions/table/row/addNewRow_old_v";
+import { addNewRow } from "../../functions/table/row/old_v/addNewRow_old_v";
 import "../../style/buttons.css";
 import { getAllTablesColumns } from "../../functions/table/column/getAllTablesColumns";
 import { getAllTablesCells } from "../../functions/table/row/getAllTablesCells";
@@ -36,7 +36,8 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   console.log("InitialNewTable received tableId:", tableId);
   console.log("InitialNewTable received tableIndex:", tableIndex);
 
-  const { columns, cells, setColumns, setCells } = tableContext;
+  const {cells, setCells, columns, setColumns } = tableContext;
+  // const { columns,  setColumns,cells, setCells } = tableContext;
 
   const handleInitial = async (event: React.FormEvent) => {
     event.preventDefault(); // Prevent form from reloading the page
@@ -49,7 +50,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
     }
 
     if (columns.length > 0 || cells.length > 0) {
-      setMessage("The table is not already initialized");
+      setMessage("The table is already initialized");
       return;
     }
 

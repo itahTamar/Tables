@@ -38,6 +38,8 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
       tableName: tableSubject,
       visibility: true,
       tableIndex: maxTableIndexValue + 1,
+      rowNumber: 0,
+      columnNumber: 0,
       users: [] 
     }, "addNewUsersTable");
 

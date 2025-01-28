@@ -1,33 +1,25 @@
 import React, { useContext, useEffect, useState } from "react";
-import { DocumentRestAPIMethods } from "../../api/docApi";
-import { ServerContext } from "../../context/ServerUrlContext";
 import { TableContext } from "../../context/tableContext";
-import "../../style/tables/tablePage.css"
-import { CellData } from "../../types/cellType";
+import "../../style/tables/tablePage.css";
 
-//component that search in the DB
+//component that search in the cells array
 interface SearchInTableCellsProps {
-  tableId: string;
   placeholder?: string;
-  setIsSearch: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, placeholder = "Search...", setIsSearch }) => {
+const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
+  placeholder = "Search...",
+}) => {
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { searchCells, setSearchCells, cells } = tableContext;
-  const serverUrl = useContext(ServerContext);
+  const { cells, setRowIndexesArr, rowIndexesArr } = tableContext;
 
   const [query, setQuery] = useState<string>("");
-  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null); 
-  const [resultFirstEmptyRow, setResultFirstEmptyRow] = useState<CellData[]>([])
-
-  useEffect(() => {
-    const firstEmptyRow = cells.filter((cell) => cell.rowIndex === 1);
-    setResultFirstEmptyRow(firstEmptyRow);
-  }, [cells, searchCells]);
+  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,29 +27,41 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({tableId, placeho
     if (timer) clearTimeout(timer); // Clear previous timer
 
     // Set a new timer for 1 seconds
-    const newTimer = setTimeout(async() => {
+    const newTimer = setTimeout(async () => {
       if (e.target.value != "") {
         handleSearchResults(e.target.value); // Trigger search with query
-        } else {
-         setIsSearch(false)
+      } else {
+        const resultSearchIndexes = [
+          ...new Set(cells.map((cell) => cell.rowIndex)),
+        ];
+        console.log("Resetting rowIndexesArr:", resultSearchIndexes); // Debug log
+        setRowIndexesArr(resultSearchIndexes);
       }
     }, 1000);
 
     setTimer(newTimer);
   };
 
-  const handleSearchResults = async (target: any) => {
-    const resultSearch = await DocumentRestAPIMethods.getSearchInTableCells(serverUrl,"tables", tableId, target)
-    if(!resultSearch) throw new Error("no result for search in table cells");
-    const combinedResults = [...resultFirstEmptyRow, ...resultSearch]
-    console.log("At handleSearchResults the firstEmptyRow is:", resultFirstEmptyRow)
-    setSearchCells(combinedResults)
-    setIsSearch(true)
-  }
+  const handleSearchResults = (target: any) => {
+    const resultSearchIndexes = cells
+      .filter((cell) => cell.data && cell.data.includes(target)) // Filter cells where data contains the search string
+      .map((cell) => cell.rowIndex); // Map the filtered cells to their rowIndex
+    // Ensure rowIndex 1 is included in the result
+    if (!resultSearchIndexes.includes(1)) {
+      resultSearchIndexes.push(1);
+    }
+    console.log("Updating rowIndexesArr for search:", resultSearchIndexes); // Debug log
+    setRowIndexesArr([...new Set(resultSearchIndexes)]); // Use unique row indexes
+  };
+
+  useEffect(() => {
+    console.log("SearchInTableCells: Updated rowIndexesArr:", rowIndexesArr);
+  }, [rowIndexesArr]);
 
   return (
-    <div style={{ width: "100%", maxWidth: "400px"}} className="my-4 mx-auto">
-      <input className="inputSearch"
+    <div style={{ width: "100%", maxWidth: "400px" }} className="my-4 mx-auto">
+      <input
+        className="inputSearch"
         type="text"
         value={query}
         onChange={handleChange}
