@@ -2,7 +2,7 @@ import { CellData } from "../../../../types/cellType";
 import { findTheLastIndex } from "../../findTheLastIndex";
 import { addOneNewRowsTypeCell } from "../../row/addOneNewRowsTypeCell";
 import { updateIndexes } from "../../updateIndex";
-import { addOneNewColumnsTypeCell } from "../addOneNewColumnsTypeColumn";
+import { addOneNewCellsTypeColumn } from "../addOneNewColumnsTypeColumn";
 //function to handle all cases of inserting a new column (with or without new row's-cells)
 interface AddColumnProp {
   serverUrl: string;
@@ -66,7 +66,7 @@ export const addNewColumnWithCells = async ({
   // case 0: Handle case where there are no columns (empty table)
   if (columns.length === 0 && currentColumnIndex === 0) {
     // Add the first column cell - with no row-cells (there is no rows)
-    const success = await addOneNewColumnsTypeCell({
+    const success = await addOneNewCellsTypeColumn({
       serverUrl,
       tableId,
       tableIndex,
@@ -82,7 +82,7 @@ export const addNewColumnWithCells = async ({
       //case: 1.1.1: Insert at the end
       if (currentColumnIndex === lastColumnIndex) {
         console.log("case: 1.1.1: Insert at the end");
-        const success = await addOneNewColumnsTypeCell({
+        const success = await addOneNewCellsTypeColumn({
           serverUrl,
           tableId,
           tableIndex,
@@ -106,7 +106,7 @@ export const addNewColumnWithCells = async ({
           throw new Error("Failed to update indices at addNewColumnWithCells");
 
         //step 2: add the new column
-        const success = await addOneNewColumnsTypeCell({
+        const success = await addOneNewCellsTypeColumn({
           serverUrl,
           tableId,
           tableIndex,
@@ -131,7 +131,7 @@ export const addNewColumnWithCells = async ({
       if (!updateSuccess)
         throw new Error("Failed to update indices at addNewColumnWithCells");
 
-      const success = await addOneNewColumnsTypeCell({
+      const success = await addOneNewCellsTypeColumn({
         serverUrl,
         tableIndex,
         tableId,
@@ -146,7 +146,7 @@ export const addNewColumnWithCells = async ({
   if (!addBefore) {
     //case 2.1.1: Insert at the end
     if (currentColumnIndex === lastColumnIndex) {
-      const success = await addOneNewColumnsTypeCell({
+      const success = await addOneNewCellsTypeColumn({
         serverUrl,
         tableId,
         tableIndex,
@@ -172,7 +172,7 @@ export const addNewColumnWithCells = async ({
       if (!updateSuccess)
         throw new Error("Failed to update indices at addNewColumnWithCells");
       //step 2: add the new column
-      const success = await addOneNewColumnsTypeCell({
+      const success = await addOneNewCellsTypeColumn({
         serverUrl,
         tableId,
         tableIndex,
@@ -199,7 +199,7 @@ export const addNewColumnWithCells = async ({
     if (!updateSuccess)
       throw new Error("Failed to update indices at addNewColumnWithCells");
 
-    const success = await addOneNewColumnsTypeCell({
+    const success = await addOneNewCellsTypeColumn({
       serverUrl,
       tableIndex,
       tableId,

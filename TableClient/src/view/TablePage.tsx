@@ -345,6 +345,7 @@ function TablePage() {
     console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
     setCells(newCellsAfterAddingRow.newCellsArray);
     setRowIndexesArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
+    setNumOfRows((prev) => prev + 1);
 
     handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
     handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
@@ -367,6 +368,7 @@ function TablePage() {
     });
     setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
     setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
+    setNumOfColumns((prev) => prev + 1);
 
     handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB, serverUrl);
     handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
@@ -390,6 +392,8 @@ function TablePage() {
         }
         setCells(result.newCellsArrayAfterDelete);
         setRowIndexesArr([...new Set(result.updatedRowIndexesArr)]);
+        setNumOfRows((prev) => prev - 1);
+
         handelDeleteInDB(result.toBeDeleted, serverUrl);
         handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
         console.log("Row deleted successfully");
@@ -412,7 +416,8 @@ function TablePage() {
       }
       setColumns(result.newColumnsArrayAfterDelete);
       setCells(result.newCellsArrayAfterDelete);
-
+      setNumOfColumns((prev) => prev - 1);
+      
       handelDeleteInDB(result.toBeDeleted, serverUrl);
       handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
       console.log("Column deleted successfully");

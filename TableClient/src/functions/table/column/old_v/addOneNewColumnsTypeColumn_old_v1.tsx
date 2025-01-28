@@ -1,4 +1,4 @@
-import { DocumentRestAPIMethods } from "../../../api/docApi";
+import { DocumentRestAPIMethods } from "../../../../api/docApi";
 
 interface AddColumnProp {
   serverUrl: string;
