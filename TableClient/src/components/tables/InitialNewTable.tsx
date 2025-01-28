@@ -1,11 +1,13 @@
 import { useContext, useState } from "react";
-import { ServerContext } from "../../context/ServerUrlContext";
 import { TableContext } from "../../context/tableContext";
-import { addOneNewColumnsTypeColumn } from "../../functions/table/column/addOneNewColumnsTypeColumn";
-import { addNewRow } from "../../functions/table/row/old_v/addNewRow_old_v";
+import {
+  addNewRow,
+  generateObjectId,
+} from "../../functions/table/row/addNewRow";
 import "../../style/buttons.css";
-import { getAllTablesColumns } from "../../functions/table/column/getAllTablesColumns";
-import { getAllTablesCells } from "../../functions/table/row/getAllTablesCells";
+import { CellData } from "../../types/cellType";
+import { handleAddToDB } from "../../functions/dbHandler/handleAddToDB";
+import { ServerContext } from "../../context/ServerUrlContext";
 
 interface InitialNewTableProps {
   onClose: () => void;
@@ -18,10 +20,10 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   tableId,
   tableIndex,
 }) => {
+  const serverUrl = useContext(ServerContext);
   const [rowsNo, setRowsNo] = useState<number>(1);
   const [columnsNo, setColumnsNo] = useState<number>(1);
   const [message, setMessage] = useState<string>("");
-  const serverUrl = useContext(ServerContext);
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
@@ -36,7 +38,8 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   console.log("InitialNewTable received tableId:", tableId);
   console.log("InitialNewTable received tableIndex:", tableIndex);
 
-  const {cells, setCells, columns, setColumns } = tableContext;
+  const { cells, setCells, columns, setColumns, setRowIndexesArr } =
+    tableContext;
   // const { columns,  setColumns,cells, setCells } = tableContext;
 
   const handleInitial = async (event: React.FormEvent) => {
@@ -55,86 +58,49 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
     }
 
     try {
-      console.log("Starting to add columns:", columnsNo);
+      console.log(`Starting to add ${columnsNo} column's type cells`);
 
-      let localColumns = [...columns]; // Use a local variable to manage columns
-      let localCells = [...cells]; // Use a local variable to manage cells of rows
-      let localAccepted = false; // Local success flag
-
-      for (let columnIndexToInsert = 1; columnIndexToInsert <= columnsNo; columnIndexToInsert++) {
-        console.log("Adding column:", columnIndexToInsert);
-
-        const success = await addOneNewColumnsTypeColumn({
-          serverUrl,
+      // Create new column's type cells based on columnsNo
+      const newColumnCells: CellData[] = Array.from(
+        { length: columnsNo },
+        (_, columnIndex) => ({
+          //columnIndex by default of "Array.from" start from 0
+          _id: generateObjectId(), // Placeholder function to generate a unique ID
+          type: "column",
+          data: null,
+          visibility: true,
+          rowIndex: 0,
+          columnIndex: columnIndex + 1,
+          tableIndex: tableIndex,
+          tableId: tableId,
+          __v: 0,
+        })
+      );
+      console.log("New column's type Cells array:", newColumnCells);
+      const newRowIndexesArr = [];
+      const newRowsCells = [];
+      for (let rowIndex = 1; rowIndex <= rowsNo; rowIndex++) {
+        console.log("Adding row:", rowIndex);
+        const newCellsAfterAddingRow = await addNewRow({
           tableId,
           tableIndex,
-          columnIndexToInsert,
+          currentRowIndex: rowIndex,
+          numOfColumns: columnsNo,
+          cells,
+          rowIndexesArr: [],
+          addBefore: false,
         });
-
-        if (!success) {
-          console.error("Failed to create column:", columnIndexToInsert);
-          return; // Stop if any column fails
-        }
-
-        const fetchedColumns = await getAllTablesColumns({
-          serverUrl,
-          tableId,
-          tableIndex,
-        });
-
-        if (!fetchedColumns) {
-          throw new Error("Failed to fetch columns");
-        }
-
-        localColumns = fetchedColumns;
-        localAccepted = true; // Mark success
-        console.log("Fetched columns after addition:", localColumns);
+        newRowsCells.push(...newCellsAfterAddingRow.newCellsArray); // Append the new cells to the result array
+        newRowIndexesArr.push(...newCellsAfterAddingRow.updatedRowIndexesArr);
       }
 
-      // Update React state after column addition
-      setColumns(localColumns);
+      console.log("New rows's Cells array:", newRowsCells);
+      const addToDB = [...newColumnCells, ...newRowsCells];
+      handleAddToDB(addToDB, serverUrl);
 
-      console.log("localColumns length after addition:", localColumns.length);
-      console.log("localAccepted is:", localAccepted);
-
-      if (localAccepted) {
-        console.log("Starting to add rows:", rowsNo);
-
-        for (let rowIndex = 1; rowIndex <= rowsNo; rowIndex++) {
-          console.log("Adding row:", rowIndex);
-
-          const success = await addNewRow({
-            serverUrl,
-            tableId,
-            tableIndex,
-            currentRowIndex: 0,
-            columns: localColumns,
-            cells: localCells,
-            addBefore: false,
-          });
-
-          if (!success) {
-            console.error("Row addition failed at index:", rowIndex);
-            break;
-          }
-
-          const fetchedCells = await getAllTablesCells({
-            serverUrl,
-            tableIndex,
-            tableId,
-          });
-
-          if (!fetchedCells) {
-            throw new Error("Failed to fetch cells");
-          }
-
-          setCells(fetchedCells);
-          console.log("Fetched cells after row addition:", fetchedCells);
-          localCells = fetchedCells
-        }
-      }
-
-      setMessage("Table successfully initialized!");
+      setColumns(newColumnCells);
+      setCells(newRowsCells);
+      setRowIndexesArr([...new Set(newRowIndexesArr)]);
     } catch (error) {
       console.error("Error in handleInitial:", error);
       setMessage("An error occurred while initializing the table.");
@@ -150,7 +116,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
             type="number"
             placeholder="Rows"
             value={rowsNo}
-            onChange={(ev) => setRowsNo(Math.max((parseInt(ev.target.value)),1))}
+            onChange={(ev) => setRowsNo(Math.max(parseInt(ev.target.value), 1))}
             className="border border-black m-2 rounded-2xl indent-4"
           />
         </div>
@@ -160,7 +126,9 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
             type="number"
             placeholder="Columns"
             value={columnsNo}
-            onChange={(ev) => setColumnsNo(Math.max((parseInt(ev.target.value)),1))}
+            onChange={(ev) =>
+              setColumnsNo(Math.max(parseInt(ev.target.value), 1))
+            }
             className="border border-black m-2 rounded-2xl indent-4"
           />
         </div>

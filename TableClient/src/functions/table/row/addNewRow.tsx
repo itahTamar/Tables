@@ -1,11 +1,9 @@
 import { CellData } from "../../../types/cellType";
 
 interface AddRowProp {
-  serverUrl: string;
   tableId: string;
   tableIndex: number;
   currentRowIndex: number;
-  numOfRows: number;
   numOfColumns: number;
   cells: CellData[];
   addBefore: boolean;
@@ -22,18 +20,16 @@ export const addNewRow = async ({
   tableId,
   tableIndex,
   currentRowIndex,
-  numOfRows,
   numOfColumns,
   rowIndexesArr,
   cells,
   addBefore, // parameter to specify adding before/after the current row
 }: AddRowProp) => {
-  if (!tableId || !tableIndex || !numOfRows || !numOfColumns) {
+  if (!tableId || !tableIndex || !numOfColumns) {
     throw new Error("Invalid input data for addNewRow");
   }
 
   console.log("At addNewRowCells the tableIndex:", tableIndex);
-  console.log("At addNewRowCells the numOfRows:", numOfRows);
   console.log("At addNewRowCells the numOfColumns:", numOfColumns);
   console.log("At addNewRowCells the currentRowIndex:", currentRowIndex);
   console.log("At addNewRowCells addBefore:", addBefore);
@@ -54,13 +50,13 @@ export const addNewRow = async ({
   // Create new cells for the new row based on columns
   const newRowCells: CellData[] = Array.from(
     { length: numOfColumns },
-    (_, columnIndex) => ({
+    (_, columnIndex) => ({ //columnIndex by default of "Array.from" start from 0
       _id: generateObjectId(), // Placeholder function to generate a unique ID
       type: "cell",
       data: null,
       visibility: true,
       rowIndex: newRowIndex,
-      columnIndex: columnIndex,
+      columnIndex: columnIndex+1, 
       tableIndex: tableIndex,
       tableId: tableId,
       __v: 0,

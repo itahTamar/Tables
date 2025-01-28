@@ -19,6 +19,9 @@ import "../style/tables/tablePage.css";
 import "../style/buttons.css";
 import generateCellsForPlot from "../functions/table/generateCellsForPlot";
 import { findTheLastIndex } from "../functions/table/findTheLastIndex";
+import { handleAddToDB } from "../functions/dbHandler/handleAddToDB";
+import { handleUpdateIndexInDB } from "../functions/dbHandler/handleUpdateIndexInDB";
+import { handelDeleteInDB } from "../functions/dbHandler/handelDeleteInDB";
 
 function TablePage() {
   //variables:
@@ -154,44 +157,6 @@ function TablePage() {
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const handleUpdateIndexInDB = async (toBeUpdateInDB: CellData[]) => {
-    const successUpdate = await Promise.all(
-      toBeUpdateInDB.map((item) =>
-        DocumentRestAPIMethods.update(
-          serverUrl,
-          "tables",
-          { _id: item._id },
-          {
-            columnIndex: item.columnIndex,
-            ...(item.rowIndex !== undefined && { rowIndex: item.rowIndex }),
-          }
-        )
-      )
-    );
-    if (successUpdate)
-      console.log("At TablePage rows and columns updated successfully to DB");
-  }; //works
-
-  const handleAddToDB = async (newToAddInDB: CellData[]) => {
-    const successAddCells = await Promise.all(
-      newToAddInDB.map((cell) =>
-        DocumentRestAPIMethods.add(serverUrl, "tables", cell, "addDoc")
-      )
-    );
-    if (successAddCells)
-      console.log("At TablePage rows and columns added successfully to DB");
-  }; //works
-
-  const handelDeleteInDB = async (cellsToDelete: CellData[]) => {
-    const successDeleteCells = await Promise.all(
-      cellsToDelete.map((cell) =>
-        DocumentRestAPIMethods.delete(serverUrl, "tables", cell, "deleteDoc")
-      )
-    );
-    if (successDeleteCells)
-      console.log("At TablePage row deleted successfully from DB");
-  }; //works
-
   const handleTableRenameUpdate = async (rename: string) => {
     try {
       const success = await DocumentRestAPIMethods.update(
@@ -215,6 +180,7 @@ function TablePage() {
     }
   }; //works
 
+  //update the data filed in the UI only
   const visualDataCellsUpdate = (
     cell: CellData,
     updatedCell: CellData
@@ -228,7 +194,7 @@ function TablePage() {
     } else {
       const newCells = cells.map((c) => (c._id === cell._id ? updatedCell : c));
       setCells(newCells); // Update the state
-      return newCells; // Return the updated array
+      return newCells; // Return the updated cells array
     }
   }; //works
 
@@ -268,18 +234,17 @@ function TablePage() {
       //add new empty first row if needed
       let newCellsAfterAddingRow; // Define outside of the if block
       if (
+        //checks if the visual data update work/finish
         resolve.length > 0 &&
         newData != "" &&
         newData != null &&
         cell.rowIndex === 1
       ) {
         newCellsAfterAddingRow = await addNewRow({
-          serverUrl,
           tableId,
           tableIndex,
           currentRowIndex: 1,
           numOfColumns,
-          numOfRows,
           cells: resolve,
           addBefore: true,
           rowIndexesArr,
@@ -287,8 +252,8 @@ function TablePage() {
         setCells(newCellsAfterAddingRow.newCellsArray);
         setRowIndexesArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
 
-        handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
-        handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
+        handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
+        handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
       }
 
     } catch (error) {
@@ -329,7 +294,6 @@ function TablePage() {
 
   const handleMenuAction = async (action: string) => {
     const { rowIndex, columnIndex } = menuState;
-
     if (action === "addRowAfter") {
       setMenuState({ ...menuState, visible: false }); // Close menu after action
       await handleAddRowBtnClick(false, rowIndex);
@@ -370,11 +334,9 @@ function TablePage() {
       numOfColumns
     );
     const newCellsAfterAddingRow = await addNewRow({
-      serverUrl,
       tableId,
       tableIndex,
       currentRowIndex,
-      numOfRows,
       numOfColumns,
       cells,
       rowIndexesArr,
@@ -384,14 +346,15 @@ function TablePage() {
     setCells(newCellsAfterAddingRow.newCellsArray);
     setRowIndexesArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
 
-    handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB);
-    handleAddToDB(newCellsAfterAddingRow.newToAddInDB);
+    handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
+    handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
   }; //works
 
   const handleAddColumnBtnClicked = async (
     addBefore: boolean,
     currentColumnIndex: number
   ) => {
+    console.log("at handleAddColumnBtnClicked the currentColumnIndex:", currentColumnIndex)
     const newColumnAndCellsAfterAddingColumn = await addNewColumnWithCells({
       serverUrl,
       tableId,
@@ -405,14 +368,14 @@ function TablePage() {
     setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
     setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
 
-    handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB);
-    handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB);
+    handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB, serverUrl);
+    handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
   }; //works
 
   const handleDeleteRowBtnClicked = async (currentRowIndex: number) => {
     try {
       if (currentRowIndex === 0) {
-        handelDeleteInDB(columns);
+        handelDeleteInDB(columns, serverUrl);
         setColumns([]);
       } else {
         const result = await DeleteRowCells({
@@ -427,8 +390,8 @@ function TablePage() {
         }
         setCells(result.newCellsArrayAfterDelete);
         setRowIndexesArr([...new Set(result.updatedRowIndexesArr)]);
-        handelDeleteInDB(result.toBeDeleted);
-        handleUpdateIndexInDB(result.toBeUpdated);
+        handelDeleteInDB(result.toBeDeleted, serverUrl);
+        handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
         console.log("Row deleted successfully");
       }
     } catch (error) {
@@ -450,8 +413,8 @@ function TablePage() {
       setColumns(result.newColumnsArrayAfterDelete);
       setCells(result.newCellsArrayAfterDelete);
 
-      handelDeleteInDB(result.toBeDeleted);
-      handleUpdateIndexInDB(result.toBeUpdated);
+      handelDeleteInDB(result.toBeDeleted, serverUrl);
+      handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
       console.log("Column deleted successfully");
     } catch (error) {
       console.error("Error handling delete row:", error);

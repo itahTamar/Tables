@@ -29,14 +29,15 @@ export const addNewColumnWithCells = async ({
   // Determine the new column index
   const newColumnIndex = addBefore ? currentColumnIndex : currentColumnIndex + 1;
 
-  // Adjust indices of existing columns and cells
+  // Adjust indices of existing columns
   const adjustedColumns = columns.map((col) => {
     if (col.columnIndex >= newColumnIndex) {
       return { ...col, columnIndex: col.columnIndex + 1 };
     }
     return col;
   });
-
+  
+  // Adjust indices of existing cells
   const adjustedCells = cells.map((cell) => {
     if (cell.columnIndex >= newColumnIndex) {
       return { ...cell, columnIndex: cell.columnIndex + 1 };
