@@ -69,21 +69,21 @@ const PlotTable: React.FC<PlotTableProps> = ({
   }, [columns]);
 
   //sort the table rows
-  useEffect(()=>{
+  useEffect(() => {
     const rows = displayArr.reduce<Record<number, CellData[]>>((acc, cell) => {
-    acc[cell.rowIndex] = acc[cell.rowIndex] || [];
-    acc[cell.rowIndex].push(cell);
-    return acc;
-  }, {});
-  const sortTheRows = Object.keys(rows)
-    .map(Number)
-    .sort((a, b) => a - b)
-    .map(
-      (rowIndex) =>
-        rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
-    );
-  setSortedRows(sortTheRows);
-}, [displayArr]); // Only depend on `displayArr`
+      acc[cell.rowIndex] = acc[cell.rowIndex] || [];
+      acc[cell.rowIndex].push(cell);
+      return acc;
+    }, {});
+    const sortTheRows = Object.keys(rows)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map(
+        (rowIndex) =>
+          rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
+      );
+    setSortedRows(sortTheRows);
+  }, [displayArr]); // Only depend on `displayArr`
 
   useEffect(() => {
     console.log("PlotTable displayArr:", displayArr);
@@ -165,11 +165,23 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     </a>
                   ) : (
                     <textarea
-                      className="plotTableTextarea w-full h-26"
+                      className="plotTableTextarea w-full h-auto"
                       defaultValue={cell.data}
+                      ref={(el) => {
+                        if (el) {
+                          el.style.height = "auto"; // Reset height
+                          el.style.height =
+                            Math.min(el.scrollHeight, 200) + "px"; // Set max height to 200px
+                        }
+                      }}
+                      onInput={(e) => {
+                        const target = e.currentTarget;
+                        target.style.height = "auto"; // Reset height to recalculate
+                        target.style.height =
+                          Math.min(target.scrollHeight, 200) + "px"; // Max height is 200px
+                      }}
                       onBlur={(e) => {
                         if (!rightClickFlag) {
-                          console.log("cell.data=", cell.data);
                           handleCellUpdate(
                             cell,
                             e.currentTarget.value,

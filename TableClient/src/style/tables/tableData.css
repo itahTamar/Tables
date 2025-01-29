@@ -55,6 +55,12 @@ td, th {
   text-overflow: ellipsis; /* Add ellipsis for long text */
 }
 
+.plotTableTextarea {
+  overflow-y: hidden; /* Hide scrollbar until needed */
+  max-height: 200px; /* Prevent excessive growth */
+  min-height: 30px; /* Ensure minimum visibility */
+}
+
 .plotTableTextarea:hover {
   resize: both;  /* Enable resize handle on hover */
 }
