@@ -90,6 +90,27 @@ const PlotTable: React.FC<PlotTableProps> = ({
     console.log("PlotTable columns:", columns);
   }, [columns]);
 
+  const handlePasteImage = (e: React.ClipboardEvent, cell: CellData) => {
+    const items = e.clipboardData.items;
+    for (const item of items) {
+      if (item.type.startsWith("image")) {
+        const file = item.getAsFile();
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            if (event.target && event.target.result) {
+              handleCellUpdate(cell, event.target.result as string, cell.data);
+            }
+          };
+          reader.readAsDataURL(file); // Convert image to Base64
+        }
+        e.preventDefault(); // Prevent default paste behavior
+        break;
+      }
+    }
+  };
+  
+
   return (
     <div className="table-container">
       <table className="table-auto border-collapse border border-gray-400 w-full text-center">
@@ -133,6 +154,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   onContextMenu={(e) =>
                     handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)
                   }
+                  onPaste={(e) => handlePasteImage(e, cell)}
                 >
                   {cell.data && cell.data.startsWith("data:image") ? (
                     <img
