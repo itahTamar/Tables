@@ -17,6 +17,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
   const { cells, setRowIndexesArr, rowIndexesArr } = tableContext;
 
   const [query, setQuery] = useState<string>("");
+  const [excludeSearch, setExcludeSearch] = useState<boolean>(false);
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(
     null
   );
@@ -42,21 +43,51 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
     setTimer(newTimer);
   };
 
-  const handleSearchResults = (target: any) => {
-    const resultSearchIndexes = cells
-      .filter((cell) => cell.data && cell.data.includes(target)) // Filter cells where data contains the search string
-      .map((cell) => cell.rowIndex); // Map the filtered cells to their rowIndex
+  // Handle checkbox change
+  const handleCheckboxChange = () => {
+    setExcludeSearch((prev) => !prev);
+  };
+
+  const handleSearchResults = (target: string) => {
+    let resultSearchIndexes: number[];
+
+    if (excludeSearch) {
+      // Find all row indices that contain the search term
+      const rowsToExclude = new Set(
+        cells
+          .filter((cell) => cell.data && cell.data.includes(target))
+          .map((cell) => cell.rowIndex)
+      );
+
+      // Include only row indices that are NOT in rowsToExclude
+      resultSearchIndexes = cells
+        .map((cell) => cell.rowIndex) // Get all row indices
+        .filter((rowIndex) => !rowsToExclude.has(rowIndex)); // Exclude the marked rows
+    } else {
+      // Include only rows that contain the search term
+      resultSearchIndexes = cells
+        .filter((cell) => cell.data && cell.data.includes(target))
+        .map((cell) => cell.rowIndex);
+    }
+
     // Ensure rowIndex 1 is included in the result
     if (!resultSearchIndexes.includes(1)) {
       resultSearchIndexes.push(1);
     }
-    console.log("Updating rowIndexesArr for search:", resultSearchIndexes); // Debug log
-    setRowIndexesArr([...new Set(resultSearchIndexes)]); // Use unique row indexes
+
+    console.log("Updating rowIndexesArr for search:", resultSearchIndexes);
+    setRowIndexesArr([...new Set(resultSearchIndexes)]);
   };
 
   useEffect(() => {
     console.log("SearchInTableCells: Updated rowIndexesArr:", rowIndexesArr);
   }, [rowIndexesArr]);
+
+  useEffect(() => {
+    if (query !== "") {
+      handleSearchResults(query); // Ensure search runs again when checkbox is clicked
+    }
+  }, [excludeSearch]); // Only runs when checkbox is toggled
 
   return (
     <div style={{ width: "100%", maxWidth: "400px" }} className="my-4 mx-auto">
@@ -67,6 +98,16 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
         onChange={handleChange}
         placeholder={placeholder}
       />
+      <div style={{ display: "flex", alignItems: "center", marginTop: "10px" }}>
+        <input
+          type="checkbox"
+          id="excludeSearch"
+          checked={excludeSearch}
+          onChange={handleCheckboxChange}
+          style={{ marginRight: "5px" }}
+        />
+        <label htmlFor="excludeSearch">Exclude search</label>
+      </div>
     </div>
   );
 };
