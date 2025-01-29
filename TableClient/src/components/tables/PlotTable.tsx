@@ -161,7 +161,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         )
                       }
                     >
-                      {cell.data}
+                      Go to
                     </a>
                   ) : (
                     <textarea
