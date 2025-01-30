@@ -5,14 +5,18 @@ class DocumentRestAPIMethods {
   static async add(
     serverUrl: string,
     collectionName: string,
-    document: object, 
+    document: object,
     path: string
   ): Promise<boolean> {
     try {
-      const response = await axios.post(`${serverUrl}/api/doc/${path}`, {
-        collectionName,
-        document
-      }, {withCredentials: true});
+      const response = await axios.post(
+        `${serverUrl}/api/doc/${path}`,
+        {
+          collectionName,
+          document,
+        },
+        { withCredentials: true }
+      );
       console.log("at DocumentRestAPIMethods.add the response is:", response);
       console.log(
         "at DocumentRestAPIMethods.add the response.data.acknowledged is:",
@@ -36,9 +40,13 @@ class DocumentRestAPIMethods {
   ): Promise<boolean> {
     try {
       const response = await axios.delete(`${serverUrl}/api/doc/${path}`, {
-        data: { collectionName, query }, withCredentials: true
+        data: { collectionName, query },
+        withCredentials: true,
       });
-      console.log("at DocumentRestAPIMethods.delete the response is:", response);
+      console.log(
+        "at DocumentRestAPIMethods.delete the response is:",
+        response
+      );
       console.log(
         "at DocumentRestAPIMethods.delete the response.data.acknowledged is:",
         response.data.acknowledged
@@ -60,16 +68,26 @@ class DocumentRestAPIMethods {
     update: object
   ): Promise<boolean> {
     try {
-      console.log("at DocumentRestAPIMethods.update the collectionName is:", collectionName);
+      console.log(
+        "at DocumentRestAPIMethods.update the collectionName is:",
+        collectionName
+      );
       console.log("at DocumentRestAPIMethods.update the query is:", query);
       console.log("at DocumentRestAPIMethods.update the update is:", update);
 
-      const response = await axios.patch(`${serverUrl}/api/doc/updateDocs`, {
-        collectionName,
-        query,
-        update,
-      }, {withCredentials: true});
-      console.log("at DocumentRestAPIMethods.update the response is:", response);
+      const response = await axios.patch(
+        `${serverUrl}/api/doc/updateDocs`,
+        {
+          collectionName,
+          query,
+          update,
+        },
+        { withCredentials: true }
+      );
+      console.log(
+        "at DocumentRestAPIMethods.update the response is:",
+        response
+      );
       console.log(
         "at DocumentRestAPIMethods.update the response.data is:",
         response.data
@@ -88,26 +106,20 @@ class DocumentRestAPIMethods {
     serverUrl: string,
     collectionName: string,
     query: object,
-    path: string
+    path: string,
+    isFile: boolean = false // Default to JSON unless explicitly requesting a file
   ): Promise<any> {
     try {
       const response = await axios.get(`${serverUrl}/api/doc/${path}`, {
-        params: { 
-          collectionName, query: JSON.stringify(query)
-         },
-         withCredentials: true 
+        params: { collectionName, query: JSON.stringify(query) },
+        responseType: isFile ? "blob" : "json", // Dynamically set response type
+        withCredentials: true,
       });
       console.log("at DocumentRestAPIMethods.get the response is:", response);
-      console.log(
-        "at DocumentRestAPIMethods.get the response.data is:",
-        response.data
-      );
-      if (!response.data)
-        throw new Error("No response in DocumentRestAPIMethods.get");
-      return response.data;
+      return response.data; // Returns JSON (default) or Blob (if isFile=true)
     } catch (error) {
-      console.error("Error DocumentRestAPIMethods.get document");
-      return [];
+      console.error("Error in DocumentRestAPIMethods.get document", error);
+      return isFile ? null : []; // Return an empty array for JSON responses, null for files
     }
   } //work ok
 
@@ -119,17 +131,31 @@ class DocumentRestAPIMethods {
     regexToSearch: any
   ): Promise<any> {
     try {
-      const response = await axios.get(`${serverUrl}/api/doc/searchDocsAggPip`, {
-        params: { collectionName, tableId, regexToSearch }, withCredentials: true
-      });
-      console.log("at DocumentRestAPIMethods.getSearchInTableCells the response is:", response);
-      console.log("at DocumentRestAPIMethods.getSearchInTableCells the response.data is:",response.data);
-      
+      const response = await axios.get(
+        `${serverUrl}/api/doc/searchDocsAggPip`,
+        {
+          params: { collectionName, tableId, regexToSearch },
+          withCredentials: true,
+        }
+      );
+      console.log(
+        "at DocumentRestAPIMethods.getSearchInTableCells the response is:",
+        response
+      );
+      console.log(
+        "at DocumentRestAPIMethods.getSearchInTableCells the response.data is:",
+        response.data
+      );
+
       if (!response.data)
-        throw new Error("No response in DocumentRestAPIMethods.getSearchInTableCells");
+        throw new Error(
+          "No response in DocumentRestAPIMethods.getSearchInTableCells"
+        );
       return response.data;
     } catch (error) {
-      console.error("Error DocumentRestAPIMethods.getSearchInTableCells document");
+      console.error(
+        "Error DocumentRestAPIMethods.getSearchInTableCells document"
+      );
       return [];
     }
   } //work ok

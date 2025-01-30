@@ -52,8 +52,17 @@
     width: 50%;
     max-width: 300px;
     cursor: pointer;
-  }
- 
+}
+
+.exportBtn{
+    position: absolute;
+    right: 2rem;
+    top: 4rem;
+    border-radius: 4rem;
+    background-color: white;
+}
+
+
 @media only screen and (max-width: 435px) {
             .back {
                 font-size: xx-small;  

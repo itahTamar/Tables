@@ -18,7 +18,7 @@ export const getAllTablesColumns = async ({
       type: "column",
       tableIndex: tableIndex,
       tableId
-    }, "getDoc");
+    }, "getDoc", false);
     if (!columnsData) throw new Error("No columns found.");
     console.log("at getAllTablesColumns the columnsData:", columnsData);
     return columnsData;

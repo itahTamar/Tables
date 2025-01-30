@@ -105,7 +105,9 @@ function TablePage() {
 
         // Ensure all rows are displayed on initial load or when search is cleared
         if (!rowIndexesArr || rowIndexesArr.length === 0) {
-          setRowIndexesArr([...new Set(fetchedCells.map((cell) => cell.rowIndex))]);
+          setRowIndexesArr([
+            ...new Set(fetchedCells.map((cell) => cell.rowIndex)),
+          ]);
         }
 
         //find the highest number of row and column
@@ -250,12 +252,13 @@ function TablePage() {
           rowIndexesArr,
         });
         setCells(newCellsAfterAddingRow.newCellsArray);
-        setRowIndexesArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
+        setRowIndexesArr([
+          ...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),
+        ]);
 
         handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
         handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
       }
-
     } catch (error) {
       console.error("Error in handleCellUpdate:", error);
     }
@@ -288,7 +291,7 @@ function TablePage() {
   const handleBackBtnClicked = async () => {
     setColumns([]);
     setCells([]);
-    setRowIndexesArr([])
+    setRowIndexesArr([]);
     navigate("/mainTablesPage");
   }; //works
 
@@ -327,7 +330,10 @@ function TablePage() {
     addBefore: boolean,
     currentRowIndex: number
   ) => {
-    console.log("At TablePage/handleAddRowBtnClick the rowIndexesArr:", rowIndexesArr);
+    console.log(
+      "At TablePage/handleAddRowBtnClick the rowIndexesArr:",
+      rowIndexesArr
+    );
     console.log("At TablePage/handleAddRowBtnClick the numOfRows:", numOfRows);
     console.log(
       "At TablePage/handleAddRowBtnClick the numOfColumns:",
@@ -355,7 +361,10 @@ function TablePage() {
     addBefore: boolean,
     currentColumnIndex: number
   ) => {
-    console.log("at handleAddColumnBtnClicked the currentColumnIndex:", currentColumnIndex)
+    console.log(
+      "at handleAddColumnBtnClicked the currentColumnIndex:",
+      currentColumnIndex
+    );
     const newColumnAndCellsAfterAddingColumn = await addNewColumnWithCells({
       serverUrl,
       tableId,
@@ -370,7 +379,10 @@ function TablePage() {
     setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
     setNumOfColumns((prev) => prev + 1);
 
-    handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB, serverUrl);
+    handleUpdateIndexInDB(
+      newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,
+      serverUrl
+    );
     handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
   }; //works
 
@@ -417,7 +429,7 @@ function TablePage() {
       setColumns(result.newColumnsArrayAfterDelete);
       setCells(result.newCellsArrayAfterDelete);
       setNumOfColumns((prev) => prev - 1);
-      
+
       handelDeleteInDB(result.toBeDeleted, serverUrl);
       handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
       console.log("Column deleted successfully");
@@ -425,6 +437,42 @@ function TablePage() {
       console.error("Error handling delete row:", error);
     }
   }; //works
+
+  const handleExportCSV = async (tableId: string) => {
+    try {
+      const collectionName = "tables";
+      const path = `export/csv/${tableId}`;
+      const query = {};
+
+      // Fetch CSV file as a Blob (pass `true` to isFile)
+      const csvBlob = await DocumentRestAPIMethods.get(
+        serverUrl,
+        collectionName,
+        query,
+        path,
+        true
+      );
+
+      if (!csvBlob) {
+        console.error("Export failed: No response from server");
+        return;
+      }
+
+      // Create a temporary download link
+      const url = window.URL.createObjectURL(csvBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `table_${tableName}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      console.log("CSV export successful!");
+    } catch (error) {
+      console.error("Export failed:", error);
+    }
+  };
 
   // Dynamically calculate `displayArr` based on `rowIndexesArr` and `cells`
   const displayArr = generateCellsForPlot(rowIndexesArr, cells);
@@ -441,7 +489,7 @@ function TablePage() {
         </button>
 
         <h1
-          className="tableName absolute top-4 right-4 "
+          className="tableName absolute top-4"
           contentEditable //give the h1 tag an update ability
           suppressContentEditableWarning
           onBlur={(e) =>
@@ -452,6 +500,8 @@ function TablePage() {
         </h1>
 
         <SearchInTableCells />
+
+        <button className="exportBtn" onClick={() => handleExportCSV(tableId)}>Export table</button>
       </header>
 
       {loading ? ( // Show loading message if data is being fetched
@@ -525,7 +575,7 @@ function TablePage() {
                       Delete Row
                     </button>
                   ) : null}
-                </li>                
+                </li>
                 <li>
                   <button onClick={() => handleMenuAction("addColumnAfter")}>
                     Add Column

@@ -17,7 +17,7 @@ export const getAllTablesCells = async ({
       type: "cell",
       tableIndex: tableIndex,
       tableId
-    }, "getDoc");
+    }, "getDoc", false);
     if (!cellsData) throw new Error("No cells found.");
     console.log("at getAllTablesCells the cellData:", cellsData);
     return cellsData; // Return fetched data
