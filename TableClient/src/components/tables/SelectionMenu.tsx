@@ -7,13 +7,16 @@ interface SelectionMenuProps {
 }
 
 const SelectionMenu = forwardRef<HTMLDivElement, SelectionMenuProps>(({ x, y, children }, ref) => {
+  const menuHeight = 250; // Estimated height of the menu in pixels
+  const viewportHeight = window.innerHeight;
+  const adjustedY = y + menuHeight > viewportHeight ? y - menuHeight : y;
   return (
     <div
       ref={ref}
       className="selection-menu"
       style={{
         position: "absolute",
-        top: y,
+        top: adjustedY,
         left: x,
         background: "#fff",
         border: "1px solid #ccc",
