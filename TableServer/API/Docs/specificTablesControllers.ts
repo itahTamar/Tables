@@ -192,7 +192,7 @@ export async function exportTableAsCSV(req: any, res: any) {
     
       // Convert links to Excel-friendly hyperlinks
       if (/^https?:\/\//.test(cell.data)) {
-        rows[cell.rowIndex][cell.columnIndex - 1] = `=HYPERLINK("${cell.data}", "link")`;
+        rows[cell.rowIndex][cell.columnIndex - 1] = `=HYPERLINK("${cell.data.substring(0, 255)}", "link")`;
       } else {
         rows[cell.rowIndex][cell.columnIndex - 1] = cell.data; // Regular text
       }
@@ -201,23 +201,16 @@ export async function exportTableAsCSV(req: any, res: any) {
 
     // Convert data into CSV format
     const csvRows = [
-      headers.map((header) => `"${header}"`).join(","), // Ensure headers are wrapped in quotes
-      ...Object.keys(rows).map((rowIndex) => 
-        rows[parseInt(rowIndex, 10)]
-          .map((cell) => {
-            if (cell.includes(",")) {
-              return `"${cell.replace(/"/g, '""')}"`; // Escape quotes & wrap in double quotes
-            }
-            return cell;
-          })
-          .join(",")
-      )
-    ];
-    
+      headers.join(","), // First row is column headers
+      ...Object.keys(rows)
+        .map((rowIndex) => rows[parseInt(rowIndex, 10)]
+          .map((cell) => `"${cell.replace(/"/g, '""')}"`) // Escape quotes & preserve new lines
+          .join(",")) // Convert row to CSV format
+    ];  
 
     const csvContent = csvRows.join("\n");
     const filePath = path.join(__dirname, `table_${tableId}.csv`);
-    fs.writeFileSync(filePath, csvContent);
+    fs.writeFileSync(filePath, "\uFEFF" + csvContent, "utf8");
 
     res.download(filePath, `table_${tableId}.csv`, () => {
       fs.unlinkSync(filePath); // Delete file after sending
