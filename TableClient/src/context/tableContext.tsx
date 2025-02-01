@@ -15,6 +15,8 @@ interface TableContextType {
   setNumOfColumns: (numOfColumns: number | ((prev: number) => number)) => void;
   numOfRows: number;
   setNumOfRows: (numOfRows: number | ((prev: number) => number)) => void;
+  checkedColumns: number[];
+  setCheckedColumns: (checkedColumns: number[] | ((prev: number[]) => number[])) => void;
 }
 
 export const TableContext = createContext<TableContextType | undefined>(undefined);
@@ -26,7 +28,7 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [rowIndexesArr, setRowIndexesArr] = useState<number[]>([])
   const [numOfRows, setNumOfRows] = useState<number>(1)
   const [numOfColumns, setNumOfColumns] = useState<number>(1)
-  
+  const [checkedColumns, setCheckedColumns] = useState<number[]>([])
 
   return (
     <TableContext.Provider 
@@ -35,7 +37,9 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           cells, setCells, 
           numOfRows, setNumOfRows,
           numOfColumns, setNumOfColumns,
-          rowIndexesArr, setRowIndexesArr}}>
+          rowIndexesArr, setRowIndexesArr,
+          checkedColumns, setCheckedColumns,
+          }}>
       {children}
     </TableContext.Provider>
   );

@@ -84,3 +84,8 @@ a {
   word-break: break-word;
   overflow-wrap: break-word; /* Ensure it breaks if too long */
 }
+
+.checkedBoxColumns{
+  position: absolute;
+  left: 1rem;
+}

@@ -14,7 +14,8 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { cells, setRowIndexesArr, rowIndexesArr } = tableContext;
+  const { cells, setRowIndexesArr, rowIndexesArr, checkedColumns } =
+    tableContext;
 
   const [query, setQuery] = useState<string>("");
   const [excludeSearch, setExcludeSearch] = useState<boolean>(false);
@@ -49,15 +50,30 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
   };
 
   const handleSearchResults = (target: string) => {
+    console.log("Search Query:", target);
+    console.log("Checked Columns:", checkedColumns);
+
     let resultSearchIndexes: number[];
+
+    // Apply the column filter only if columns are checked
+    let filteredCells =
+      checkedColumns.length > 0
+        ? cells.filter((cell) => checkedColumns.includes(cell.columnIndex))
+        : cells;
+
+    console.log("filteredCells:", filteredCells);
+    if (filteredCells.length === 0) {
+      console.warn("No filtered cells found!");
+    }
 
     if (excludeSearch) {
       // Find all row indices that contain the search term
       const rowsToExclude = new Set(
-        cells
+        filteredCells
           .filter((cell) => cell.data && cell.data.includes(target))
           .map((cell) => cell.rowIndex)
       );
+      console.log("Rows to Exclude:", Array.from(rowsToExclude));
 
       // Include only row indices that are NOT in rowsToExclude
       resultSearchIndexes = cells
@@ -65,11 +81,12 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
         .filter((rowIndex) => !rowsToExclude.has(rowIndex)); // Exclude the marked rows
     } else {
       // Include only rows that contain the search term
-      resultSearchIndexes = cells
+      resultSearchIndexes = filteredCells
         .filter((cell) => cell.data && cell.data.includes(target))
         .map((cell) => cell.rowIndex);
     }
-
+    console.log("Result Search Indexes:", resultSearchIndexes);
+    
     // Ensure rowIndex 1 is included in the result
     if (!resultSearchIndexes.includes(1)) {
       resultSearchIndexes.push(1);

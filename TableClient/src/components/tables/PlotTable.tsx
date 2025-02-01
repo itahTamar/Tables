@@ -26,8 +26,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { columns } = tableContext;
-  // const { columns, cells, searchCells } = tableContext;
+  const { columns, checkedColumns, setCheckedColumns } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
@@ -109,7 +108,15 @@ const PlotTable: React.FC<PlotTableProps> = ({
       }
     }
   };
-  
+
+  const handleCheckboxChange = (columnIndex: number) => {
+    setCheckedColumns(
+      (prev) =>
+        prev.includes(columnIndex)
+          ? prev.filter((col) => col !== columnIndex) // Uncheck
+          : [...prev, columnIndex] // Check
+    );
+  };
 
   return (
     <div className="table-container">
@@ -139,6 +146,12 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   )
                 }
               >
+                <input
+                  type="checkbox"
+                  className="checkedBoxColumns"
+                  checked={checkedColumns.includes(column.columnIndex)}
+                  onChange={() => handleCheckboxChange(column.columnIndex)}
+                />
                 {column.data}
               </th>
             ))}
