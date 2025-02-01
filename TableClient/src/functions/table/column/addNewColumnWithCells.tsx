@@ -25,10 +25,12 @@ export const addNewColumnWithCells = async ({
   if (!tableId || columns.length === 0) {
     throw new Error("Invalid input data for addNewColumnWithCells");
   }
+  console.log("numOfRows:", numOfRows)
 
   // Determine the new column index
   const newColumnIndex = addBefore ? currentColumnIndex : currentColumnIndex + 1;
-
+  console.log("newColumnIndex:", newColumnIndex)
+  
   // Adjust indices of existing columns
   const adjustedColumns = columns.map((col) => {
     if (col.columnIndex >= newColumnIndex) {
@@ -36,6 +38,7 @@ export const addNewColumnWithCells = async ({
     }
     return col;
   });
+  console.log("adjustedColumns:", adjustedColumns)
   
   // Adjust indices of existing cells
   const adjustedCells = cells.map((cell) => {
@@ -44,6 +47,7 @@ export const addNewColumnWithCells = async ({
     }
     return cell;
   });
+  console.log("adjustedCells:", adjustedCells)
 
   // Add the new column to the columns array
   const newColumn: CellData = {

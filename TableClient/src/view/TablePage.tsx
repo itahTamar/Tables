@@ -255,6 +255,7 @@ function TablePage() {
         setRowIndexesArr([
           ...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),
         ]);
+        setNumOfRows((prev) => prev + 1)
 
         handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
         handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
