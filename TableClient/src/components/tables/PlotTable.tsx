@@ -63,7 +63,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
   useEffect(() => {
     if (columns) {
       const sorted = [...columns].sort((a, b) => a.columnIndex - b.columnIndex);
-      setSortedColumns(sorted);
+      const filteredColumns = sorted.filter((cell) => cell.visibility !== false)
+      setSortedColumns(filteredColumns);
     }
   }, [columns]);
 
@@ -81,7 +82,10 @@ const PlotTable: React.FC<PlotTableProps> = ({
         (rowIndex) =>
           rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
       );
-    setSortedRows(sortTheRows);
+    const filteredRows = sortTheRows.map((row) =>
+      row.filter((cell) => cell.visibility !== false)
+    );
+    setSortedRows(filteredRows);
   }, [displayArr]); // Only depend on `displayArr`
 
   useEffect(() => {

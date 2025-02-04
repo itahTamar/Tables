@@ -2,7 +2,7 @@ export interface CellData {
     _id: string;
     type: string;
     data: any;
-    visibility: true;
+    visibility: boolean;
     rowIndex: number;
     columnIndex: number;
     tableIndex: number;

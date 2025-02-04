@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { DocumentRestAPIMethods } from "../api/docApi";
 import PopupWithAnimation from "../components/popups/popupWithAnimation";
@@ -22,10 +22,14 @@ import { findTheLastIndex } from "../functions/table/findTheLastIndex";
 import { handleAddToDB } from "../functions/dbHandler/handleAddToDB";
 import { handleUpdateIndexInDB } from "../functions/dbHandler/handleUpdateIndexInDB";
 import { handelDeleteInDB } from "../functions/dbHandler/handelDeleteInDB";
+// import { hideOrRevealColumn } from "../functions/table/column/hideOrRevealColumn";
+import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
+import ColumnSelector from "../components/columns/ColumnSelector";
 
 function TablePage() {
   //variables:
   const serverUrl = useContext(ServerContext);
+  const tableContext = useContext(TableContext);
   const { tableId } = useParams();
   const navigate = useNavigate();
   const [showPopupInitialTable, setShowPopupInitialTable] = useState(false);
@@ -39,7 +43,9 @@ function TablePage() {
     elementType?: string;
   }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
   const [loading, setLoading] = useState(true);
-  const tableContext = useContext(TableContext);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showColumnSelector, setShowColumnSelector] = useState(false);
+
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
   }
@@ -159,6 +165,26 @@ function TablePage() {
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
+  // Toggle the dropdown menu
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  // Close the dropdown when clicking outside
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleTableRenameUpdate = async (rename: string) => {
     try {
       const success = await DocumentRestAPIMethods.update(
@@ -255,7 +281,7 @@ function TablePage() {
         setRowIndexesArr([
           ...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),
         ]);
-        setNumOfRows((prev) => prev + 1)
+        setNumOfRows((prev) => prev + 1);
 
         handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
         handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
@@ -324,6 +350,13 @@ function TablePage() {
         await handleCellUpdate(cellToClear, null, cellToClear.data); // Clear the cell data
       }
       setMenuState({ ...menuState, visible: false }); // Close menu
+    // } else if (rowIndex === 0) {
+    //   if (action === "hideColumn") {
+    //     await handleHideColumn(columnIndex);
+    //   } else if (action === "revealColumn") {
+    //     await handleRevealColumn(columnIndex);
+    //   }
+    //   setMenuState({ ...menuState, visible: false }); // Close menu
     }
   }; //works
 
@@ -475,6 +508,73 @@ function TablePage() {
     }
   };
 
+  // const handleHideColumn = async (currentColumnIndex: number) => {
+  //   try {
+  //     const resultHide = await hideOrRevealColumn({
+  //       currentColumnIndex,
+  //       columns,
+  //       cells,
+  //       visible: false,
+  //     });
+  //     if (resultHide === undefined) {
+  //       throw new Error("Result is undefined - hide column failed");
+  //     }
+  //     setColumns(resultHide.newColumnsArrayAfterHide);
+  //     setCells(resultHide.newCellsArrayAfterHide);
+  //     handleUpdateVisibilityToDB(resultHide.toBeUpdate, serverUrl);
+  //   } catch (error) {
+  //     console.error("Error handling hide column:", error);
+  //   }
+  // };
+
+  // const handleRevealColumn = async (currentColumnIndex: number) => {
+  //   try {
+  //     const resultHide = await hideOrRevealColumn({
+  //       currentColumnIndex,
+  //       columns,
+  //       cells,
+  //       visible: true,
+  //     });
+  //     if (resultHide === undefined) {
+  //       throw new Error("Result is undefined - hide column failed");
+  //     }
+  //     setColumns(resultHide.newColumnsArrayAfterHide);
+  //     setCells(resultHide.newCellsArrayAfterHide);
+  //     handleUpdateVisibilityToDB(resultHide.toBeUpdate, serverUrl);
+  //   } catch (error) {
+  //     console.error("Error handling hide column:", error);
+  //   }
+  // };
+
+  const handleSaveSelectedColumns = async (selectedColumnIndices: number[]) => {
+    setDropdownOpen(false)
+    const updatedColumns = columns.map((column) => ({
+      ...column,
+      visibility: selectedColumnIndices.includes(column.columnIndex),
+    }));
+    setColumns(updatedColumns);
+
+    // Update cells visibility if needed
+    const updatedCells = cells.map((cell) => ({
+      ...cell,
+      visibility: selectedColumnIndices.includes(cell.columnIndex),
+    }));
+    setCells(updatedCells);
+
+    // Update visibility in the database
+    await handleUpdateVisibilityToDB(
+      [...updatedColumns, ...updatedCells],
+      serverUrl
+    );
+
+    setShowColumnSelector(false);
+  };
+
+  const handleSelectColumns = () => {
+    setShowColumnSelector(true);
+    setTimeout(() => setShowColumnSelector(true), 0); // Delay to ensure state update
+  }; 
+
   // Dynamically calculate `displayArr` based on `rowIndexesArr` and `cells`
   const displayArr = generateCellsForPlot(rowIndexesArr, cells);
 
@@ -502,7 +602,67 @@ function TablePage() {
 
         <SearchInTableCells />
 
-        <button className="exportBtn" onClick={() => handleExportCSV(tableId)}>Export table</button>
+        {/* Dropdown Menu */}
+        <div className="dropDownMenuBtn text-left" ref={dropdownRef}>
+          <button
+            onClick={toggleDropdown}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+          >
+            Actions
+            <svg
+              className="ml-2 h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 13.414l3.293-3.293a1 1 0 011.414
+                 1.414L10 13.414l-4.707-4.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+
+          {/* Dropdown Content */}
+          {dropdownOpen && (
+            <div className="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+              <div
+                className="py-1"
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="options-menu"
+              >
+                {/* export to file */}
+                <button
+                  onClick={() => {
+                    handleExportCSV(tableId);
+                    setDropdownOpen(false);
+                  }}
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left"
+                  role="menuitem"
+                >
+                  Export Table
+                </button>
+                {/* select columns */}
+                <button
+                  onClick={() => handleSelectColumns()}
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left"
+                  role="menuitem"
+                >
+                  Select Columns
+                </button>
+                {showColumnSelector && (
+                  <ColumnSelector
+                    columns={columns}
+                    onClose={() => {setShowColumnSelector(false); setDropdownOpen(false)}}
+                    onSave={handleSaveSelectedColumns}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </header>
 
       {loading ? ( // Show loading message if data is being fetched
@@ -546,7 +706,6 @@ function TablePage() {
             displayArr={displayArr}
           />
           {menuState.visible && (
-            // !isSearch &&
             <SelectionMenu x={menuState.x} y={menuState.y}>
               <ul className="list-none space-y-2">
                 {menuState.elementType === "A" ||
@@ -594,6 +753,24 @@ function TablePage() {
                     Delete Column
                   </button>
                 </li>
+                {/* hide and reveal column  */}
+                {/* <li>
+                  <button onClick={() => handleMenuAction("hideColumn")}>
+                    Hide Column
+                  </button>
+                </li>
+                {cells.some(
+                  (cell) =>
+                    (cell.columnIndex === menuState.columnIndex - 1 ||
+                      cell.columnIndex === menuState.columnIndex + 1) &&
+                    !cell.visibility
+                ) && (
+                  <li>
+                    <button onClick={() => handleMenuAction("revealColumn")}>
+                      Reveal Column
+                    </button>
+                  </li>
+                )} */}
               </ul>
             </SelectionMenu>
           )}

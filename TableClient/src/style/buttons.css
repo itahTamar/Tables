@@ -54,12 +54,10 @@
     cursor: pointer;
 }
 
-.exportBtn{
+.dropDownMenuBtn{
     position: absolute;
     right: 2rem;
     top: 4rem;
-    border-radius: 4rem;
-    background-color: white;
 }
 
 
