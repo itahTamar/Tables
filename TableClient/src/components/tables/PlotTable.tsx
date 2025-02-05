@@ -2,6 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { TableContext } from "../../context/tableContext";
 import "../../style/tables/tableData.css";
 import { CellData } from "../../types/cellType";
+import { handleUpdateIndexInDB } from "../../functions/dbHandler/handleUpdateIndexInDB";
+import { dragAndDropColumn } from "../../functions/table/column/dragAndDropColumn";
+import { ServerContext } from "../../context/ServerUrlContext";
 
 interface PlotTableProps {
   handleRightClick: (
@@ -22,14 +25,21 @@ const PlotTable: React.FC<PlotTableProps> = ({
   handleCellUpdate,
   displayArr,
 }) => {
+  const serverUrl = useContext(ServerContext);
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { columns, checkedColumns, setCheckedColumns } = tableContext;
+  const { columns, checkedColumns, setCheckedColumns, setCells } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
+  const [draggedColumnIndex, setDraggedColumnIndex] = useState<number | null>(
+    null
+  );
+  const [dragOverColumnIndex, setDragOverColumnIndex] = useState<number | null>(
+    null
+  );
 
   const handleRightClickWithFlag = (
     e: React.MouseEvent,
@@ -63,7 +73,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
   useEffect(() => {
     if (columns) {
       const sorted = [...columns].sort((a, b) => a.columnIndex - b.columnIndex);
-      const filteredColumns = sorted.filter((cell) => cell.visibility !== false)
+      const filteredColumns = sorted.filter(
+        (cell) => cell.visibility !== false
+      );
       setSortedColumns(filteredColumns);
     }
   }, [columns]);
@@ -122,6 +134,54 @@ const PlotTable: React.FC<PlotTableProps> = ({
     );
   };
 
+  const handleDragStart = (e: React.DragEvent, columnIndex: number) => {
+    setDraggedColumnIndex(columnIndex);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, columnIndex: number) => {
+    e.preventDefault();
+    setDragOverColumnIndex(columnIndex);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetColumnIndex: number) => {
+    e.preventDefault();
+    setDragOverColumnIndex(null);
+
+    if (
+      draggedColumnIndex === null ||
+      draggedColumnIndex === targetColumnIndex
+    ) {
+      return;
+    }
+
+    const result = await dragAndDropColumn({
+      currentColumnIndex: draggedColumnIndex,
+      targetColumnIndex: targetColumnIndex,
+      sortedColumns,
+      sortedCells: displayArr, //displayArr contains the cells
+    });
+
+    if (result) {
+      const { newSortedUpdatedColumns, newSortedUpdatedRows, newSortedUpdatedCells } = result;
+      setSortedColumns(newSortedUpdatedColumns);
+      setSortedRows(newSortedUpdatedRows);
+      setCells(newSortedUpdatedCells)
+
+      // Update indices in the database
+      handleUpdateIndexInDB(newSortedUpdatedColumns, serverUrl);
+      handleUpdateIndexInDB(newSortedUpdatedCells, serverUrl);
+    }
+
+    // Reset draggedColumnIndex
+    setDraggedColumnIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedColumnIndex(null);
+    setDragOverColumnIndex(null);
+  };
+
   return (
     <div className="table-container">
       <table className="table-auto border-collapse border border-gray-400 w-full text-center">
@@ -130,7 +190,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
             {sortedColumns.map((column) => (
               <th
                 key={column._id}
-                className="border border-gray-400"
+                className={`border border-gray-400 ${
+                  dragOverColumnIndex === column.columnIndex ? 'drag-over' : ''
+                }`}
                 contentEditable
                 suppressContentEditableWarning
                 onBlur={(e) => {
@@ -149,6 +211,11 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     column.columnIndex
                   )
                 }
+                draggable
+                onDragStart={(e) => handleDragStart(e, column.columnIndex)}
+                onDragOver={(e) => handleDragOver(e, column.columnIndex)}
+                onDrop={(e) => handleDrop(e, column.columnIndex)}
+                onDragEnd={handleDragEnd}
               >
                 <input
                   type="checkbox"

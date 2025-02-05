@@ -458,7 +458,7 @@ function TablePage() {
       });
 
       if (result === undefined) {
-        throw new Error("Result is undefined - delete row failed");
+        throw new Error("Result is undefined - delete column failed");
       }
       setColumns(result.newColumnsArrayAfterDelete);
       setCells(result.newCellsArrayAfterDelete);

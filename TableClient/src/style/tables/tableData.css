@@ -89,3 +89,7 @@ a {
   position: absolute;
   left: 1rem;
 }
+
+.drag-over {
+  background-color: rgba(0, 0, 255, 0.1); /* Light blue background */
+}
