@@ -47,16 +47,22 @@ export const addNewRow = async ({
   });
   console.log("at addNewRow the adjustedCells:", adjustedCells);
 
+  // Get hidden column indexes
+  const hiddenColumnIndexes = new Set(
+    cells.filter((cell) => !cell.visibility).map((cell) => cell.columnIndex)
+  );
+
   // Create new cells for the new row based on columns
   const newRowCells: CellData[] = Array.from(
     { length: numOfColumns },
-    (_, columnIndex) => ({ //columnIndex by default of "Array.from" start from 0
+    (_, columnIndex) => ({
+      //columnIndex by default of "Array.from" start from 0
       _id: generateObjectId(), // Placeholder function to generate a unique ID
       type: "cell",
       data: null,
-      visibility: true,
+      visibility: !hiddenColumnIndexes.has(columnIndex + 1), // Keep hidden columns hidden
       rowIndex: newRowIndex,
-      columnIndex: columnIndex+1, 
+      columnIndex: columnIndex + 1,
       tableIndex: tableIndex,
       tableId: tableId,
       __v: 0,
@@ -80,7 +86,7 @@ export const addNewRow = async ({
   );
   console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
 
-  const addedIndex = addBefore ? 1 : currentRowIndex+1;
+  const addedIndex = addBefore ? 1 : currentRowIndex + 1;
 
   return {
     newCellsArray: updatedCells, //the combined new cells array with the new row
