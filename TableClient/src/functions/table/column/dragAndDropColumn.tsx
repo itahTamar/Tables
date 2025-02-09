@@ -1,18 +1,20 @@
+import { useContext } from "react";
 import { CellData } from "../../../types/cellType";
 import { deleteColumnCells } from "./deleteColumnCells";
+import { TableContext } from "../../../context/tableContext";
 
 interface DragAndDropColumnProp {
   currentColumnIndex: number;
   targetColumnIndex: number;
   sortedColumns: CellData[];
-  sortedCells: CellData[];
+  cellsArr: CellData[];
 }
 
 export const dragAndDropColumn = async ({
   currentColumnIndex,
   targetColumnIndex,
   sortedColumns,
-  sortedCells,
+  cellsArr,
 }: DragAndDropColumnProp) => {
   console.log("HELLO FROM D&D COLUMN");
   try {
@@ -28,7 +30,7 @@ export const dragAndDropColumn = async ({
     const result1 = await deleteColumnCells({
       currentColumnIndex,
       columns: sortedColumns,
-      cells: sortedCells,
+      cells: cellsArr,
     });
     if (result1 === undefined) {
       throw new Error("Result1 is undefined - collect delete column failed");
@@ -84,7 +86,7 @@ export const dragAndDropColumn = async ({
         (rowIndex) =>
           rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
       );
-
+    // setCells(newSortedUpdatedCells)
     return {
       newSortedUpdatedColumns,
       newSortedUpdatedRows,

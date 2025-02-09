@@ -217,7 +217,10 @@ function TablePage() {
       const newColumns = columns.map((c) =>
         c._id === cell._id ? updatedCell : c
       );
-      setColumns(newColumns); // Update the state
+      setColumns((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(newColumns)) return prev;  
+        return newColumns;
+      });
       return []; // Return the updated array
     } else {
       const newCells = cells.map((c) => (c._id === cell._id ? updatedCell : c));
@@ -242,13 +245,6 @@ function TablePage() {
         updatedCell
       );
 
-      // Update the visual state (columns or cells data)
-      const resolve = await visualDataCellsUpdate(cell, updatedCell);
-      console.log(
-        "at handleCellUpdate after visualCellsUpdate the resolve is:",
-        resolve
-      );
-
       //update cell data in db
       const success = await DocumentRestAPIMethods.update(
         serverUrl,
@@ -258,6 +254,13 @@ function TablePage() {
       );
       if (success)
         console.log("at handleCellUpdate Cell updated successfully in db");
+
+       // Update the visual state (columns or cells data)
+       const resolve = await visualDataCellsUpdate(cell, updatedCell);
+       console.log(
+         "at handleCellUpdate after visualCellsUpdate the resolve is:",
+         resolve
+       );
 
       //add new empty first row if needed
       let newCellsAfterAddingRow; // Define outside of the if block

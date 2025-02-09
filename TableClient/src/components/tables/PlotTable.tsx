@@ -30,7 +30,14 @@ const PlotTable: React.FC<PlotTableProps> = ({
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
-  const { columns, checkedColumns, setCheckedColumns, setCells } = tableContext;
+  const {
+    columns,
+    setColumns,
+    checkedColumns,
+    setCheckedColumns,
+    cells,
+    setCells,
+  } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
@@ -72,11 +79,20 @@ const PlotTable: React.FC<PlotTableProps> = ({
   //sort the columns array
   useEffect(() => {
     if (columns) {
-      const sorted = [...columns].sort((a, b) => a.columnIndex - b.columnIndex);
-      const filteredColumns = sorted.filter(
-        (cell) => cell.visibility !== false
-      );
-      setSortedColumns(filteredColumns);
+      setSortedColumns((prev) => {
+        const sorted = [...columns].sort(
+          (a, b) => a.columnIndex - b.columnIndex
+        );
+        const filteredColumns = sorted.filter(
+          (cell) => cell.visibility !== false
+        );
+
+        //Avoid unnecessary state updates
+        if (JSON.stringify(prev) === JSON.stringify(filteredColumns)) {
+          return prev; // No change, prevent re-render
+        }
+        return filteredColumns;
+      });
     }
   }, [columns]);
 
@@ -159,14 +175,19 @@ const PlotTable: React.FC<PlotTableProps> = ({
       currentColumnIndex: draggedColumnIndex,
       targetColumnIndex: targetColumnIndex,
       sortedColumns,
-      sortedCells: displayArr, //displayArr contains the cells
+      cellsArr: cells, //displayArr contains the cells
     });
 
     if (result) {
-      const { newSortedUpdatedColumns, newSortedUpdatedRows, newSortedUpdatedCells } = result;
+      const {
+        newSortedUpdatedColumns,
+        newSortedUpdatedRows,
+        newSortedUpdatedCells,
+      } = result;
       setSortedColumns(newSortedUpdatedColumns);
       setSortedRows(newSortedUpdatedRows);
-      setCells(newSortedUpdatedCells)
+      setCells(newSortedUpdatedCells);
+      // setColumns(newSortedUpdatedColumns)
 
       // Update indices in the database
       handleUpdateIndexInDB(newSortedUpdatedColumns, serverUrl);
@@ -190,20 +211,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
             {sortedColumns.map((column) => (
               <th
                 key={column._id}
-                className={`border border-gray-400 ${
-                  dragOverColumnIndex === column.columnIndex ? 'drag-over' : ''
+                className={`border border-gray-400 relative ${
+                  dragOverColumnIndex === column.columnIndex ? "drag-over" : ""
                 }`}
-                contentEditable
-                suppressContentEditableWarning
-                onBlur={(e) => {
-                  if (!rightClickFlag) {
-                    handleCellUpdate(
-                      column,
-                      e.currentTarget.textContent || "",
-                      column.data
-                    );
-                  }
-                }}
                 onContextMenu={(e) =>
                   handleRightClickWithFlag(
                     e,
@@ -217,13 +227,30 @@ const PlotTable: React.FC<PlotTableProps> = ({
                 onDrop={(e) => handleDrop(e, column.columnIndex)}
                 onDragEnd={handleDragEnd}
               >
-                <input
-                  type="checkbox"
-                  className="checkedBoxColumns"
-                  checked={checkedColumns.includes(column.columnIndex)}
-                  onChange={() => handleCheckboxChange(column.columnIndex)}
-                />
-                {column.data}
+                <div className="absolute top-1 left-1">
+                  <input
+                    type="checkbox"
+                    className="checkedBoxColumns"
+                    checked={checkedColumns.includes(column.columnIndex)}
+                    onChange={() => handleCheckboxChange(column.columnIndex)}
+                  />
+                </div>
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="w-full h-full text-center outline-none"
+                  onBlur={(e) => {
+                    if (!rightClickFlag) {
+                      handleCellUpdate(
+                        column,
+                        e.currentTarget.textContent || "",
+                        column.data
+                      );
+                    }
+                  }}
+                >
+                  {column.data}
+                </div>
               </th>
             ))}
           </tr>
