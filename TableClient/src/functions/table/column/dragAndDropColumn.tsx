@@ -1,19 +1,17 @@
-import { useContext } from "react";
 import { CellData } from "../../../types/cellType";
 import { deleteColumnCells } from "./deleteColumnCells";
-import { TableContext } from "../../../context/tableContext";
 
 interface DragAndDropColumnProp {
   currentColumnIndex: number;
   targetColumnIndex: number;
-  sortedColumns: CellData[];
+  columnArr: CellData[];
   cellsArr: CellData[];
 }
 
 export const dragAndDropColumn = async ({
   currentColumnIndex,
   targetColumnIndex,
-  sortedColumns,
+  columnArr,
   cellsArr,
 }: DragAndDropColumnProp) => {
   console.log("HELLO FROM D&D COLUMN");
@@ -29,7 +27,7 @@ export const dragAndDropColumn = async ({
     //grab and remove the entire column
     const result1 = await deleteColumnCells({
       currentColumnIndex,
-      columns: sortedColumns,
+      columns: columnArr,
       cells: cellsArr,
     });
     if (result1 === undefined) {
@@ -64,12 +62,14 @@ export const dragAndDropColumn = async ({
       ...dndColumn.map((col) => ({ ...col, columnIndex: targetColumnIndex })),
       ...adjustedColumns.filter((col) => col.columnIndex >= targetColumnIndex),
     ];
+    console.log("dnd newSortedUpdatedColumns:", newSortedUpdatedColumns)
     //Insert the Dragged Cells
     const newSortedUpdatedCells = [
       ...adjustedCells.filter((cell) => cell.columnIndex < targetColumnIndex),
       ...dndCells.map((cell) => ({ ...cell, columnIndex: targetColumnIndex })),
       ...adjustedCells.filter((cell) => cell.columnIndex >= targetColumnIndex),
     ];
+    console.log("dnd newSortedUpdatedCells:", newSortedUpdatedCells)
 
     const rows = newSortedUpdatedCells.reduce<Record<number, CellData[]>>(
       (acc, cell) => {
@@ -86,7 +86,6 @@ export const dragAndDropColumn = async ({
         (rowIndex) =>
           rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
       );
-    // setCells(newSortedUpdatedCells)
     return {
       newSortedUpdatedColumns,
       newSortedUpdatedRows,

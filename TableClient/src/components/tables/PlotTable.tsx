@@ -174,8 +174,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
     const result = await dragAndDropColumn({
       currentColumnIndex: draggedColumnIndex,
       targetColumnIndex: targetColumnIndex,
-      sortedColumns,
-      cellsArr: cells, //displayArr contains the cells
+      columnArr: columns,
+      cellsArr: cells,
     });
 
     if (result) {
@@ -187,7 +187,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
       setSortedColumns(newSortedUpdatedColumns);
       setSortedRows(newSortedUpdatedRows);
       setCells(newSortedUpdatedCells);
-      // setColumns(newSortedUpdatedColumns)
+      setColumns(newSortedUpdatedColumns)
 
       // Update indices in the database
       handleUpdateIndexInDB(newSortedUpdatedColumns, serverUrl);
