@@ -147,7 +147,10 @@ function TablePage() {
     };
 
     fetchColumnsAndCells();
-  }, [setColumns, setCells, fetchAgain]);
+  }, [
+    // setColumns, setCells,
+    fetchAgain,
+  ]);
 
   // Close the menu if the click is outside the table
   useEffect(() => {
@@ -218,7 +221,7 @@ function TablePage() {
         c._id === cell._id ? updatedCell : c
       );
       setColumns((prev) => {
-        if (JSON.stringify(prev) === JSON.stringify(newColumns)) return prev;  
+        if (JSON.stringify(prev) === JSON.stringify(newColumns)) return prev;
         return newColumns;
       });
       return []; // Return the updated array
@@ -236,6 +239,7 @@ function TablePage() {
   ) => {
     console.log("at handleCellUpdate the prevData is:", prevData);
     console.log("at handleCellUpdate the newData is:", newData);
+    if (prevData === null && newData === "") return;
     if (prevData === newData) return;
 
     try {
@@ -255,12 +259,12 @@ function TablePage() {
       if (success)
         console.log("at handleCellUpdate Cell updated successfully in db");
 
-       // Update the visual state (columns or cells data)
-       const resolve = await visualDataCellsUpdate(cell, updatedCell);
-       console.log(
-         "at handleCellUpdate after visualCellsUpdate the resolve is:",
-         resolve
-       );
+      // Update the visual state (columns or cells data)
+      const resolve = await visualDataCellsUpdate(cell, updatedCell);
+      console.log(
+        "at handleCellUpdate after visualCellsUpdate the resolve is:",
+        resolve
+      );
 
       //add new empty first row if needed
       let newCellsAfterAddingRow; // Define outside of the if block
@@ -353,13 +357,13 @@ function TablePage() {
         await handleCellUpdate(cellToClear, null, cellToClear.data); // Clear the cell data
       }
       setMenuState({ ...menuState, visible: false }); // Close menu
-    // } else if (rowIndex === 0) {
-    //   if (action === "hideColumn") {
-    //     await handleHideColumn(columnIndex);
-    //   } else if (action === "revealColumn") {
-    //     await handleRevealColumn(columnIndex);
-    //   }
-    //   setMenuState({ ...menuState, visible: false }); // Close menu
+      // } else if (rowIndex === 0) {
+      //   if (action === "hideColumn") {
+      //     await handleHideColumn(columnIndex);
+      //   } else if (action === "revealColumn") {
+      //     await handleRevealColumn(columnIndex);
+      //   }
+      //   setMenuState({ ...menuState, visible: false }); // Close menu
     }
   }; //works
 
@@ -453,6 +457,8 @@ function TablePage() {
   }; //works
 
   const handleDeleteColumnBtnClicked = async (currentColumnIndex: number) => {
+    console.log("Columns state before deletion:", columns);
+    console.log("Cells state before deletion:", cells);
     try {
       const result = await deleteColumnCells({
         currentColumnIndex,
@@ -550,7 +556,7 @@ function TablePage() {
   // };
 
   const handleSaveSelectedColumns = async (selectedColumnIndices: number[]) => {
-    setDropdownOpen(false)
+    setDropdownOpen(false);
     const updatedColumns = columns.map((column) => ({
       ...column,
       visibility: selectedColumnIndices.includes(column.columnIndex),
@@ -576,7 +582,7 @@ function TablePage() {
   const handleSelectColumns = () => {
     setShowColumnSelector(true);
     setTimeout(() => setShowColumnSelector(true), 0); // Delay to ensure state update
-  }; 
+  };
 
   // Dynamically calculate `displayArr` based on `rowIndexesArr` and `cells`
   const displayArr = generateCellsForPlot(rowIndexesArr, cells);
@@ -658,7 +664,10 @@ function TablePage() {
                 {showColumnSelector && (
                   <ColumnSelector
                     columns={columns}
-                    onClose={() => {setShowColumnSelector(false); setDropdownOpen(false)}}
+                    onClose={() => {
+                      setShowColumnSelector(false);
+                      setDropdownOpen(false);
+                    }}
                     onSave={handleSaveSelectedColumns}
                   />
                 )}

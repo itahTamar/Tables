@@ -82,7 +82,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
       const newRowIndexesArr = [];
       const newRowsCells = [];
       for (let rowIndex = 0; rowIndex < rowsNo; rowIndex++) {
-        console.log("Adding row:", rowIndex);
+        console.log("Adding row:", rowIndex+1);
         const newCellsAfterAddingRow = await addNewRow({
           tableId,
           tableIndex,
