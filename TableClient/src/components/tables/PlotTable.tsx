@@ -5,6 +5,7 @@ import { CellData } from "../../types/cellType";
 import { handleUpdateIndexInDB } from "../../functions/dbHandler/handleUpdateIndexInDB";
 import { dragAndDropColumn } from "../../functions/table/column/dragAndDropColumn";
 import { ServerContext } from "../../context/ServerUrlContext";
+import { dragAndDropRow } from "../../functions/table/row/dragAndDropRow";
 
 interface PlotTableProps {
   handleRightClick: (
@@ -37,6 +38,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
     setCheckedColumns,
     cells,
     setCells,
+    numOfRows,
+    rowIndexesArr,
+    setRowIndexesArr,
   } = tableContext;
   const [sortedColumns, setSortedColumns] = useState(columns || []);
   const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
@@ -44,9 +48,11 @@ const PlotTable: React.FC<PlotTableProps> = ({
   const [draggedColumnIndex, setDraggedColumnIndex] = useState<number | null>(
     null
   );
+  const [draggedRowIndex, setDraggedRowIndex] = useState<number | null>(null);
   const [dragOverColumnIndex, setDragOverColumnIndex] = useState<number | null>(
     null
   );
+  const [dragOverRowIndex, setDragOverRowIndex] = useState<number | null>(null);
 
   const handleRightClickWithFlag = (
     e: React.MouseEvent,
@@ -150,52 +156,96 @@ const PlotTable: React.FC<PlotTableProps> = ({
     );
   };
 
-  const handleDragStart = (e: React.DragEvent, columnIndex: number) => {
+  const handleDragStart = (
+    e: React.DragEvent,
+    columnIndex: number,
+    rowIndex: number
+  ) => {
+    setDraggedRowIndex(rowIndex);
     setDraggedColumnIndex(columnIndex);
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e: React.DragEvent, columnIndex: number) => {
+  const handleDragOver = (
+    e: React.DragEvent,
+    columnIndex: number,
+    rowIndex: number
+  ) => {
     e.preventDefault();
     setDragOverColumnIndex(columnIndex);
+    setDragOverRowIndex(rowIndex);
   };
 
-  const handleDrop = async (e: React.DragEvent, targetColumnIndex: number) => {
+  const handleDrop = async (
+    e: React.DragEvent,
+    targetColumnIndex: number,
+    targetRowIndex: number
+  ) => {
     e.preventDefault();
     setDragOverColumnIndex(null);
+    setDragOverRowIndex(null);
 
-    if (
-      draggedColumnIndex === null ||
-      draggedColumnIndex === targetColumnIndex
-    ) {
-      return;
+    if (draggedColumnIndex === null) return;
+    if (draggedRowIndex === null) return;
+
+    if (draggedColumnIndex != targetColumnIndex) {
+      const result = await dragAndDropColumn({
+        currentColumnIndex: draggedColumnIndex,
+        targetColumnIndex: targetColumnIndex,
+        columnArr: columns,
+        cellsArr: cells,
+      });
+
+      if (result) {
+        const {
+          newSortedUpdatedColumns,
+          newSortedUpdatedRows,
+          newSortedUpdatedCells,
+        } = result;
+        setSortedColumns(newSortedUpdatedColumns);
+        setSortedRows(newSortedUpdatedRows);
+        setCells(newSortedUpdatedCells);
+        setColumns(newSortedUpdatedColumns);
+
+        // Update indices in the database
+        handleUpdateIndexInDB(newSortedUpdatedColumns, serverUrl);
+        handleUpdateIndexInDB(newSortedUpdatedCells, serverUrl);
+      }
+
+      // Reset draggedColumnIndex
+      setDraggedColumnIndex(null);
     }
 
-    const result = await dragAndDropColumn({
-      currentColumnIndex: draggedColumnIndex,
-      targetColumnIndex: targetColumnIndex,
-      columnArr: columns,
-      cellsArr: cells,
-    });
+    if (draggedRowIndex != targetRowIndex) {
+      const result = await dragAndDropRow({
+        currentRowIndex: draggedRowIndex,
+        targetRowIndex: targetRowIndex,
+        cellsArr: cells,
+        numOfRows,
+        rowIndexesArr,
+      });
 
-    if (result) {
-      const {
-        newSortedUpdatedColumns,
-        newSortedUpdatedRows,
-        newSortedUpdatedCells,
-      } = result;
-      setSortedColumns(newSortedUpdatedColumns);
-      setSortedRows(newSortedUpdatedRows);
-      setCells(newSortedUpdatedCells);
-      setColumns(newSortedUpdatedColumns)
+      if (result) {
+        const {
+          newSortedUpdatedRows,
+          newSortedUpdatedCells,
+          adjustedRowIndexes,
+        } = result;
+        setSortedRows(newSortedUpdatedRows);
+        setCells(newSortedUpdatedCells);
+        
+        // Preserve the search state by re-filtering the adjustedRowIndexes
+        setRowIndexesArr((prev) =>
+          prev.filter((index) => adjustedRowIndexes.includes(index))
+        );
 
-      // Update indices in the database
-      handleUpdateIndexInDB(newSortedUpdatedColumns, serverUrl);
-      handleUpdateIndexInDB(newSortedUpdatedCells, serverUrl);
+        // Update indices in the database
+        handleUpdateIndexInDB(newSortedUpdatedCells, serverUrl);
+      }
+
+      // Reset draggedColumnIndex
+      setDraggedColumnIndex(null);
     }
-
-    // Reset draggedColumnIndex
-    setDraggedColumnIndex(null);
   };
 
   const handleDragEnd = () => {
@@ -222,9 +272,15 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   )
                 }
                 draggable
-                onDragStart={(e) => handleDragStart(e, column.columnIndex)}
-                onDragOver={(e) => handleDragOver(e, column.columnIndex)}
-                onDrop={(e) => handleDrop(e, column.columnIndex)}
+                onDragStart={(e) =>
+                  handleDragStart(e, column.columnIndex, column.rowIndex)
+                }
+                onDragOver={(e) =>
+                  handleDragOver(e, column.columnIndex, column.rowIndex)
+                }
+                onDrop={(e) =>
+                  handleDrop(e, column.columnIndex, column.rowIndex)
+                }
                 onDragEnd={handleDragEnd}
               >
                 <div className="absolute top-1 left-1">
@@ -266,6 +322,15 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)
                   }
                   onPaste={(e) => handlePasteImage(e, cell)}
+                  draggable
+                  onDragStart={(e) =>
+                    handleDragStart(e, cell.columnIndex, cell.rowIndex)
+                  }
+                  onDragOver={(e) =>
+                    handleDragOver(e, cell.columnIndex, cell.rowIndex)
+                  }
+                  onDrop={(e) => handleDrop(e, cell.columnIndex, cell.rowIndex)}
+                  onDragEnd={handleDragEnd}
                 >
                   {cell.data && cell.data.startsWith("data:image") ? (
                     <img

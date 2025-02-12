@@ -19,7 +19,7 @@ export const DeleteRowCells = ({
   newCellsArrayAfterDelete: CellData[];
   updatedRowIndexesArr: number[];
 } => {
-  console.log("HELLO FROM DELETE ROW")
+  console.log("HELLO FROM DELETE ROW");
   // Case 1: Prevent deleting `rowIndex = 0` if there are other rows
   if (currentRowIndex === 0 && numOfRows > 0) {
     throw new Error(
@@ -36,22 +36,27 @@ export const DeleteRowCells = ({
     .map((cell) => ({ ...cell, rowIndex: cell.rowIndex - 1 }));
 
   //Step 3: Create the new array excluding the deleted cells and all row-cells after
-  const tempArray = [...cells.filter((cell) => cell.rowIndex < currentRowIndex)]
+  const tempArray = [
+    ...cells.filter((cell) => cell.rowIndex < currentRowIndex),
+  ];
   console.log("At DeleteRowCells the currentRowIndex:", currentRowIndex);
   console.log("At DeleteRowCells the tempArray:", tempArray);
 
   // Step 4: Create the new array excluding the deleted cells and including the updated cells
-  const newCellsArrayAfterDelete = [...tempArray,...toBeUpdated];
+  const newCellsArrayAfterDelete = [...tempArray, ...toBeUpdated];
 
   console.log("At DeleteRowCells the toBeDeleted:", toBeDeleted);
   console.log("At DeleteRowCells the toBeUpdated:", toBeUpdated);
-  console.log("At DeleteRowCells the newCellsArrayAfterDelete:", newCellsArrayAfterDelete);
+  console.log(
+    "At DeleteRowCells the newCellsArrayAfterDelete:",
+    newCellsArrayAfterDelete
+  );
 
-    // adjust the rowIndexArr for plot
-    const adjustedRowIndexes = rowIndexesArr.map((index) =>
-      index >= currentRowIndex ? index - 1 : index
-    );
-    console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
+  // adjust the rowIndexArr for plot
+  const adjustedRowIndexes = rowIndexesArr.map((index) =>
+    index >= currentRowIndex ? index - 1 : index
+  );
+  console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
 
   return {
     newCellsArrayAfterDelete: newCellsArrayAfterDelete,
