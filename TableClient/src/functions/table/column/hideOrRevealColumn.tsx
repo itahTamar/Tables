@@ -11,11 +11,11 @@ export const hideOrRevealColumn = ({
   currentColumnIndex,
   columns,
   cells,
-  visible, //false - want to hide, true - want to revel
+  visible, //false - want to hide, true - want to reveal
 }: HideOrRevealColumnProp): {
   toBeUpdate: CellData[];
-  newCellsArrayAfterHide: CellData[];
-  newColumnsArrayAfterHide: CellData[];
+  newCellsArrayAfterChange: CellData[];
+  newColumnsArrayAfterChange: CellData[];
 } => {
   let indexToAction = currentColumnIndex;
   // If revealing a column
@@ -32,23 +32,23 @@ export const hideOrRevealColumn = ({
       indexToAction = currentColumnIndex + 1;
     }
   }
-  const newCellsArrayAfterHide = cells.map((cell) =>
+  const newCellsArrayAfterChange = cells.map((cell) =>
     cell.columnIndex === indexToAction
       ? { ...cell, visibility: visible }
       : cell
   );
-  const cellsToBeUpdated = newCellsArrayAfterHide.filter(
+  const cellsToBeUpdated = newCellsArrayAfterChange.filter(
     (cell) => cell.columnIndex === indexToAction
   );
 
-  const newColumnsArrayAfterHide = columns.map((cell) =>
+  const newColumnsArrayAfterChange = columns.map((cell) =>
     cell.columnIndex === indexToAction
       ? { ...cell, visibility: visible }
       : cell
   );
-  const columnToBeUpdated = newColumnsArrayAfterHide.filter(
+  const columnToBeUpdated = newColumnsArrayAfterChange.filter(
     (cell) => cell.columnIndex === indexToAction
   );
   const toBeUpdate = [...cellsToBeUpdated, ...columnToBeUpdated];
-  return { toBeUpdate, newCellsArrayAfterHide, newColumnsArrayAfterHide };
+  return { toBeUpdate, newCellsArrayAfterChange, newColumnsArrayAfterChange };
 };

@@ -243,8 +243,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
         handleUpdateIndexInDB(newSortedUpdatedCells, serverUrl);
       }
 
-      // Reset draggedColumnIndex
-      setDraggedColumnIndex(null);
+      // Reset draggedRowIndex
+      setDraggedRowIndex(null);
     }
   };
 

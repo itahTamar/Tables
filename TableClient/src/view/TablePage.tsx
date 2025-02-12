@@ -528,8 +528,8 @@ function TablePage() {
   //     if (resultHide === undefined) {
   //       throw new Error("Result is undefined - hide column failed");
   //     }
-  //     setColumns(resultHide.newColumnsArrayAfterHide);
-  //     setCells(resultHide.newCellsArrayAfterHide);
+  //     setColumns(resultHide.newColumnsArrayAfterChange);
+  //     setCells(resultHide.newCellsArrayAfterChange);
   //     handleUpdateVisibilityToDB(resultHide.toBeUpdate, serverUrl);
   //   } catch (error) {
   //     console.error("Error handling hide column:", error);
@@ -547,8 +547,8 @@ function TablePage() {
   //     if (resultHide === undefined) {
   //       throw new Error("Result is undefined - hide column failed");
   //     }
-  //     setColumns(resultHide.newColumnsArrayAfterHide);
-  //     setCells(resultHide.newCellsArrayAfterHide);
+  //     setColumns(resultHide.newColumnsArrayAfterChange);
+  //     setCells(resultHide.newCellsArrayAfterChange);
   //     handleUpdateVisibilityToDB(resultHide.toBeUpdate, serverUrl);
   //   } catch (error) {
   //     console.error("Error handling hide column:", error);
