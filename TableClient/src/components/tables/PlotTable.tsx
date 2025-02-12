@@ -233,7 +233,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
         } = result;
         setSortedRows(newSortedUpdatedRows);
         setCells(newSortedUpdatedCells);
-        
+
         // Preserve the search state by re-filtering the adjustedRowIndexes
         setRowIndexesArr((prev) =>
           prev.filter((index) => adjustedRowIndexes.includes(index))
@@ -317,7 +317,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
               {row.map((cell) => (
                 <td
                   key={cell._id}
-                  className="border border-gray-400 h-auto"
+                  className={`border border-gray-400 h-auto" ${
+                  dragOverRowIndex === cell.rowIndex ? "drag-over" : ""
+                }`}
                   onContextMenu={(e) =>
                     handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)
                   }
