@@ -7,6 +7,7 @@ export interface CellData {
     columnIndex: number;
     tableIndex: number;
     tableId: string;
+    sortState?: "asc" | "desc" | null; //! Add the sortState property
     __v: number;
   }
   

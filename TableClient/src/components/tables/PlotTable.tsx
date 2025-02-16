@@ -6,6 +6,7 @@ import { handleUpdateIndexInDB } from "../../functions/dbHandler/handleUpdateInd
 import { dragAndDropColumn } from "../../functions/table/column/dragAndDropColumn";
 import { ServerContext } from "../../context/ServerUrlContext";
 import { dragAndDropRow } from "../../functions/table/row/dragAndDropRow";
+import { sortTableByColumn } from "../../functions/table/column/sortTableByColumn";
 
 interface PlotTableProps {
   handleRightClick: (
@@ -253,6 +254,34 @@ const PlotTable: React.FC<PlotTableProps> = ({
     setDragOverColumnIndex(null);
   };
 
+  const handleSort = (column: CellData) => {
+    const sortOrder: "asc" | "desc" = column.sortState === "asc" ? "desc" : "asc";
+    const { sortedCells } = sortTableByColumn(column.columnIndex, cells, sortOrder);
+
+    const updatedColumns = columns.map((col) => {
+      if (col._id === column._id) {
+        col.sortState = sortOrder;
+      } else {
+        col.sortState = null; // Reset sort state for other columns
+      }
+      return col;
+    });
+
+    setColumns(updatedColumns);
+    setCells(sortedCells);
+  };
+
+  const getSortIcon = (sortState: "asc" | "desc" | null): string => {
+    switch (sortState) {
+      case "asc":
+        return "fa-sort-up";
+      case "desc":
+        return "fa-sort-down";
+      default:
+        return "fa-sort";
+    }
+  };
+
   return (
     <div className="table-container">
       <table className="table-auto border-collapse border border-gray-400 w-full text-center">
@@ -291,6 +320,11 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     onChange={() => handleCheckboxChange(column.columnIndex)}
                   />
                 </div>
+            {/* //!sort by column */}
+            <div className="sort-button" onClick={() => handleSort(column)}>
+                  <i className={`fa ${getSortIcon(column.sortState || null)}`}></i>
+                </div>
+
                 <div
                   contentEditable
                   suppressContentEditableWarning
@@ -318,8 +352,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
                 <td
                   key={cell._id}
                   className={`border border-gray-400 h-auto" ${
-                  dragOverRowIndex === cell.rowIndex ? "drag-over" : ""
-                }`}
+                    dragOverRowIndex === cell.rowIndex ? "drag-over" : ""
+                  }`}
                   onContextMenu={(e) =>
                     handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)
                   }
