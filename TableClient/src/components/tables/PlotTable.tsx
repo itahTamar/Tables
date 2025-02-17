@@ -255,8 +255,13 @@ const PlotTable: React.FC<PlotTableProps> = ({
   };
 
   const handleSort = (column: CellData) => {
-    const sortOrder: "asc" | "desc" = column.sortState === "asc" ? "desc" : "asc";
-    const { sortedCells } = sortTableByColumn(column.columnIndex, cells, sortOrder);
+    const sortOrder: "asc" | "desc" =
+      column.sortState === "asc" ? "desc" : "asc";
+    const { sortedCells } = sortTableByColumn(
+      column.columnIndex,
+      cells,
+      sortOrder
+    );
 
     const updatedColumns = columns.map((col) => {
       if (col._id === column._id) {
@@ -320,9 +325,13 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     onChange={() => handleCheckboxChange(column.columnIndex)}
                   />
                 </div>
-            {/* //!sort by column */}
-            <div className="sort-button" onClick={() => handleSort(column)}>
-                  <i className={`fa ${getSortIcon(column.sortState || null)}`}></i>
+                {/* //!sort by column */}
+                <div className="sort-button" onClick={() => handleSort(column)}>
+                  <i
+                    className={`fa-solid ${getSortIcon(
+                      column.sortState || null
+                    )}`}
+                  ></i>
                 </div>
 
                 <div

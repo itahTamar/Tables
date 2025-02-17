@@ -60,6 +60,13 @@
     top: 4rem;
 }
 
+.sort-button{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px; /* Optional: Adjust the padding as needed */
+    cursor: pointer; /* Optional: Change the cursor to a pointer */
+}
 
 @media only screen and (max-width: 435px) {
             .back {
