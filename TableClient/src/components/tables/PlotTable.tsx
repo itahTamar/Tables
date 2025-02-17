@@ -325,7 +325,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     onChange={() => handleCheckboxChange(column.columnIndex)}
                   />
                 </div>
-                {/* //!sort by column */}
                 <div className="sort-button" onClick={() => handleSort(column)}>
                   <i
                     className={`fa-solid ${getSortIcon(
