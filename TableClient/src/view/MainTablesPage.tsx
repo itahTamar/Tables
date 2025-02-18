@@ -8,7 +8,9 @@ import SelectionMenu from "../components/tables/SelectionMenu";
 import UserTables from "../components/tables/UserTables";
 import { ServerContext } from "../context/ServerUrlContext";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
-import "../style/search.css"
+import "../style/search.css";
+import TableSelector from "../components/tables/TableSelector";
+import { TableContext } from "../context/tableContext";
 
 const MainTablesPage: React.FC = () => {
   //variables
@@ -24,8 +26,19 @@ const MainTablesPage: React.FC = () => {
     tableId: string;
   }>({ visible: false, x: 0, y: 0, tableId: "" });
   const [tableRename, setTableRename] = useState("");
-  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(false);
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
+    useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showTableSelector, setShowTableSelector] = useState(false);
+  const [tableVisibility, setTableVisibility] = useState<
+    Record<string, boolean>
+  >({});
+  const tableContext = useContext(TableContext);
+  if (!tableContext) {
+    throw new Error("TableContext must be used within a TableProvider");
+  }
+  const { tables } = tableContext;
 
   //local functions:
   const handleLogout = () => {
@@ -46,7 +59,6 @@ const MainTablesPage: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      
       // Close the menu if the click is outside the menu
       if (
         selectionMenuRef.current &&
@@ -59,6 +71,25 @@ const MainTablesPage: React.FC = () => {
     window.addEventListener("click", handleClickOutside);
 
     return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  // Toggle the dropdown menu
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+  // Close the dropdown when clicking outside
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleRenameTable = async (tableId: string) => {
@@ -108,9 +139,40 @@ const MainTablesPage: React.FC = () => {
   };
 
   const handleCancelRenameTable = () => {
-    setIsRenaming(false)
+    setIsRenaming(false);
     setMenuState((prev) => ({ ...prev, visible: false }));
-  }
+  };
+
+  const handleSaveSelectedTables = async (selectedTableIds: string[]) => {
+    const updatedVisibility = tables.map((table) => ({
+      ...table,
+      visible: selectedTableIds.includes(table._id),
+    }));
+    setTableVisibility(
+      updatedVisibility.reduce((acc, table) => {
+        acc[table._id] = table.visible;
+        return acc;
+      }, {} as Record<string, boolean>)
+    );
+
+    await Promise.all(
+      updatedVisibility.map((table) =>
+        DocumentRestAPIMethods.update(
+          serverUrl,
+          "tables",
+          { _id: table._id },
+          { visible: table.visible }
+        )
+      )
+    );
+
+    setShowTableSelector(false);
+  };
+
+  const handleSelectTables = () => {
+    setShowTableSelector(true);
+    setTimeout(() => setShowTableSelector(true), 0); // Delay to ensure state update
+  };
 
   return (
     <div className="p-6 ">
@@ -133,7 +195,7 @@ const MainTablesPage: React.FC = () => {
             </button> */}
 
         {/* Add Table Button */}
-        <button
+        {/* <button
           onClick={() => setShowPopupAddNewTable(true)}
           className="absolute top-4 right-4 flex items-center justify-center w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600"
           title="Add Table" // Tooltip message on hover
@@ -144,7 +206,7 @@ const MainTablesPage: React.FC = () => {
           >
             +
           </span>
-        </button>
+        </button>*/}
         {showPopupAddNewTable && (
           <PopupWithAnimation
             open={showPopupAddNewTable}
@@ -152,12 +214,78 @@ const MainTablesPage: React.FC = () => {
           >
             <AddNewTable onClose={() => setShowPopupAddNewTable(false)} />
           </PopupWithAnimation>
-        ) }
+        )}
+
+        {/* table dropdown menu */}
+        <div className="fixed top-4 right-4">
+          <button
+            onClick={toggleDropdown}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+          >
+            Actions
+            <svg
+              className="ml-2 h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 13.414l3.293-3.293a1 1 0 011.414 1.414L10 13.414l-4.707-4.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute z-50 right-0 top-full mt-1 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+              <div
+                className="py-1"
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="options-menu"
+              >
+                {/* Add Table Button */}
+                <button
+                  onClick={() => {
+                    setShowPopupAddNewTable(true);
+                    setDropdownOpen(false);
+                  }}
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left"
+                  role="menuitem"
+                >
+                  Add Table
+                </button>
+
+                {/* Select Table */}
+                <button
+                  onClick={() => {handleSelectTables()}}
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left"
+                  role="menuitem"
+                >
+                  Select Table
+                </button>
+                {showTableSelector && (
+                  <TableSelector
+                    tables={tables}
+                    onClose={() => {
+                      setShowTableSelector(false);
+                      setDropdownOpen(false);
+                    }}
+                    onSave={handleSaveSelectedTables}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </header>
 
-      {/* Center the UserTables component */}
       <section className="flex flex-col items-center">
-        <UserTables handleRightClick={handleRightClick} />
+        <UserTables
+          handleRightClick={handleRightClick}
+          tableVisibility={tableVisibility}
+        />
         {menuState.visible && (
           <SelectionMenu ref={selectionMenuRef} x={menuState.x} y={menuState.y}>
             <button

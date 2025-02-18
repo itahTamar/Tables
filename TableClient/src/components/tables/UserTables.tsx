@@ -5,13 +5,14 @@ import GeneralSearch from "../filters/GeneralSearch";
 import { TableData } from "../../types/tableType";
 
 interface UserTablesProp {
-    handleRightClick: (
-      event: React.MouseEvent,
-      tableId: string,
-    ) => void;
+  handleRightClick: (event: React.MouseEvent, tableId: string) => void;
+  tableVisibility: Record<string, boolean>;
 }
 
-const UserTables: React.FC<UserTablesProp> = ({handleRightClick}) => {
+const UserTables: React.FC<UserTablesProp> = ({
+  handleRightClick,
+  tableVisibility,
+}) => {
   const tableContext = useContext(TableContext);
 
   if (!tableContext) {
@@ -36,6 +37,11 @@ const UserTables: React.FC<UserTablesProp> = ({handleRightClick}) => {
     }
   };
 
+  // Filter tables based on visibility state
+  const visibleTables = (
+    filteredTables.length > 0 ? filteredTables : tables
+  ).filter((table) => tableVisibility[table._id] !== false);
+
   const handleCardClick = (tableId: string) => {
     navigate(`/table/${tableId}`); // Navigate to the specific table
   };
@@ -47,20 +53,24 @@ const UserTables: React.FC<UserTablesProp> = ({handleRightClick}) => {
       </div>
 
       {/* Display tables in grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-9 lg:grid-cols-4 gap-4 mt-16 ">
-        {(filteredTables.length > 0 ? filteredTables : tables).map((table) => (
-          <div
-            key={table._id}
-            onContextMenu={(e) => {
-              e.preventDefault(); // Prevent default context menu
-              handleRightClick(e, table._id);
-            }}
-            onClick={() => handleCardClick(table._id)}
-            className="border border-gray-300 p-4 rounded-lg cursor-pointer text-center"
-          >
-            <h3>{table.tableName}</h3>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-16">
+        {visibleTables.length > 0 ? (
+          visibleTables.map((table) => (
+            <div
+              key={table._id}
+              onContextMenu={(e) => {
+                e.preventDefault(); // Prevent default context menu
+                handleRightClick(e, table._id);
+              }}
+              onClick={() => handleCardClick(table._id)}
+              className="border border-gray-300 p-4 rounded-lg cursor-pointer text-center hover:bg-gray-100"
+            >
+              <h3>{table.tableName}</h3>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No tables available</p>
+        )}
       </div>
     </div>
   );
