@@ -11,6 +11,7 @@ import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 import "../style/search.css";
 import TableSelector from "../components/tables/TableSelector";
 import { TableContext } from "../context/tableContext";
+import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
 
 const MainTablesPage: React.FC = () => {
   //variables
@@ -31,14 +32,12 @@ const MainTablesPage: React.FC = () => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showTableSelector, setShowTableSelector] = useState(false);
-  const [tableVisibility, setTableVisibility] = useState<
-    Record<string, boolean>
-  >({});
+  const [tableVisibility, setTableVisibility] = useState<Record<string, boolean>>({});
   const tableContext = useContext(TableContext);
   if (!tableContext) {
     throw new Error("TableContext must be used within a TableProvider");
   }
-  const { tables } = tableContext;
+  const { tables, setTables } = tableContext;
 
   //local functions:
   const handleLogout = () => {
@@ -143,32 +142,26 @@ const MainTablesPage: React.FC = () => {
     setMenuState((prev) => ({ ...prev, visible: false }));
   };
 
-  const handleSaveSelectedTables = async (selectedTableIds: string[]) => {
-    const updatedVisibility = tables.map((table) => ({
+  const handleSaveSelectedTables = async (selectedTablesIndices: number[]) => {
+    setDropdownOpen(false);
+  
+    //Ensure local state is updated before saving
+    const updatedTables = tables.map((table) => ({
       ...table,
-      visible: selectedTableIds.includes(table._id),
+      visibility: selectedTablesIndices.includes(table.tableIndex),
     }));
+    setTables(updatedTables); // Update UI state immediately
+    
     setTableVisibility(
-      updatedVisibility.reduce((acc, table) => {
-        acc[table._id] = table.visible;
-        return acc;
-      }, {} as Record<string, boolean>)
+      Object.fromEntries(updatedTables.map((table) => [table._id, table.visibility]))
     );
 
-    await Promise.all(
-      updatedVisibility.map((table) =>
-        DocumentRestAPIMethods.update(
-          serverUrl,
-          "tables",
-          { _id: table._id },
-          { visible: table.visible }
-        )
-      )
-    );
+    //database update
+    await handleUpdateVisibilityToDB(updatedTables, serverUrl)
 
     setShowTableSelector(false);
   };
-
+  
   const handleSelectTables = () => {
     setShowTableSelector(true);
     setTimeout(() => setShowTableSelector(true), 0); // Delay to ensure state update
@@ -259,7 +252,9 @@ const MainTablesPage: React.FC = () => {
 
                 {/* Select Table */}
                 <button
-                  onClick={() => {handleSelectTables()}}
+                  onClick={() => {
+                    handleSelectTables();
+                  }}
                   className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left"
                   role="menuitem"
                 >
@@ -286,6 +281,7 @@ const MainTablesPage: React.FC = () => {
           handleRightClick={handleRightClick}
           tableVisibility={tableVisibility}
         />
+
         {menuState.visible && (
           <SelectionMenu ref={selectionMenuRef} x={menuState.x} y={menuState.y}>
             <button

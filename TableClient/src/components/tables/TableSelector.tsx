@@ -1,22 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { TableData } from "../../types/tableType";
 
 interface TableSelectorProps {
   tables: TableData[];
   onClose: () => void;
-  onSave: (selectedTables: string[]) => void;
+  onSave: (selectedTables: number[]) => void;
 }
 
-const TableSelector: React.FC<TableSelectorProps> = ({ tables, onClose, onSave }) => {
-  const [selectedTables, setSelectedTables] = useState<string[]>(
-    tables.filter((table) => table.visibility !== false).map((table) => table._id)
+const TableSelector: React.FC<TableSelectorProps> = ({ onClose, onSave, tables}) => {
+  const [selectedTables, setSelectedTables] = useState<number[]>(
+    []
   );
 
-  const handleCheckboxChange = (tableId: string) => {
-    setSelectedTables((prev) =>
-      prev.includes(tableId)
-        ? prev.filter((id) => id !== tableId)
-        : [...prev, tableId]
+  useEffect(() => {
+    setSelectedTables(tables.filter(table => table.visibility !== false).map(table => table.tableIndex));
+  }, [tables]);
+
+  const handleCheckboxChange = (tableIndex: number) => {
+    setSelectedTables(prev =>
+      prev.includes(tableIndex)
+        ? prev.filter(idx => idx !== tableIndex)
+        : [...prev, tableIndex]
     );
   };
 
@@ -28,8 +32,8 @@ const TableSelector: React.FC<TableSelectorProps> = ({ tables, onClose, onSave }
           <label key={table._id} className="flex items-center mb-2">
             <input
               type="checkbox"
-              checked={selectedTables.includes(table._id)}
-              onChange={() => handleCheckboxChange(table._id)}
+              checked={selectedTables.includes(table.tableIndex)}
+              onChange={() => handleCheckboxChange(table.tableIndex)}
               className="mr-2"
             />
             {table.tableName}
@@ -43,7 +47,10 @@ const TableSelector: React.FC<TableSelectorProps> = ({ tables, onClose, onSave }
             Cancel
           </button>
           <button
-            onClick={() => onSave(selectedTables)}
+            onClick={() => {
+              console.log("Saving selected tables:", selectedTables);
+              onSave(selectedTables);
+            }}
             className="px-4 py-2 bg-blue-500 text-white rounded"
           >
             Save

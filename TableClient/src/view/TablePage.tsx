@@ -557,6 +557,8 @@ function TablePage() {
 
   const handleSaveSelectedColumns = async (selectedColumnIndices: number[]) => {
     setDropdownOpen(false);
+    console.log("at handleSaveSelectedColumns the selectedColumnIndices:",selectedColumnIndices)
+    
     const updatedColumns = columns.map((column) => ({
       ...column,
       visibility: selectedColumnIndices.includes(column.columnIndex),
