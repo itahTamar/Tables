@@ -20,6 +20,7 @@ const UserTables: React.FC<UserTablesProp> = ({
   }
 
   const { tables } = tableContext;
+  if (tables === undefined) throw new Error("at MainTablePage tables are undefine");
 
   const [filteredTables, setFilteredTables] = useState<TableData[]>([]); // Store filtered results as TableData[]
   const navigate = useNavigate();

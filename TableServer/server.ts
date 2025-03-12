@@ -10,6 +10,7 @@ import { sendEmail } from './services/mailService'; // Import the sendEmail func
 
 const app = express(); 
 const port = process.env.PORT || 5000;
+app.set("trust proxy", 1); //ensures cookies are received when the app is deployed on Render.com or another proxy
 
 //middlewares
 app.use(express.json({ limit: '50mb' }));
@@ -18,6 +19,15 @@ app.use(cors(corsOptions))
 
 //middleware for using parser
 app.use(cookieParser())
+app.use((req, res, next) => {
+  console.log("SERVER Incoming Cookies:", req.cookies);
+  next();
+});
+app.get("/api/test-cookies", (req, res) => {
+  console.log("SERVER Incoming Cookies:", req.cookies);
+  res.json({ receivedCookies: req.cookies });
+});
+
 
 //connection to db
 import connectionMongoWithMongoose from "./mongoDB/mongoose/DBConnection/mongooseMongoDBConnection";

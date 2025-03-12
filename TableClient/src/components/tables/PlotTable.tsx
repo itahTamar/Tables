@@ -55,6 +55,13 @@ const PlotTable: React.FC<PlotTableProps> = ({
   );
   const [dragOverRowIndex, setDragOverRowIndex] = useState<number | null>(null);
 
+  if (!displayArr || !Array.isArray(displayArr)) {
+    console.log("🚨 PlotTable received an invalid displayArr")
+    console.error("🚨 PlotTable received an invalid displayArr:", displayArr);
+    return <div>Error Loading Table</div>;
+  }
+  
+
   const handleRightClickWithFlag = (
     e: React.MouseEvent,
     rowIndex: number,

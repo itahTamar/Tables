@@ -38,6 +38,8 @@ const Login = () => {
         );
         throw new Error("login failed from server!");
       }
+      console.log("At handleSubmitLogin the response is:", response);
+
       setUserEmail(email);
       await getAllUserTables();
       navigate(`/mainTablesPage`);

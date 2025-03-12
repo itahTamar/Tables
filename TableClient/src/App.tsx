@@ -31,7 +31,7 @@ function App() {
   return (
     <UserContext.Provider value={{ user, setUser, email, setUserEmail }}>
       <ServerContext.Provider value={serverUrl}>
-        <TableProvider >
+        <TableProvider  key={Math.random()}>
           <RouterProvider router={router} />
         </TableProvider>
       </ServerContext.Provider>

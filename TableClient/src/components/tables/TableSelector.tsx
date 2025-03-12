@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { TableData } from "../../types/tableType";
 
 interface TableSelectorProps {
-  tables: TableData[];
+  tables: TableData[] | undefined;
   onClose: () => void;
   onSave: (selectedTables: number[]) => void;
 }
@@ -11,7 +11,8 @@ const TableSelector: React.FC<TableSelectorProps> = ({ onClose, onSave, tables})
   const [selectedTables, setSelectedTables] = useState<number[]>(
     []
   );
-
+  if(tables === undefined) throw new Error("at TableSelector table is undefined");
+  
   useEffect(() => {
     setSelectedTables(tables.filter(table => table.visibility !== false).map(table => table.tableIndex));
   }, [tables]);

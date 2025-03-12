@@ -19,6 +19,7 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
     throw new Error("TableContext must be used within a TableProvider");
   }
   const { tables } = tableContext;
+  if (tables === undefined) throw new Error("at MainTablePage tables are undefine");
 
   const handleAddTable = async () => {
     if (!tableSubject) {

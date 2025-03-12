@@ -12,7 +12,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
 }) => {
   const tableContext = useContext(TableContext);
   if (!tableContext) {
-    throw new Error("TablePage must be used within a TableProvider");
+    throw new Error("at SearchInTableCells the tableContext is undefined");
   }
   const { cells, setRowIndexesArr, rowIndexesArr, checkedColumns } =
     tableContext;

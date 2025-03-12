@@ -12,6 +12,8 @@ import "../style/search.css";
 import TableSelector from "../components/tables/TableSelector";
 import { TableContext } from "../context/tableContext";
 import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 const MainTablesPage: React.FC = () => {
   //variables
@@ -38,8 +40,34 @@ const MainTablesPage: React.FC = () => {
     throw new Error("TableContext must be used within a TableProvider");
   }
   const { tables, setTables } = tableContext;
-
+  if (tables === undefined) throw new Error("at MainTablePage tables are undefine");
+  
+  //cookie
+  console.log("User Cookie after refresh:", Cookies.get("user"));
+  useEffect(() => {
+    const checkServerCookies = async () => {
+      try {
+        const response = await axios.get(`${serverUrl}/api/test-cookies`, {
+          withCredentials: true,
+        });
+        console.log("at checkServerCookies Server response:", response.data);
+      } catch (error) {
+        console.error("Error fetching server cookies:", error);
+        navigate("/"); // Redirect to login if no cookie
+      }
+    };
+    checkServerCookies();
+  }, []);
+  
   //local functions:
+  //get user tables after refresh
+  useEffect(() => {
+    const fetchTables = async () => {
+      await getAllUserTables();
+    };
+    fetchTables();
+  }, []);
+  
   const handleLogout = () => {
     logout();
     navigate("/");
