@@ -3,20 +3,20 @@ import { DocumentRestAPIMethods } from "../../../api/docApi";
 interface TablesColumnsProp {
   serverUrl: string;
   tableId: string;
-  tableIndex: number;
+  // tableIndex: number;
 }
 
 export const getAllTablesColumns = async ({
   serverUrl,
   tableId,
-  tableIndex,
+  // tableIndex,
 }: TablesColumnsProp) => {
 
   console.log("you at getAllTablesColumns");
   try {
     const columnsData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
       type: "column",
-      tableIndex: tableIndex,
+      // tableIndex: tableIndex,
       tableId
     }, "getDoc", false);
     if (!columnsData) throw new Error("No columns found.");
