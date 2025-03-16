@@ -40,7 +40,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   console.log("InitialNewTable received tableId:", tableId);
   console.log("InitialNewTable received tableIndex:", tableIndex);
 
-  const { cells, setCells, columns, setColumns, setRowIndexesArr } =
+  const { cells, setCells, columns, setColumns, setRowIndexesArr, setNumOfColumns, setNumOfRows } =
     tableContext;
   // const { columns,  setColumns,cells, setCells } = tableContext;
 
@@ -105,6 +105,8 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
       setColumns(newColumnCells);
       setCells(newRowsCells);
       setRowIndexesArr([...new Set(newRowIndexesArr)]);
+      setNumOfColumns(columnsNo);
+      setNumOfRows(rowsNo)
       onTableCreated();
       onClose();
     } catch (error) {

@@ -393,7 +393,7 @@ function TablePage() {
         );
 
         //add new empty first row if needed
-        let newCellsAfterAddingRow; // Define outside of the if block
+        let newCellsAfterAddingRow; 
         if (
           //checks if the visual data update work/finish
           resolve.length > 0 &&

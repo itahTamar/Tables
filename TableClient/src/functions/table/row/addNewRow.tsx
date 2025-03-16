@@ -25,15 +25,15 @@ export const addNewRow = async ({
   cells,
   addBefore, // parameter to specify adding before/after the current row
 }: AddRowProp) => {
-  if (!tableId || !tableIndex || !numOfColumns) {
-    throw new Error("Invalid input data for addNewRow");
-  }
-
   console.log("At addNewRowCells the tableIndex:", tableIndex);
   console.log("At addNewRowCells the numOfColumns:", numOfColumns);
   console.log("At addNewRowCells the currentRowIndex:", currentRowIndex);
   console.log("At addNewRowCells addBefore:", addBefore);
   console.log("At addNewRowCells rowIndexesArr:", rowIndexesArr);
+  
+  if (!tableId || !tableIndex || !numOfColumns) {
+    throw new Error("Invalid input data for addNewRow");
+  }
 
   // Determine where to add the new row
   const newRowIndex = addBefore ? currentRowIndex : currentRowIndex + 1;
