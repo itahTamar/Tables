@@ -13,12 +13,14 @@ interface InitialNewTableProps {
   onClose: () => void;
   tableId: string;
   tableIndex: number;
+  onTableCreated: () => void;
 }
 
 const InitialNewTable: React.FC<InitialNewTableProps> = ({
   onClose,
   tableId,
   tableIndex,
+  onTableCreated,
 }) => {
   const serverUrl = useContext(ServerContext);
   const [rowsNo, setRowsNo] = useState<number>(1);
@@ -45,7 +47,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   const handleInitial = async (event: React.FormEvent) => {
     event.preventDefault(); // Prevent form from reloading the page
     console.log("InitialNewTable handleInitial");
-    onClose();
+    // onClose();
 
     if (rowsNo <= 0 || columnsNo <= 0) {
       setMessage("Please fill in valid numbers for rows and columns.");
@@ -103,6 +105,8 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
       setColumns(newColumnCells);
       setCells(newRowsCells);
       setRowIndexesArr([...new Set(newRowIndexesArr)]);
+      onTableCreated();
+      onClose();
     } catch (error) {
       console.error("Error in handleInitial:", error);
       setMessage("An error occurred while initializing the table.");

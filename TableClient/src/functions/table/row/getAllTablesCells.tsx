@@ -9,13 +9,11 @@ interface TablesCellsProp {
 export const getAllTablesCells = async ({
   serverUrl,
   tableId,
-  // tableIndex,
 }: TablesCellsProp) => {
   console.log("you at getAllTablesCells");
   try {
     const cellsData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
       type: "cell",
-      // tableIndex: tableIndex,
       tableId
     }, "getDoc", false);
     if (!cellsData) throw new Error("No cells found.");

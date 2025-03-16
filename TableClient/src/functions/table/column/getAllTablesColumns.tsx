@@ -9,14 +9,12 @@ interface TablesColumnsProp {
 export const getAllTablesColumns = async ({
   serverUrl,
   tableId,
-  // tableIndex,
 }: TablesColumnsProp) => {
 
   console.log("you at getAllTablesColumns");
   try {
     const columnsData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
       type: "column",
-      // tableIndex: tableIndex,
       tableId
     }, "getDoc", false);
     if (!columnsData) throw new Error("No columns found.");
