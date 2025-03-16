@@ -43,7 +43,6 @@ function TablePage() {
     const navigate = useNavigate();
     const getAllUserTables = useGetAllUserTables();
     const [showPopupInitialTable, setShowPopupInitialTable] = useState(false);
-    const [fetchAgain, setFetchAgain] = useState(false);
     const [loading, setLoading] = useState(true);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -189,12 +188,10 @@ function TablePage() {
             // Set all into the table context
             setColumns(fetchedColumns);
             setCells(fetchedCells);
-            setFetchAgain(false);
             setNumOfColumns(highestColumnIndex);
             setNumOfRows(highestRowIndex);
 
             // Step 4: Set the flag to indicate that the data has been fetched
-            sessionStorage.setItem("isRefreshed", "true");
           } catch (error) {
             console.error("Error fetching columns or cells:", error);
           } finally {
@@ -861,7 +858,6 @@ function TablePage() {
               >
                 <InitialNewTable
                   onClose={() => {
-                    setFetchAgain(true);
                     setShowPopupInitialTable(false);
                   }}
                   onTableCreated={() => setShowGenerateTable(false)} // Hide button

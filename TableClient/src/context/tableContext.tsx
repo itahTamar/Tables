@@ -1,9 +1,7 @@
 // tableContext.tsx - contain all user's table fetched from DB
-import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import React, { createContext, ReactNode, useState } from "react";
 import { CellData } from "../types/cellType";
 import { TableData } from "../types/tableType"; // Import the TableData type
-import { ServerContext } from "./ServerUrlContext";
-import { getAllUserTables } from "../functions/table/getAllUserTables";
 interface TableContextType {
   tables: TableData[] ; // Define as an array of TableData
   setTables: React.Dispatch<React.SetStateAction<TableData[]>> ;
@@ -34,30 +32,6 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [numOfColumns, setNumOfColumns] = useState<number>(1)
   const [checkedColumns, setCheckedColumns] = useState<number[]>([])
   const [tablesFetched, setTablesFetched] = useState(false);
-  // const serverUrl = useContext(ServerContext);
-  
-  // useEffect(() => {
-  //   console.log("🚀 useEffect triggered in TableContext");
-  //   console.log("Tables before fetching:", tables);
-    
-  //   async function fetchTables() {
-  //     try {
-  //       console.log("Fetching tables...");
-  //       const data = await getAllUserTables(serverUrl);
-  //       setTables(data);
-  //       setTablesFetched(true);
-  //     } catch (error) {
-  //       console.error("Error fetching tables:", error);
-  //       setTables([]); // Ensure it's not undefined
-  //     }
-  //   }
-  
-  //   if (!tablesFetched || tables.length === 0) {
-  //     fetchTables();
-  //   }
-  // }, [serverUrl]);
-  
-
 
   return (
     <TableContext.Provider 
