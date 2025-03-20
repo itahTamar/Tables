@@ -9,7 +9,7 @@ frontend:
       commands:
         - npm run build
   artifacts:
-    baseDirectory: TableClient/dist
+    baseDirectory: dist
     files:
       - '**/*'
   cache:
