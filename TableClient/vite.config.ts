@@ -11,7 +11,11 @@ export default defineConfig({
     'process.env': {}
   },
   server: {
-    hmr: false,  // Disable Hot Module Replacement for better error tracking
+    hmr: false, // Disable Hot Module Replacement for better error tracking
+  },
+  build: {
+    outDir: 'dist', // Specify the output directory
+    emptyOutDir: true // Ensure the directory is emptied before each build
   }
 });
 
