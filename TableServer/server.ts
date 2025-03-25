@@ -7,21 +7,6 @@ dotenv.config()
 import cors from 'cors'
 import { corsOptions } from "./config/corsOptions";
 import { sendEmail } from './services/mailService'; // Import the sendEmail function
-import fs from 'fs';
-
-// Logging configuration
-const logFilePath = '/usr/share/nginx/html/logs/server-error.log';
-const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
-
-console.log = function (message: any) {
-  logStream.write(`[${new Date().toISOString()}] LOG: ${message}\n`);
-  process.stdout.write(`[${new Date().toISOString()}] LOG: ${message}\n`);
-};
-
-console.error = function (message: any) {
-  logStream.write(`[${new Date().toISOString()}] ERROR: ${message}\n`);
-  process.stderr.write(`[${new Date().toISOString()}] ERROR: ${message}\n`);
-};
 
 const app = express(); 
 const port = process.env.PORT || 5000;
