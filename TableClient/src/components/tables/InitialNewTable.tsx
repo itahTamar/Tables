@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { TableContext } from "../../context/tableContext";
+import { TablesContext } from "../../context/tableContext";
 import {
   addNewRow,
   generateObjectId,
@@ -26,10 +26,10 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   const [rowsNo, setRowsNo] = useState<number>(1);
   const [columnsNo, setColumnsNo] = useState<number>(1);
   const [message, setMessage] = useState<string>("");
-  const tableContext = useContext(TableContext);
+  const tableContext = useContext(TablesContext);
 
   if (!tableContext) {
-    throw new Error("TableContext must be used within a TableProvider");
+    throw new Error("TablesContext must be used within a TableProvider");
   }
 
   if (!tableId || !tableIndex) {
@@ -40,21 +40,19 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   console.log("InitialNewTable received tableId:", tableId);
   console.log("InitialNewTable received tableIndex:", tableIndex);
 
-  const { cells, setCells, columns, setColumns, setRowIndexesArr, setNumOfColumns, setNumOfRows } =
+  const { cells, setCells, headers, setHeaders, setRowIndexesArr, setNumOfColumns, setNumOfRows } =
     tableContext;
-  // const { columns,  setColumns,cells, setCells } = tableContext;
 
   const handleInitial = async (event: React.FormEvent) => {
     event.preventDefault(); // Prevent form from reloading the page
     console.log("InitialNewTable handleInitial");
-    // onClose();
 
     if (rowsNo <= 0 || columnsNo <= 0) {
-      setMessage("Please fill in valid numbers for rows and columns.");
+      setMessage("Please fill in valid numbers for rows and headers.");
       return;
     }
 
-    if (columns.length > 0 || cells.length > 0) {
+    if (headers.length > 0 || cells.length > 0) {
       setMessage("The table is already initialized");
       return;
     }
@@ -62,8 +60,8 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
     try {
       console.log(`Starting to add ${columnsNo} column's type cells`);
 
-      // Create new column's type cells based on columnsNo
-      const newColumnCells: CellData[] = Array.from(
+      // Create new Header's type cells based on columnsNo
+      const newHeaders: CellData[] = Array.from(
         { length: columnsNo },
         (_, columnIndex) => ({
           //columnIndex by default of "Array.from" start from 0
@@ -78,13 +76,14 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
           __v: 0,
         })
       );
-      console.log("New column's type Cells array:", newColumnCells);
+      console.log("New column's type Cells array:", newHeaders);
       
       console.log(`Starting to add ${rowsNo * columnsNo} row's type cells`);
       const newRowIndexesArr = [];
       const newRowsCells = [];
       for (let rowIndex = 0; rowIndex < rowsNo; rowIndex++) {
         console.log("Adding row:", rowIndex+1);
+        //create new row
         const newCellsAfterAddingRow = await addNewRow({
           tableId,
           tableIndex,
@@ -99,10 +98,10 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
       }
 
       console.log("New rows's Cells array:", newRowsCells);
-      const addToDB = [...newColumnCells, ...newRowsCells];
+      const addToDB = [...newHeaders, ...newRowsCells];
       handleAddToDB(addToDB, serverUrl);
 
-      setColumns(newColumnCells);
+      setHeaders(newHeaders);
       setCells(newRowsCells);
       setRowIndexesArr([...new Set(newRowIndexesArr)]);
       setNumOfColumns(columnsNo);

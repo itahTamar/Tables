@@ -4,14 +4,14 @@ import { deleteColumnCells } from "./deleteColumnCells";
 interface DragAndDropColumnProp {
   currentColumnIndex: number;
   targetColumnIndex: number;
-  columnArr: CellData[];
+  headerArr: CellData[];
   cellsArr: CellData[];
 }
 
 export const dragAndDropColumn = async ({
   currentColumnIndex,
   targetColumnIndex,
-  columnArr,
+  headerArr,
   cellsArr,
 }: DragAndDropColumnProp) => {
   console.log("HELLO FROM D&D COLUMN");
@@ -27,7 +27,7 @@ export const dragAndDropColumn = async ({
     //grab and remove the entire column
     const result1 = await deleteColumnCells({
       currentColumnIndex,
-      columns: columnArr,
+      headers: headerArr,
       cells: cellsArr,
     });
     if (result1 === undefined) {
@@ -38,7 +38,7 @@ export const dragAndDropColumn = async ({
     const newTempCellsArrayAfterDelete = result1.newCellsArrayAfterDelete;
     const newTempColumnsArrayAfterDelete = result1.newColumnsArrayAfterDelete;
 
-    // Adjust indices of existing columns
+    // Adjust indices of existing headers
     const adjustedColumns = newTempColumnsArrayAfterDelete.map((col) => {
       if (col.columnIndex >= targetColumnIndex) {
         return { ...col, columnIndex: col.columnIndex + 1 };

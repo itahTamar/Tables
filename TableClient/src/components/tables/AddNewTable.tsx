@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { ServerContext } from "../../context/ServerUrlContext";
 import "../../style/buttons.css";
-import { TableContext } from "../../context/tableContext";
+import { TablesContext } from "../../context/tableContext";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { useGetAllUserTables } from "../../hooks/tables/useGetTablesHooks";
 
@@ -14,9 +14,9 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
   const [message, setMessage] = useState<string>("");
   const serverUrl = useContext(ServerContext);
   const getAllUserTables = useGetAllUserTables();
-  const tableContext = useContext(TableContext);
+  const tableContext = useContext(TablesContext);
   if (!tableContext) {
-    throw new Error("TableContext must be used within a TableProvider");
+    throw new Error("TablesContext must be used within a TableProvider");
   }
   const { tables } = tableContext;
   if (tables === undefined) throw new Error("at MainTablePage tables are undefine");

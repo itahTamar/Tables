@@ -6,22 +6,22 @@ interface TablesColumnsProp {
   // tableIndex: number;
 }
 
-export const getAllTablesColumns = async ({
+export const getHeaders = async ({
   serverUrl,
   tableId,
 }: TablesColumnsProp) => {
 
-  console.log("you at getAllTablesColumns");
+  console.log("you at getHeaders");
   try {
     const columnsData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
       type: "column",
       tableId
     }, "getDoc", false);
-    if (!columnsData) throw new Error("No columns found.");
-    console.log("at getAllTablesColumns the columnsData:", columnsData);
+    if (!columnsData) throw new Error("No headers found.");
+    console.log("at getHeaders the columnsData:", columnsData);
     return columnsData;
   } catch (error) {
-    console.error("Error fetching tables columns:", error);
+    console.error("Error fetching tables headers:", error);
     return []
   }
 }; //work ok

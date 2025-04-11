@@ -3,12 +3,10 @@ import { useNavigate } from "react-router-dom";
 import "../style/buttons.css";
 import "../style/landingPage.css";
 import Popup from "../components/popups/Popup";
-// import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 import Login from "../components/users/login/Login";
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  // const getAllUserTables = useGetAllUserTables();
   const [showPopupLogin, setShowPopupLogin] = useState(false);
 
   return (

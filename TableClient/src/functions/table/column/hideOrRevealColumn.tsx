@@ -2,14 +2,14 @@ import { CellData } from "../../../types/cellType";
 
 interface HideOrRevealColumnProp {
   currentColumnIndex: number;
-  columns: CellData[];
+  headers: CellData[];
   cells: CellData[];
   visible: boolean;
 }
 
 export const hideOrRevealColumn = ({
   currentColumnIndex,
-  columns,
+  headers,
   cells,
   visible, //false - want to hide, true - want to reveal
 }: HideOrRevealColumnProp): {
@@ -41,7 +41,7 @@ export const hideOrRevealColumn = ({
     (cell) => cell.columnIndex === indexToAction
   );
 
-  const newColumnsArrayAfterChange = columns.map((cell) =>
+  const newColumnsArrayAfterChange = headers.map((cell) =>
     cell.columnIndex === indexToAction
       ? { ...cell, visibility: visible }
       : cell

@@ -5,11 +5,11 @@ import { TableData } from "../types/tableType"; // Import the TableData type
 interface TableContextType {
   tables: TableData[] ; // Define as an array of TableData
   setTables: React.Dispatch<React.SetStateAction<TableData[]>> ;
-  columns: CellData[];
-  setColumns: (columns: CellData[] | ((prev: CellData[]) => CellData[])) => void; // Allow updater function
+  headers: CellData[];
+  setHeaders: (headers: CellData[] | ((prev: CellData[]) => CellData[])) => void; // Allow updater function
   cells: CellData[]; //all table document row&column cells
   setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
-  rowIndexesArr: number[];
+  rowIndexesArr: number[]; //The array of indexes of the rows you want to display.
   setRowIndexesArr: (indexesArr: number[] | ((prev: number[]) => number[])) => void;
   numOfColumns: number;
   setNumOfColumns: (numOfColumns: number | ((prev: number) => number)) => void;
@@ -21,11 +21,11 @@ interface TableContextType {
   setTablesFetched:(tablesFetched: boolean | ((prev: boolean) => boolean)) => void
 }
 
-export const TableContext = createContext<TableContextType | null>(null);
+export const TablesContext = createContext<TableContextType | null>(null);
 
 export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [tables, setTables] = useState<TableData[]>([]); // Initialize as an empty array
-  const [columns, setColumns] = useState<CellData[]>([])
+  const [headers, setHeaders] = useState<CellData[]>([])
   const [cells, setCells] = useState<CellData[]>([])
   const [rowIndexesArr, setRowIndexesArr] = useState<number[]>([])
   const [numOfRows, setNumOfRows] = useState<number>(1)
@@ -34,9 +34,9 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [tablesFetched, setTablesFetched] = useState(false);
 
   return (
-    <TableContext.Provider 
+    <TablesContext.Provider 
           value={{ tables, setTables, 
-          columns, setColumns, 
+          headers, setHeaders, 
           cells, setCells, 
           numOfRows, setNumOfRows,
           numOfColumns, setNumOfColumns,
@@ -45,7 +45,7 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           tablesFetched, setTablesFetched,
           }}>
       {children}
-    </TableContext.Provider>
+    </TablesContext.Provider>
   );
 };
 

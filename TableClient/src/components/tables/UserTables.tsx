@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { TableContext } from "../../context/tableContext";
+import { TablesContext } from "../../context/tableContext";
 import GeneralSearch from "../filters/GeneralSearch";
 import { TableData } from "../../types/tableType";
 
@@ -13,10 +13,10 @@ const UserTables: React.FC<UserTablesProp> = ({
   handleRightClick,
   tableVisibility,
 }) => {
-  const tableContext = useContext(TableContext);
+  const tableContext = useContext(TablesContext);
 
   if (!tableContext) {
-    throw new Error("TableContext must be used within a TableProvider");
+    throw new Error("TablesContext must be used within a TableProvider");
   }
 
   const { tables } = tableContext;

@@ -7,18 +7,18 @@ import InitialNewTable from "../components/tables/InitialNewTable";
 import PlotTable from "../components/tables/PlotTable";
 import SearchInTableCells from "../components/tables/SearchInTableCells";
 import { ServerContext } from "../context/ServerUrlContext";
-import { TableContext } from "../context/tableContext";
+import { TablesContext } from "../context/tableContext";
 import { handelDeleteInDB } from "../functions/dbHandler/handelDeleteInDB";
 import { handleAddToDB } from "../functions/dbHandler/handleAddToDB";
 import { handleUpdateIndexInDB } from "../functions/dbHandler/handleUpdateIndexInDB";
 import { addNewColumnWithCells } from "../functions/table/column/addNewColumnWithCells";
 import { deleteColumnCells } from "../functions/table/column/deleteColumnCells";
-import { getAllTablesColumns } from "../functions/table/column/getAllTablesColumns";
+import { getHeaders } from "../functions/table/column/getHeaders";
 import { findTheLastIndex } from "../functions/table/findTheLastIndex";
 import generateCellsForPlot from "../functions/table/generateCellsForPlot";
 import { addNewRow } from "../functions/table/row/addNewRow";
 import { DeleteRowCells } from "../functions/table/row/deleteRowCells";
-import { getAllTablesCells } from "../functions/table/row/getAllTablesCells";
+import { getCells } from "../functions/table/row/getCells";
 import "../style/buttons.css";
 import "../style/tables/tablePage.css";
 import { CellData } from "../types/cellType";
@@ -26,7 +26,6 @@ import SelectionMenu from "./../components/tables/SelectionMenu";
 // import { hideOrRevealColumn } from "../functions/table/column/hideOrRevealColumn";
 import ColumnSelector from "../components/columns/ColumnSelector";
 import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
-import ErrorBoundary from "../components/ErrorBoundary";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 
 function TablePage() {
@@ -38,7 +37,7 @@ function TablePage() {
     console.log("🔄 TablePage Render Count:", renderCount.current);
 
     const serverUrl = useContext(ServerContext);
-    const tableContext = useContext(TableContext);
+    const tableContext = useContext(TablesContext);
     const { tableId } = useParams();
     const navigate = useNavigate();
     const getAllUserTables = useGetAllUserTables();
@@ -61,9 +60,9 @@ function TablePage() {
     const {
       tables = [],
       tablesFetched,
-      columns,
+      headers,
       cells,
-      setColumns,
+      setHeaders,
       setCells,
       rowIndexesArr,
       setRowIndexesArr,
@@ -75,24 +74,24 @@ function TablePage() {
 
     if (
       cells===undefined ||
-      columns===undefined ||
+      headers===undefined ||
       numOfColumns===undefined ||
       numOfRows===undefined
     ) {
       console.log("⏳ line 83: Waiting for tables to load...");
       console.log("⏳ Debug info:");
-      console.log("cells, columns, numOfColumns, numOfRows:", cells, columns, numOfColumns, numOfRows);
-      return <div>Loading cells and columns...</div>;
+      console.log("cells, headers, numOfColumns, numOfRows:", cells, headers, numOfColumns, numOfRows);
+      return <div>Loading cells and headers...</div>;
     }
 
     if (
       setCells===undefined ||
-      setColumns===undefined ||
+      setHeaders===undefined ||
       setRowIndexesArr===undefined ||
       setNumOfColumns===undefined ||
       setNumOfRows===undefined
     ) {
-      console.log("⏳ line 96: setCells,setColumns,setRowIndexesArr,setNumOfColumns,setNumOfRows:",setCells,setColumns,setRowIndexesArr,setNumOfColumns,setNumOfRows);
+      console.log("⏳ line 96: setCells,setHeaders,setRowIndexesArr,setNumOfColumns,setNumOfRows:",setCells,setHeaders,setRowIndexesArr,setNumOfColumns,setNumOfRows);
       return <div>problem with sets!</div>;
  
     }
@@ -109,11 +108,11 @@ function TablePage() {
       }
     }, []);
 
-    // Fetch columns and cells in useEffect
+    // Fetch headers and cells in useEffect
     useEffect(() => {
-      console.log("🛠️🛠️🛠️ TablePage useEffect fetching columns and cells");
+      console.log("🛠️🛠️🛠️ TablePage useEffect fetching headers and cells");
       console.log(
-        "🛠️🛠️🛠️ at TablePage useEffect fetching columns and cells tablesFetched:",
+        "🛠️🛠️🛠️ at TablePage useEffect fetching headers and cells tablesFetched:",
         tablesFetched
       );
       if (!tablesFetched) {
@@ -122,27 +121,29 @@ function TablePage() {
       }
 
       // Fetch data only if it's not already available
-      if (cells.length === 0 || (columns.length === 0 && !showGenerateTable)) {
-        console.log("🛠️ Fetching columns and cells");
+      if (cells.length === 0 || (headers.length === 0 && !showGenerateTable)) {
+        console.log("🛠️ Fetching headers and cells");
 
-        const fetchColumnsAndCells = async () => {
-          console.log("🛠️🛠️🛠️ fetchColumnsAndCells start");
+        const fetchHeadersAndCells = async () => {
+          console.log("🛠️🛠️🛠️ fetchHeadersAndCells start");
 
           try {
             console.log("after fetches cells and column start the loading is:",loading)
-            const fetchedColumns: CellData[] = await getAllTablesColumns({
+            // get table's headers (documents)
+            const fetchedHeaders: CellData[] = await getHeaders({
               serverUrl,
               tableId,
             });
-            const fetchedCells: CellData[] = await getAllTablesCells({
+            // get table's cells (documents)
+            const fetchedCells: CellData[] = await getCells({
               serverUrl,
               tableId,
             });
 
-            if (!fetchedColumns || !fetchedCells) {
-              throw new Error("Failed to fetch columns or cells");
+            if (!fetchedHeaders || !fetchedCells) {
+              throw new Error("Failed to fetch headers or cells");
             }
-            console.log("At TablePage fetched columns:", fetchedColumns);
+            console.log("At TablePage fetched headers:", fetchedHeaders);
             console.log("At TablePage fetched cells:", fetchedCells);
 
             // Ensure all rows are displayed on initial load or when search is cleared
@@ -151,16 +152,18 @@ function TablePage() {
                 ...new Set(fetchedCells.map((cell) => cell.rowIndex)),
               ]);
             }
-
+            
+            // todo: shift the update on number of cells/headers to dedicated function
             //find the highest number of row and column
             const highestColumnIndex = findTheLastIndex({
-              arr: fetchedColumns,
+              arr: fetchedHeaders,
               indexType: "columnIndex",
             });
             const highestRowIndex = findTheLastIndex({
               arr: fetchedCells,
               indexType: "rowIndex",
             });
+
             if (highestRowIndex === undefined)
               throw new Error("At TablePage the lastCellIndex not defined");
             if (highestColumnIndex === undefined)
@@ -171,14 +174,14 @@ function TablePage() {
             console.log(
               "TablePage setShowGenerateTable going to be:",
               loading &&
-                fetchedColumns.length === 0 &&
+                fetchedHeaders.length === 0 &&
                 fetchedCells.length === 0
             );
 
             // ✅ Update showGenerateTable *inside setState* to ensure it's synced
             setShowGenerateTable((prevState) => {
               const newState =
-                fetchedColumns.length === 0 && fetchedCells.length === 0;
+                fetchedHeaders.length === 0 && fetchedCells.length === 0;
               console.log(
                 `📌 Setting showGenerateTable: ${prevState} → ${newState}`
               );
@@ -186,25 +189,25 @@ function TablePage() {
             });
 
             // Set all into the table context
-            setColumns(fetchedColumns);
+            setHeaders(fetchedHeaders);
             setCells(fetchedCells);
             setNumOfColumns(highestColumnIndex);
             setNumOfRows(highestRowIndex);
 
             // Step 4: Set the flag to indicate that the data has been fetched
           } catch (error) {
-            console.error("Error fetching columns or cells:", error);
+            console.error("Error fetching headers or cells:", error);
           } finally {
-            console.log("TablePage fetchColumnsAndCells finally");
+            console.log("TablePage fetchHeadersAndCells finally");
             console.log(
-              "TablePage fetchColumnsAndCells showGenerateTable:",
+              "TablePage fetchHeadersAndCells showGenerateTable:",
               showGenerateTable
             );
             setLoading(false); // Stop loading
           }
         };
 
-        fetchColumnsAndCells();
+        fetchHeadersAndCells();
       }
         console.log("fetch again")
     }, [tablesFetched, showGenerateTable, 
@@ -253,12 +256,12 @@ function TablePage() {
     if (!serverUrl) console.error("🚨 Missing serverUrl!");
     if (!tableContext) console.error("🚨 Missing tableContext!");
     if (!serverUrl || !tableContext) {
-      console.error("TableContext or ServerContext is missing in TablePage.");
+      console.error("TablesContext or ServerContext is missing in TablePage.");
       return <div>Loading severUrl or tableContext..</div>;
     }
     if (!tableContext || typeof tableContext !== "object") {
       console.error("🚨 tableContext is invalid or missing:", tableContext);
-      return <div>TableContext is corrupted.</div>;
+      return <div>TablesContext is corrupted.</div>;
     }
     if (!tableContext.tablesFetched) {
       console.log("⏳ !tableContext.tablesFetched: Waiting for tables to load...");
@@ -271,7 +274,7 @@ function TablePage() {
 
     console.log("Current rowIndexesArr:", rowIndexesArr);
     console.log("Current cells:", cells);
-    console.log("Current columns:", columns);
+    console.log("Current headers:", headers);
     console.log("Current tableId:", tableId);
     console.log("All tables in context:", tables);
 
@@ -331,18 +334,18 @@ function TablePage() {
       }
     }; //works
 
-    //update the data filed in the UI only
+    // update the data field only in the UI
     const visualDataCellsUpdate = (
       cell: CellData,
       updatedCell: CellData
     ): CellData[] => {
       if (cell.rowIndex === 0) {
-        const newColumns = columns.map((c) =>
+        const newHeaders = headers.map((c) =>
           c._id === cell._id ? updatedCell : c
         );
-        setColumns((prev) => {
-          if (JSON.stringify(prev) === JSON.stringify(newColumns)) return prev;
-          return newColumns;
+        setHeaders((prev) => {
+          if (JSON.stringify(prev) === JSON.stringify(newHeaders)) return prev;
+          return newHeaders;
         });
         return []; // Return the updated array
       } else {
@@ -382,7 +385,7 @@ function TablePage() {
         if (success)
           console.log("at handleCellUpdate Cell updated successfully in db");
 
-        // Update the visual state (columns or cells data)
+        // Update the visual state (headers or cells data)
         const resolve = await visualDataCellsUpdate(cell, updatedCell);
         console.log(
           "at handleCellUpdate after visualCellsUpdate the resolve is:",
@@ -450,8 +453,8 @@ function TablePage() {
       }
     }; //works
 
-    const handleBackBtnClicked = async () => {
-      setColumns([]);
+    const handleBackBtnClick = async () => {
+      setHeaders([]);
       setCells([]);
       setRowIndexesArr([]);
       navigate("/mainTablesPage");
@@ -467,16 +470,16 @@ function TablePage() {
         //   await handleAddRowBtnClick(true, rowIndex);
       } else if (action === "addColumnAfter") {
         setMenuState({ ...menuState, visible: false }); // Close menu after action
-        await handleAddColumnBtnClicked(false, columnIndex);
+        await handleAddColumnBtnClick(false, columnIndex);
       } else if (action === "addColumnBefore") {
         setMenuState({ ...menuState, visible: false }); // Close menu after action
-        await handleAddColumnBtnClicked(true, columnIndex);
+        await handleAddColumnBtnClick(true, columnIndex);
       } else if (action === "deleteRow") {
         setMenuState({ ...menuState, visible: false }); // Close menu after action
-        await handleDeleteRowBtnClicked(rowIndex);
+        await handleDeleteRowBtnClick(rowIndex);
       } else if (action === "deleteColumn") {
         setMenuState({ ...menuState, visible: false }); // Close menu after action
-        await handleDeleteColumnBtnClicked(columnIndex);
+        await handleDeleteColumnBtnClick(columnIndex);
       } else if (action === "clearData") {
         const cellToClear = cells.find(
           (cell) =>
@@ -486,13 +489,6 @@ function TablePage() {
           await handleCellUpdate(cellToClear, null, cellToClear.data); // Clear the cell data
         }
         setMenuState({ ...menuState, visible: false }); // Close menu
-        // } else if (rowIndex === 0) {
-        //   if (action === "hideColumn") {
-        //     await handleHideColumn(columnIndex);
-        //   } else if (action === "revealColumn") {
-        //     await handleRevealColumn(columnIndex);
-        //   }
-        //   setMenuState({ ...menuState, visible: false }); // Close menu
       }
     }; //works
 
@@ -532,7 +528,7 @@ function TablePage() {
       handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
     }; //works
 
-    const handleAddColumnBtnClicked = async (
+    const handleAddColumnBtnClick = async (
       addBefore: boolean,
       currentColumnIndex: number
     ) => {
@@ -546,13 +542,13 @@ function TablePage() {
         tableIndex,
         currentColumnIndex,
         numOfRows,
-        columns,
+        headers,
         cells,
         addBefore,
       });
 
       setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
-      setColumns(newColumnAndCellsAfterAddingColumn.updatedColumns);
+      setHeaders(newColumnAndCellsAfterAddingColumn.updatedColumns);
       setNumOfColumns((prev) => prev + 1);
       handleUpdateIndexInDB(
         newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,
@@ -561,11 +557,11 @@ function TablePage() {
       handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
     }; //works
 
-    const handleDeleteRowBtnClicked = async (currentRowIndex: number) => {
+    const handleDeleteRowBtnClick = async (currentRowIndex: number) => {
       try {
         if (currentRowIndex === 0) {
-          handelDeleteInDB(columns, serverUrl);
-          setColumns([]);
+          handelDeleteInDB(headers, serverUrl);
+          setHeaders([]);
         } else {
           const result = await DeleteRowCells({
             currentRowIndex,
@@ -590,13 +586,13 @@ function TablePage() {
       }
     }; //works
 
-    const handleDeleteColumnBtnClicked = async (currentColumnIndex: number) => {
-      console.log("Columns state before deletion:", columns);
+    const handleDeleteColumnBtnClick = async (currentColumnIndex: number) => {
+      console.log("Columns state before deletion:", headers);
       console.log("Cells state before deletion:", cells);
       try {
         const result = await deleteColumnCells({
           currentColumnIndex,
-          columns,
+          headers,
           cells,
         });
 
@@ -605,7 +601,7 @@ function TablePage() {
         }
 //@ts-ignore
 
-        setColumns(result.newColumnsArrayAfterDelete);
+        setHeaders(result.newColumnsArrayAfterDelete);
 //@ts-ignore
 
         setCells(result.newCellsArrayAfterDelete);
@@ -657,44 +653,6 @@ function TablePage() {
       }
     }; //works
 
-    // const handleHideColumn = async (currentColumnIndex: number) => {
-    //   try {
-    //     const resultHide = await hideOrRevealColumn({
-    //       currentColumnIndex,
-    //       columns,
-    //       cells,
-    //       visible: false,
-    //     });
-    //     if (resultHide === undefined) {
-    //       throw new Error("Result is undefined - hide column failed");
-    //     }
-    //     setColumns(resultHide.newColumnsArrayAfterChange);
-    //     setCells(resultHide.newCellsArrayAfterChange);
-    //     handleUpdateVisibilityToDB(resultHide.toBeUpdate, serverUrl);
-    //   } catch (error) {
-    //     console.error("Error handling hide column:", error);
-    //   }
-    // };
-
-    // const handleRevealColumn = async (currentColumnIndex: number) => {
-    //   try {
-    //     const resultHide = await hideOrRevealColumn({
-    //       currentColumnIndex,
-    //       columns,
-    //       cells,
-    //       visible: true,
-    //     });
-    //     if (resultHide === undefined) {
-    //       throw new Error("Result is undefined - hide column failed");
-    //     }
-    //     setColumns(resultHide.newColumnsArrayAfterChange);
-    //     setCells(resultHide.newCellsArrayAfterChange);
-    //     handleUpdateVisibilityToDB(resultHide.toBeUpdate, serverUrl);
-    //   } catch (error) {
-    //     console.error("Error handling hide column:", error);
-    //   }
-    // };
-
     const handleSaveSelectedColumns = async (
       selectedColumnIndices: number[]
     ) => {
@@ -704,13 +662,13 @@ function TablePage() {
         selectedColumnIndices
       );
 
-      const updatedColumns = columns.map((column) => ({
+      const updatedColumns = headers.map((column) => ({
         ...column,
         visibility: selectedColumnIndices.includes(column.columnIndex),
       }));
 //@ts-ignore
 
-      setColumns(updatedColumns);
+      setHeaders(updatedColumns);
 
       // Update cells visibility if needed
       const updatedCells = cells.map((cell) => ({
@@ -744,7 +702,7 @@ function TablePage() {
         <header className="flex justify-between items-center">
           {/* Back Button */}
           <button
-            onClick={() => handleBackBtnClicked()}
+            onClick={() => handleBackBtnClick()}
             className="back absolute top-4 left-4 text-white bg-red-500 px-4 py-2 rounded hover:bg-red-600 "
           >
             Back
@@ -761,9 +719,7 @@ function TablePage() {
             {tableName}
           </h1>
 
-          <ErrorBoundary>
             <SearchInTableCells />
-          </ErrorBoundary>
 
           {/* Dropdown Menu */}
           <div className="dropDownMenuBtn text-left" ref={dropdownRef}>
@@ -807,7 +763,7 @@ function TablePage() {
                   >
                     Export Table
                   </button>
-                  {/* select columns */}
+                  {/* select headers */}
                   <button
                     onClick={() => handleSelectColumns()}
                     className="block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left"
@@ -817,7 +773,7 @@ function TablePage() {
                   </button>
                   {showColumnSelector && (
                     <ColumnSelector
-                      columns={columns}
+                      headers={headers}
                       onClose={() => {
                         setShowColumnSelector(false);
                         setDropdownOpen(false);
@@ -867,13 +823,11 @@ function TablePage() {
               </PopupWithAnimation>
             )}
 
-            <ErrorBoundary>
-              <PlotTable
-                handleRightClick={handleRightClick || (() => false)} // Provide a no-op fallback if undefined
-                handleCellUpdate={handleCellUpdate}
-                displayArr={displayArr}
-              />
-            </ErrorBoundary>
+            <PlotTable
+              handleRightClick={handleRightClick || (() => false)} // Provide a no-op fallback if undefined
+              handleCellUpdate={handleCellUpdate}
+              displayArr={displayArr}
+            />
 
             {menuState.visible && (
               <SelectionMenu x={menuState.x} y={menuState.y}>

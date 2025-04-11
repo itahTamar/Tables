@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { TableContext } from "../../context/tableContext";
+import { TablesContext } from "../../context/tableContext";
 import "../../style/tables/tablePage.css";
 
 //component that search in the cells array
@@ -10,7 +10,7 @@ interface SearchInTableCellsProps {
 const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
   placeholder = "Search...",
 }) => {
-  const tableContext = useContext(TableContext);
+  const tableContext = useContext(TablesContext);
   if (!tableContext) {
     throw new Error("at SearchInTableCells the tableContext is undefined");
   }
@@ -55,7 +55,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
 
     let resultSearchIndexes: number[];
 
-    // Apply the column filter only if columns are checked
+    // Apply the column filter only if headers are checked
     let filteredCells =
       checkedColumns.length > 0
         ? cells.filter((cell) => checkedColumns.includes(cell.columnIndex))

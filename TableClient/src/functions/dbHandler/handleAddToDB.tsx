@@ -8,5 +8,5 @@ export const handleAddToDB = async (newToAddInDB: CellData[], serverUrl: string)
       )
     );
     if (successAddCells)
-      console.log("At TablePage rows and columns added successfully to DB");
+      console.log("At TablePage rows and headers added successfully to DB");
   }; //works

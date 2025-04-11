@@ -16,5 +16,5 @@ export const handleUpdateIndexInDB = async (toBeUpdateInDB: CellData[], serverUr
       )
     );
     if (successUpdate)
-      console.log("At TablePage rows and columns indexes updated successfully to DB");
+      console.log("At TablePage rows and headers indexes updated successfully to DB");
   }; //works

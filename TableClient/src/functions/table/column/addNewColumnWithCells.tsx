@@ -7,7 +7,7 @@ interface AddColumnProp {
   tableId: string;
   tableIndex: number;
   currentColumnIndex: number;
-  columns: CellData[];
+  headers: CellData[];
   cells: CellData[];
   addBefore: boolean;
   numOfRows: number;
@@ -18,11 +18,11 @@ export const addNewColumnWithCells = async ({
   tableIndex,
   currentColumnIndex,
   numOfRows,
-  columns,
+  headers,
   cells,
   addBefore, // parameter to specify adding before/after the current column
 }: AddColumnProp) => {
-  if (!tableId || columns.length === 0) {
+  if (!tableId || headers.length === 0) {
     throw new Error("Invalid input data for addNewColumnWithCells");
   }
   console.log("numOfRows:", numOfRows)
@@ -31,8 +31,8 @@ export const addNewColumnWithCells = async ({
   const newColumnIndex = addBefore ? currentColumnIndex : currentColumnIndex + 1;
   console.log("newColumnIndex:", newColumnIndex)
   
-  // Adjust indices of existing columns
-  const adjustedColumns = columns.map((col) => {
+  // Adjust indices of existing headers
+  const adjustedColumns = headers.map((col) => {
     if (col.columnIndex >= newColumnIndex) {
       return { ...col, columnIndex: col.columnIndex + 1 };
     }
@@ -49,7 +49,7 @@ export const addNewColumnWithCells = async ({
   });
   console.log("adjustedCells:", adjustedCells)
 
-  // Add the new column to the columns array
+  // Add the new column to the headers array
   const newColumn: CellData = {
     _id: generateObjectId(),
     type: "column",
@@ -64,7 +64,7 @@ export const addNewColumnWithCells = async ({
   const updatedColumns = [...adjustedColumns, newColumn];
 
   // Add new cells for the rows corresponding to the new column
-  const newColumnCells: CellData[] = Array.from(
+  const newHeaders: CellData[] = Array.from(
     { length: numOfRows },
     (_, rowIndex) => ({
       _id: generateObjectId(),
@@ -78,9 +78,9 @@ export const addNewColumnWithCells = async ({
       __v: 0,
     })
   );
-  const updatedCells = [...adjustedCells, ...newColumnCells];
+  const updatedCells = [...adjustedCells, ...newHeaders];
 
-  // Sort columns and cells
+  // Sort headers and cells
   const sortedUpdatedColumns = updatedColumns.sort(
     (a, b) => a.columnIndex - b.columnIndex
   );
@@ -89,11 +89,11 @@ export const addNewColumnWithCells = async ({
   );
 
   // Update UI (front-end) state
-  console.log("Updated columns:", sortedUpdatedColumns);
+  console.log("Updated headers:", sortedUpdatedColumns);
   console.log("Updated cells:", sortedUpdatedCells);
 
   const toBeUpdateInDB = [...adjustedColumns,...adjustedCells]
-  const NewToAddInDB = [...newColumnCells, newColumn]
+  const NewToAddInDB = [...newHeaders, newColumn]
 
   return {
     updatedColumns: sortedUpdatedColumns,

@@ -12,7 +12,7 @@ interface AddRowProp {
 
 /**
  * Function to add a new row to the table
- * @param columns - Array of CellData representing columns
+ * @param headers - Array of CellData representing headers
  * @param cells - Array of CellData representing cells
  */
 
@@ -52,7 +52,7 @@ export const addNewRow = async ({
     cells.filter((cell) => !cell.visibility).map((cell) => cell.columnIndex)
   );
 
-  // Create new cells for the new row based on columns
+  // Create new cells for the new row based on num of columns
   const newRowCells: CellData[] = Array.from(
     { length: numOfColumns },
     (_, columnIndex) => ({
@@ -60,7 +60,7 @@ export const addNewRow = async ({
       _id: generateObjectId(), // Placeholder function to generate a unique ID
       type: "cell",
       data: null,
-      visibility: !hiddenColumnIndexes.has(columnIndex + 1), // Keep hidden columns hidden
+      visibility: !hiddenColumnIndexes.has(columnIndex + 1), // Keep hidden headers hidden
       rowIndex: newRowIndex,
       columnIndex: columnIndex + 1,
       tableIndex: tableIndex,

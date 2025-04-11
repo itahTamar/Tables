@@ -10,7 +10,7 @@ import { ServerContext } from "../context/ServerUrlContext";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 import "../style/search.css";
 import TableSelector from "../components/tables/TableSelector";
-import { TableContext } from "../context/tableContext";
+import { TablesContext } from "../context/tableContext";
 import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -35,9 +35,9 @@ const MainTablesPage: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showTableSelector, setShowTableSelector] = useState(false);
   const [tableVisibility, setTableVisibility] = useState<Record<string, boolean>>({});
-  const tableContext = useContext(TableContext);
+  const tableContext = useContext(TablesContext);
   if (!tableContext) {
-    throw new Error("TableContext must be used within a TableProvider");
+    throw new Error("TablesContext must be used within a TableProvider");
   }
   const { tables, setTables } = tableContext;
   if (tables === undefined) throw new Error("at MainTablePage tables are undefine");
@@ -60,7 +60,7 @@ const MainTablesPage: React.FC = () => {
   }, []);
   
   //local functions:
-  //get user tables after refresh
+  //get user tables at start and after refresh
   useEffect(() => {
     const fetchTables = async () => {
       await getAllUserTables();
@@ -206,28 +206,6 @@ const MainTablesPage: React.FC = () => {
           Logout
         </button>
 
-        {/* update user details */}
-        {/* <button
-              type="button"
-              className="absolute top-4 left-28"
-              onClick={() => navigate("/updateUserDetails")}
-            >
-              <span className="emoji">&#xf2bd;</span>
-            </button> */}
-
-        {/* Add Table Button */}
-        {/* <button
-          onClick={() => setShowPopupAddNewTable(true)}
-          className="absolute top-4 right-4 flex items-center justify-center w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600"
-          title="Add Table" // Tooltip message on hover
-        >
-          <span
-            className="text-white text-2xl text-center"
-            style={{ paddingBottom: "0.33rem" }}
-          >
-            +
-          </span>
-        </button>*/}
         {showPopupAddNewTable && (
           <PopupWithAnimation
             open={showPopupAddNewTable}

@@ -4,7 +4,7 @@ import "../../../style/buttons.css";
 import { UserContext } from "../../../context/userContext";
 import { ServerContext } from "../../../context/ServerUrlContext";
 import { useGetAllUserTables } from "../../../hooks/tables/useGetTablesHooks";
-import { TableContext } from "../../../context/tableContext";
+import { TablesContext } from "../../../context/tableContext";
 import { login } from "../../../api/userApi";
 
 //work ok
@@ -12,7 +12,7 @@ const Login = () => {
   const navigate = useNavigate();
   const serverUrl = useContext(ServerContext);
   const getAllUserTables = useGetAllUserTables();
-  const tableContext = useContext(TableContext); 
+  const tableContext = useContext(TablesContext); 
   const { setUserEmail } = useContext(UserContext);
   const [password, setPassword] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -20,7 +20,7 @@ const Login = () => {
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
 
   if (!tableContext) {
-    throw new Error("TableContext must be used within a TableProvider");
+    throw new Error("TablesContext must be used within a TableProvider");
   }
 
   const handleSubmitLogin = async (ev: React.FormEvent<HTMLFormElement>) => {

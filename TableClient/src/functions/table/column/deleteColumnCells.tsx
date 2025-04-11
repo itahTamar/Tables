@@ -2,14 +2,14 @@ import { CellData } from "../../../types/cellType";
 
 interface DeleteColumnProp {
   currentColumnIndex: number;
-  columns: CellData[];
+  headers: CellData[];
   cells: CellData[];
 }
 
 // Function to delete one column of the table locally and return items to be deleted
 export const deleteColumnCells = ({
   currentColumnIndex,
-  columns,
+  headers,
   cells,
 }: DeleteColumnProp): {
   toBeDeleted: CellData[];
@@ -20,7 +20,7 @@ export const deleteColumnCells = ({
   console.log("HELLO FROM DELETE COLUMN");
 
   // Step 1.1: Identify column to be deleted
-  const columnsToBeDeleted = columns.filter(
+  const columnsToBeDeleted = headers.filter(
     (column) => column.columnIndex === currentColumnIndex
   );
 
@@ -32,7 +32,7 @@ export const deleteColumnCells = ({
   const toBeDeleted = [...columnsToBeDeleted, ...cellsToBeDeleted];
 
   // Step 2.1: Create ColumnsToBeUpdated array
-  const columnsToBeUpdated = columns
+  const columnsToBeUpdated = headers
     .filter((column) => column.columnIndex > currentColumnIndex)
     .map((column) => ({ ...column, columnIndex: column.columnIndex - 1 }));
 
@@ -43,9 +43,9 @@ export const deleteColumnCells = ({
 
   const toBeUpdated = [...columnsToBeUpdated, ...cellsToBeUpdated];
 
-  // Step 3.1: Create newTempColumns array excluding the deleted column and all columns after
+  // Step 3.1: Create newTempColumns array excluding the deleted column and all headers after
   const newTempColumns = [
-    ...columns.filter((column) => column.columnIndex < currentColumnIndex),
+    ...headers.filter((column) => column.columnIndex < currentColumnIndex),
   ];
 
   console.log("At deleteColumnCells the currentColumnIndex:", currentColumnIndex);
@@ -61,7 +61,7 @@ export const deleteColumnCells = ({
   // Step 4.1: Create newCellsArrayAfterDelete excluding the deleted cells and including the updated cells
   const newCellsArrayAfterDelete = [...newTempCells, ...cellsToBeUpdated];
 
-  // Step 4.2: Create newColumnsArrayAfterDelete excluding the deleted columns and including the updated columns
+  // Step 4.2: Create newColumnsArrayAfterDelete excluding the deleted headers and including the updated headers
   const newColumnsArrayAfterDelete = [...newTempColumns, ...columnsToBeUpdated];
 
   console.log("At deleteColumnCells the toBeDeleted:", toBeDeleted);

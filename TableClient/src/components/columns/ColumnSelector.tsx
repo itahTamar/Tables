@@ -3,18 +3,18 @@ import React, { useState } from "react";
 import { CellData } from "../../types/cellType";
 
 interface ColumnSelectorProps {
-  columns: CellData[];
+  headers: CellData[];
   onClose: () => void;
   onSave: (selectedColumns: number[]) => void;
 }
 
 const ColumnSelector: React.FC<ColumnSelectorProps> = ({
-  columns,
+  headers,
   onClose,
   onSave,
 }) => {
   const [selectedColumns, setSelectedColumns] = useState<number[]>(
-    columns
+    headers
       .filter((col) => col.visibility !== false)
       .map((col) => col.columnIndex)
   );
@@ -31,7 +31,7 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
     <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded shadow-lg max-h-full overflow-auto">
         <h2 className="text-xl mb-4">Select Columns</h2>
-        {columns.map((column) => (
+        {headers.map((column) => (
           <label key={column._id} className="flex items-center mb-2">
             <input
               type="checkbox"

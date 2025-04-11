@@ -1,14 +1,14 @@
 import { useContext } from "react";
 import { DocumentRestAPIMethods } from "../../api/docApi";
 import { ServerContext } from "../../context/ServerUrlContext";
-import { TableContext } from "../../context/tableContext";
+import { TablesContext } from "../../context/tableContext";
 
 export function useGetAllUserTables() {
   const serverUrl = useContext(ServerContext);
-  const tableContext = useContext(TableContext);
+  const tableContext = useContext(TablesContext);
 
   if (!tableContext) {
-    throw new Error("TableContext must be used within a TableProvider");
+    throw new Error("TablesContext must be used within a TableProvider");
   }
   const { setTables, setTablesFetched } = tableContext;
 
