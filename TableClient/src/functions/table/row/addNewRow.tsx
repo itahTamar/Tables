@@ -7,7 +7,7 @@ interface AddRowProp {
   numOfColumns: number;
   cells: CellData[];
   addBefore: boolean;
-  rowIndexesArr: number[];
+  rowIndexesDisplayArr: number[];
 }
 
 /**
@@ -21,7 +21,7 @@ export const addNewRow = async ({
   tableIndex,
   currentRowIndex,
   numOfColumns,
-  rowIndexesArr,
+  rowIndexesDisplayArr,
   cells,
   addBefore, // parameter to specify adding before/after the current row
 }: AddRowProp) => {
@@ -29,7 +29,7 @@ export const addNewRow = async ({
   console.log("At addNewRowCells the numOfColumns:", numOfColumns);
   console.log("At addNewRowCells the currentRowIndex:", currentRowIndex);
   console.log("At addNewRowCells addBefore:", addBefore);
-  console.log("At addNewRowCells rowIndexesArr:", rowIndexesArr);
+  console.log("At addNewRowCells rowIndexesDisplayArr:", rowIndexesDisplayArr);
   
   if (!tableId || !tableIndex || !numOfColumns) {
     throw new Error("Invalid input data for addNewRow");
@@ -81,7 +81,7 @@ export const addNewRow = async ({
   console.log("at addNewRow the affectedCells:", affectedCells);
 
   // adjust the rowIndexArr for plot
-  const adjustedRowIndexes = rowIndexesArr.map((index) =>
+  const adjustedRowIndexes = rowIndexesDisplayArr.map((index) =>
     index >= newRowIndex ? index + 1 : index
   );
   console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);

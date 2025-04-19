@@ -19,7 +19,7 @@ interface PlotTableProps {
     newData: any,
     prevData: any
   ) => Promise<void>;
-  displayArr: CellData[];
+  displayArr: {headers: CellData[],rows: CellData[][]};
 }
 
 const PlotTable: React.FC<PlotTableProps> = ({
@@ -40,11 +40,11 @@ const PlotTable: React.FC<PlotTableProps> = ({
     cells,
     setCells,
     numOfRows,
-    rowIndexesArr,
-    setRowIndexesArr,
+    rowIndexesDisplayArr,
+    setRowIndexesDisplayArr,
   } = tableContext;
-  const [sortedHeaders, setSortedHeaders] = useState(headers || []);
-  const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
+  // const [sortedHeaders, setSortedHeaders] = useState(headers || []);
+  // const [sortedRows, setSortedRows] = useState<CellData[][]>([]);
   const [rightClickFlag, setRightClickFlag] = useState(false); // Use React state instead of ref
   const [draggedColumnIndex, setDraggedColumnIndex] = useState<number | null>(
     null
@@ -55,12 +55,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
   );
   const [dragOverRowIndex, setDragOverRowIndex] = useState<number | null>(null);
 
-  if (!displayArr || !Array.isArray(displayArr)) {
-    console.log("🚨 PlotTable received an invalid displayArr")
-    console.error("🚨 PlotTable received an invalid displayArr:", displayArr);
-    return <div>Error Loading Table</div>;
-  }
-  
   const handleRightClickWithFlag = (
     e: React.MouseEvent,
     rowIndex: number,
@@ -88,51 +82,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
       console.error("handleRightClick encountered an issue.");
     }
   };
-
-  //sort the headers array
-  useEffect(() => {
-    if (headers) {
-      setSortedHeaders((prev) => {
-        const sorted = [...headers].sort(
-          (a, b) => a.columnIndex - b.columnIndex
-        );
-        const filteredHeaders = sorted.filter(
-          (cell) => cell.visibility !== false
-        );
-
-        //Avoid unnecessary state updates
-        if (JSON.stringify(prev) === JSON.stringify(filteredHeaders)) {
-          return prev; // No change, prevent re-render
-        }
-        return filteredHeaders;
-      });
-    }
-  }, [headers]);
-
-  //sort the table rows
-  useEffect(() => {
-    const rows = displayArr.reduce<Record<number, CellData[]>>((acc, cell) => { //adjustment rule: for each rowIndex -> it's corresponding array of cells
-      acc[cell.rowIndex] = acc[cell.rowIndex] || [];
-      acc[cell.rowIndex].push(cell);
-      return acc;
-    }, {});
-    const sortTheRows = Object.keys(rows)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map(
-        (rowIndex) =>
-          rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || [] //sort the cells in the row by their column index
-      );
-    const filteredRows = sortTheRows.map((row) =>
-      row.filter((cell) => cell.visibility !== false)
-    );
-    setSortedRows(filteredRows);
-  }, [displayArr]); // Only depend on `displayArr`
-
-  useEffect(() => {
-    console.log("PlotTable displayArr:", displayArr);
-    console.log("PlotTable headers:", headers);
-  }, [headers]);
 
   const handlePasteImage = (e: React.ClipboardEvent, cell: CellData) => {
     const items = e.clipboardData.items;
@@ -209,8 +158,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
           newSortedUpdatedRows,
           newSortedUpdatedCells,
         } = result;
-        setSortedHeaders(newSortedUpdatedColumns);
-        setSortedRows(newSortedUpdatedRows);
+        // setSortedHeaders(newSortedUpdatedColumns);
+        // setSortedRows(newSortedUpdatedRows);
         setCells(newSortedUpdatedCells);
         setHeaders(newSortedUpdatedColumns);
 
@@ -229,7 +178,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
         targetRowIndex: targetRowIndex,
         cellsArr: cells,
         numOfRows,
-        rowIndexesArr,
+        rowIndexesDisplayArr,
       });
 
       if (result) {
@@ -238,11 +187,11 @@ const PlotTable: React.FC<PlotTableProps> = ({
           newSortedUpdatedCells,
           adjustedRowIndexes,
         } = result;
-        setSortedRows(newSortedUpdatedRows);
+        // setSortedRows(newSortedUpdatedRows);
         setCells(newSortedUpdatedCells);
 
         // Preserve the search state by re-filtering the adjustedRowIndexes
-        setRowIndexesArr((prev) =>
+        setRowIndexesDisplayArr((prev) =>
           prev.filter((index) => adjustedRowIndexes.includes(index))
         );
 
@@ -299,28 +248,28 @@ const PlotTable: React.FC<PlotTableProps> = ({
         <thead>
           <tr>
             {/* display the sorted headers  */}
-            {sortedHeaders.map((header) => (
+            {displayArr.headers.map((h) => (
               <th
-                key={header._id}
+                key={h._id}
                 className={`border border-gray-400 relative ${
-                  dragOverColumnIndex === header.columnIndex ? "drag-over" : ""
+                  dragOverColumnIndex === h.columnIndex ? "drag-over" : ""
                 }`}
                 onContextMenu={(e) =>
                   handleRightClickWithFlag(
                     e,
-                    header.rowIndex,
-                    header.columnIndex
+                    h.rowIndex,
+                    h.columnIndex
                   )
                 }
                 draggable
                 onDragStart={(e) =>
-                  handleDragStart(e, header.columnIndex, header.rowIndex)
+                  handleDragStart(e, h.columnIndex, h.rowIndex)
                 }
                 onDragOver={(e) =>
-                  handleDragOver(e, header.columnIndex, header.rowIndex)
+                  handleDragOver(e, h.columnIndex, h.rowIndex)
                 }
                 onDrop={(e) =>
-                  handleDrop(e, header.columnIndex, header.rowIndex)
+                  handleDrop(e, h.columnIndex, h.rowIndex)
                 }
                 onDragEnd={handleDragEnd}
               >
@@ -329,15 +278,15 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   <input
                     type="checkbox"
                     className="checkedBoxColumns"
-                    checked={checkedColumns.includes(header.columnIndex)}
-                    onChange={() => handleCheckboxChange(header.columnIndex)}
+                    checked={checkedColumns.includes(h.columnIndex)}
+                    onChange={() => handleCheckboxChange(h.columnIndex)}
                   />
                 </div>
                 
-                <div className="sort-button" onClick={() => handleSort(header)}>
+                <div className="sort-button" onClick={() => handleSort(h)}>
                   <i
                     className={`fa-solid ${getSortIcon(
-                      header.sortState || null
+                      h.sortState || null
                     )}`}
                   ></i>
                 </div>
@@ -350,14 +299,14 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   onBlur={(e) => {
                     if (!rightClickFlag) {
                       handleCellUpdate(
-                        header,
+                        h,
                         e.currentTarget.textContent || "",
-                        header.data
+                        h.data
                       );
                     }
                   }}
                 >
-                  {header.data}
+                  {h.data}
                 </div>
               </th>
             ))}
@@ -365,7 +314,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
         </thead>
         <tbody>
           {/* display the sorted rows */}
-          {sortedRows.map((row, rowIndex) => (
+          {displayArr.rows.map((row, rowIndex) => (
             <tr key={`row-${rowIndex}`}>
               {row.map((cell) => (
                 <td

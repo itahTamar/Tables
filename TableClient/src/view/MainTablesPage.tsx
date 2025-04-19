@@ -43,7 +43,6 @@ const MainTablesPage: React.FC = () => {
   if (tables === undefined) throw new Error("at MainTablePage tables are undefine");
   
   //cookie
-  console.log("User Cookie after refresh:", Cookies.get("user"));
   useEffect(() => {
     const checkServerCookies = async () => {
       try {

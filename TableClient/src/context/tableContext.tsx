@@ -9,8 +9,10 @@ interface TableContextType {
   setHeaders: (headers: CellData[] | ((prev: CellData[]) => CellData[])) => void; // Allow updater function
   cells: CellData[]; //all table document row&column cells
   setCells: (cells: CellData[] | ((prev: CellData[]) => CellData[])) => void;
-  rowIndexesArr: number[]; //The array of indexes of the rows you want to display.
-  setRowIndexesArr: (indexesArr: number[] | ((prev: number[]) => number[])) => void;
+  rowIndexesDisplayArr: number[]; //The array of indexes of the rows you want to display.
+  colIndexesDisplayArr: number[]; //The array of indexes of the rows you want to display.
+  setRowIndexesDisplayArr: (indexesArr: number[] | ((prev: number[]) => number[])) => void;
+  setColIndexesDisplayArr: (indexesArr: number[] | ((prev: number[]) => number[])) => void;
   numOfColumns: number;
   setNumOfColumns: (numOfColumns: number | ((prev: number) => number)) => void;
   numOfRows: number;
@@ -27,7 +29,8 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [tables, setTables] = useState<TableData[]>([]); // Initialize as an empty array
   const [headers, setHeaders] = useState<CellData[]>([])
   const [cells, setCells] = useState<CellData[]>([])
-  const [rowIndexesArr, setRowIndexesArr] = useState<number[]>([])
+  const [rowIndexesDisplayArr, setRowIndexesDisplayArr] = useState<number[]>([])
+  const [colIndexesDisplayArr, setColIndexesDisplayArr] = useState<number[]>([])
   const [numOfRows, setNumOfRows] = useState<number>(1)
   const [numOfColumns, setNumOfColumns] = useState<number>(1)
   const [checkedColumns, setCheckedColumns] = useState<number[]>([])
@@ -40,7 +43,8 @@ export const TableProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           cells, setCells, 
           numOfRows, setNumOfRows,
           numOfColumns, setNumOfColumns,
-          rowIndexesArr, setRowIndexesArr,
+          rowIndexesDisplayArr, setRowIndexesDisplayArr,
+          colIndexesDisplayArr, setColIndexesDisplayArr,
           checkedColumns, setCheckedColumns,
           tablesFetched, setTablesFetched,
           }}>

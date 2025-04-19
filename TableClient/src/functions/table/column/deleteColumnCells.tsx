@@ -19,9 +19,9 @@ export const deleteColumnCells = ({
 } => {
   console.log("HELLO FROM DELETE COLUMN");
 
-  // Step 1.1: Identify column to be deleted
-  const columnsToBeDeleted = headers.filter(
-    (column) => column.columnIndex === currentColumnIndex
+  // Step 1.1: Identify header to be deleted
+  const headerToBeDeleted = headers.filter(
+    (header) => header.columnIndex === currentColumnIndex
   );
 
   // Step 1.2: Identify cells to be deleted
@@ -29,7 +29,7 @@ export const deleteColumnCells = ({
     (cell) => cell.columnIndex === currentColumnIndex
   );
 
-  const toBeDeleted = [...columnsToBeDeleted, ...cellsToBeDeleted];
+  const toBeDeleted = [...headerToBeDeleted, ...cellsToBeDeleted];
 
   // Step 2.1: Create ColumnsToBeUpdated array
   const columnsToBeUpdated = headers

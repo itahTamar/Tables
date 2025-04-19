@@ -40,7 +40,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
   console.log("InitialNewTable received tableId:", tableId);
   console.log("InitialNewTable received tableIndex:", tableIndex);
 
-  const { cells, setCells, headers, setHeaders, setRowIndexesArr, setNumOfColumns, setNumOfRows } =
+  const { cells, setCells, headers, setHeaders, setRowIndexesDisplayArr, setNumOfColumns, setNumOfRows } =
     tableContext;
 
   const handleInitial = async (event: React.FormEvent) => {
@@ -90,7 +90,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
           currentRowIndex: rowIndex,
           numOfColumns: columnsNo,
           cells,
-          rowIndexesArr: [],
+          rowIndexesDisplayArr: [],
           addBefore: false,
         });
         newRowsCells.push(...newCellsAfterAddingRow.newCellsArray); // Append the new cells to the result array
@@ -103,7 +103,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
 
       setHeaders(newHeaders);
       setCells(newRowsCells);
-      setRowIndexesArr([...new Set(newRowIndexesArr)]);
+      setRowIndexesDisplayArr([...new Set(newRowIndexesArr)]);
       setNumOfColumns(columnsNo);
       setNumOfRows(rowsNo)
       onTableCreated();

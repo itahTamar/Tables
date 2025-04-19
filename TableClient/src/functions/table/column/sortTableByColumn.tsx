@@ -83,6 +83,6 @@ export const sortTableByColumn = (
   // 7. Flatten sorted rows back into a single array
   const sortedCells = sortedRows.flat();
 
-  // 8. Return both sorted cells and the new rowIndexesArr
+  // 8. Return both sorted cells and the new rowIndexesDisplayArr
   return { sortedCells, newRowIndexesArr };
 };

@@ -6,7 +6,7 @@ interface DragAndDropRowProp {
   targetRowIndex: number;
   cellsArr: CellData[];
   numOfRows: number;
-  rowIndexesArr: number[];
+  rowIndexesDisplayArr: number[];
 }
 
 export const dragAndDropRow = async ({
@@ -14,7 +14,7 @@ export const dragAndDropRow = async ({
   targetRowIndex,
   cellsArr,
   numOfRows,
-  rowIndexesArr,
+  rowIndexesDisplayArr,
 }: DragAndDropRowProp) => {
   console.log("HELLO FROM D&D Row");
   try {
@@ -32,7 +32,7 @@ export const dragAndDropRow = async ({
       currentRowIndex,
       cells: cellsArr,
       numOfRows,
-      rowIndexesArr,
+      rowIndexesDisplayArr,
     });
     if (result1 === undefined) {
       throw new Error("Result1 is undefined - collect delete Row failed");

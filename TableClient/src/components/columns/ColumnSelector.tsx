@@ -14,9 +14,7 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
   onSave,
 }) => {
   const [selectedColumns, setSelectedColumns] = useState<number[]>(
-    headers
-      .filter((col) => col.visibility !== false)
-      .map((col) => col.columnIndex)
+    headers.filter((col) => col.visibility !== false).map((col) => col.columnIndex)
   );
 
   const handleCheckboxChange = (columnIndex: number) => {
@@ -52,7 +50,7 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
 
           <button
             onClick={() => {
-              console.log("Saving selectedColumns:", selectedColumns);
+              console.log("ColumnSelector.tsx: selectedColumns = ", selectedColumns);
               onSave(selectedColumns);
             }}
             className="px-4 py-2 bg-blue-500 text-white rounded"

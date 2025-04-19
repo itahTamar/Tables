@@ -14,7 +14,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
   if (!tableContext) {
     throw new Error("at SearchInTableCells the tableContext is undefined");
   }
-  const { cells, setRowIndexesArr, rowIndexesArr, checkedColumns } =
+  const { cells, setRowIndexesDisplayArr, rowIndexesDisplayArr, checkedColumns } =
     tableContext;
 
   const [query, setQuery] = useState<string>("");
@@ -36,8 +36,8 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
         const resultSearchIndexes = [
           ...new Set(cells.map((cell) => cell.rowIndex)),
         ];
-        console.log("Resetting rowIndexesArr:", resultSearchIndexes); // Debug log
-        setRowIndexesArr(resultSearchIndexes);
+        console.log("Resetting rowIndexesDisplayArr:", resultSearchIndexes); // Debug log
+        setRowIndexesDisplayArr(resultSearchIndexes);
       }
     }, 1000);
 
@@ -92,13 +92,13 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
       resultSearchIndexes.push(1);
     }
 
-    console.log("Updating rowIndexesArr for search:", resultSearchIndexes);
-    setRowIndexesArr([...new Set(resultSearchIndexes)]);
+    console.log("Updating rowIndexesDisplayArr for search:", resultSearchIndexes);
+    setRowIndexesDisplayArr([...new Set(resultSearchIndexes)]);
   };
 
   useEffect(() => {
-    console.log("SearchInTableCells: Updated rowIndexesArr:", rowIndexesArr);
-  }, [rowIndexesArr]);
+    console.log("SearchInTableCells: Updated rowIndexesDisplayArr:", rowIndexesDisplayArr);
+  }, [rowIndexesDisplayArr]);
 
   useEffect(() => {
     if (query !== "") {

@@ -4,7 +4,7 @@ interface deleteRowProp {
   currentRowIndex: number;
   cells: CellData[];
   numOfRows: number;
-  rowIndexesArr: number[];
+  rowIndexesDisplayArr: number[];
 }
 
 // Function to delete one row of the table locally and return items to be deleted
@@ -12,7 +12,7 @@ export const DeleteRowCells = ({
   currentRowIndex,
   cells,
   numOfRows,
-  rowIndexesArr,
+  rowIndexesDisplayArr,
 }: deleteRowProp): {
   toBeDeleted: CellData[];
   toBeUpdated: CellData[];
@@ -53,7 +53,7 @@ export const DeleteRowCells = ({
   );
 
   // adjust the rowIndexArr for plot
-  const adjustedRowIndexes = rowIndexesArr.map((index) =>
+  const adjustedRowIndexes = rowIndexesDisplayArr.map((index) =>
     index >= currentRowIndex ? index - 1 : index
   );
   console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
