@@ -273,7 +273,7 @@ function TablePage() {
       } catch (error) {
         console.error("Error in handleTableRenameUpdate:", error);
       }
-    }; //works
+    };
 
     // update the data field only in the UI
     const visualDataCellsUpdate = (
@@ -297,7 +297,7 @@ function TablePage() {
         setCells(newCells); // Update the state
         return newCells; // Return the updated cells array
       }
-    }; //works
+    };
 
     const handleCellUpdate = async (
       cell: CellData,
@@ -348,7 +348,6 @@ function TablePage() {
             currentRowIndex: 1,
             numOfColumns,
             cells: resolve,
-            addBefore: true,
             rowIndexesDisplayArr,
           });
 
@@ -368,7 +367,7 @@ function TablePage() {
       } catch (error) {
         console.error("Error in handleCellUpdate:", error);
       }
-    }; //works
+    };
 
     const handleRightClick = (
       event: React.MouseEvent,
@@ -392,14 +391,14 @@ function TablePage() {
         console.error("Error in handleRightClick:", error);
         return false; // Return false on failure
       }
-    }; //works
+    };
 
     const handleBackBtnClick = async () => {
       setHeaders([]);
       setCells([]);
       setRowIndexesDisplayArr([]);
       navigate("/mainTablesPage");
-    }; //works
+    };
 
     const handleMenuAction = async (action: string) => {
       const { rowIndex, columnIndex } = menuState;
@@ -431,7 +430,7 @@ function TablePage() {
         }
         setMenuState({ ...menuState, visible: false }); // Close menu
       }
-    }; //works
+    };
 
     const handleAddRowBtnClick = async (
       addBefore: boolean,
@@ -454,9 +453,8 @@ function TablePage() {
         tableIndex,
         currentRowIndex,
         numOfColumns,
-        cells,
         rowIndexesDisplayArr,
-        addBefore,
+        cells,
       });
       console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
       setCells(newCellsAfterAddingRow.newCellsArray);
@@ -467,7 +465,7 @@ function TablePage() {
 
       handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
       handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
-    }; //works
+    };// reviewed
 
     const handleAddColumnBtnClick = async (
       addBefore: boolean,
@@ -482,6 +480,7 @@ function TablePage() {
         tableId,
         tableIndex,
         currentColumnIndex,
+        colIndexesDisplayArr,
         numOfRows,
         headers,
         cells,
@@ -489,21 +488,19 @@ function TablePage() {
       });
 
       setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
-      setHeaders(newColumnAndCellsAfterAddingColumn.updatedColumns);
+      setHeaders(newColumnAndCellsAfterAddingColumn.updatedHeaders);
+      setColIndexesDisplayArr(newColumnAndCellsAfterAddingColumn.updatedColIndexesArr)
       setNumOfColumns((prev) => prev + 1);
       handleUpdateIndexInDB(
         newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,
         serverUrl
       );
       handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
-    }; //works
+    };// reviewed
 
     const handleDeleteRowBtnClick = async (currentRowIndex: number) => {
       try {
-        if (currentRowIndex === 0) {
-          handelDeleteInDB(headers, serverUrl);
-          setHeaders([]);
-        } else {
+        if (currentRowIndex != 0) {
           const result = await DeleteRowCells({
             currentRowIndex,
             cells,
@@ -525,7 +522,7 @@ function TablePage() {
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
-    }; //works
+    }; // reviewed
 
     const handleDeleteColumnBtnClick = async (currentColumnIndex: number) => {
       console.log("Columns state before deletion:", headers);
@@ -556,7 +553,7 @@ function TablePage() {
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
-    }; //works
+    };
 
     const handleExportCSV = async (tableId: string) => {
       try {
@@ -592,7 +589,7 @@ function TablePage() {
       } catch (error) {
         console.error("Export failed:", error);
       }
-    }; //works
+    };
 
     const handleSaveSelectedColumns = async (
       selectedColumnIndices: number[]
@@ -607,12 +604,12 @@ function TablePage() {
       // // update the headers local
       // setHeaders(updatedHeaders);
       setShowColumnSelector(false);
-    }; //works
+    };
 
     const handleSelectColumns = () => {
       setShowColumnSelector(true);
       setTimeout(() => setShowColumnSelector(true), 0); // Delay to ensure state update
-    }; //works
+    };
 
     console.log("🔥✅ About to return JSX in TablePage");
     console.log("🔥✅ About to return JSX in TablePage loading is:", loading);

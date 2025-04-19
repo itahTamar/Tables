@@ -6,7 +6,6 @@ interface AddRowProp {
   currentRowIndex: number;
   numOfColumns: number;
   cells: CellData[];
-  addBefore: boolean;
   rowIndexesDisplayArr: number[];
 }
 
@@ -23,36 +22,21 @@ export const addNewRow = async ({
   numOfColumns,
   rowIndexesDisplayArr,
   cells,
-  addBefore, // parameter to specify adding before/after the current row
 }: AddRowProp) => {
-  console.log("At addNewRowCells the tableIndex:", tableIndex);
-  console.log("At addNewRowCells the numOfColumns:", numOfColumns);
-  console.log("At addNewRowCells the currentRowIndex:", currentRowIndex);
-  console.log("At addNewRowCells addBefore:", addBefore);
-  console.log("At addNewRowCells rowIndexesDisplayArr:", rowIndexesDisplayArr);
   
   if (!tableId || !tableIndex || !numOfColumns) {
     throw new Error("Invalid input data for addNewRow");
   }
 
-  // Determine where to add the new row
-  const newRowIndex = addBefore ? currentRowIndex : currentRowIndex + 1;
-
   // Adjust rowIndex for existing cells - the row before the current row to insert and the row after with adjusted rowIndex
   const adjustedCells = cells.map((cell) => {
-    if (cell.rowIndex >= newRowIndex) {
+    if (cell.rowIndex >= currentRowIndex) {
       return { ...cell, rowIndex: cell.rowIndex + 1 };
     }
     return cell;
   });
-  console.log("at addNewRow the adjustedCells:", adjustedCells);
 
-  // Get hidden column indexes
-  const hiddenColumnIndexes = new Set(
-    cells.filter((cell) => !cell.visibility).map((cell) => cell.columnIndex)
-  );
-
-  // Create new cells for the new row based on num of columns
+  // generate new cells for the new row based on num of columns
   const newRowCells: CellData[] = Array.from(
     { length: numOfColumns },
     (_, columnIndex) => ({
@@ -60,39 +44,34 @@ export const addNewRow = async ({
       _id: generateObjectId(), // Placeholder function to generate a unique ID
       type: "cell",
       data: null,
-      visibility: !hiddenColumnIndexes.has(columnIndex + 1), // Keep hidden headers hidden
-      rowIndex: newRowIndex,
+      visibility: true, // Keep hidden headers hidden
+      rowIndex: currentRowIndex,
       columnIndex: columnIndex + 1,
       tableIndex: tableIndex,
       tableId: tableId,
       __v: 0,
     })
   );
-  console.log("New Row Cells array:", newRowCells);
 
   // Combine the adjusted cells with the new row
   const updatedCells = [...adjustedCells, ...newRowCells];
-  console.log("at addNewRow the updatedCells:", updatedCells);
 
   // Determine affected cells based on the updated state
   const affectedCells = adjustedCells.filter(
-    (cell) => cell.rowIndex >= newRowIndex
+    (cell) => cell.rowIndex >= currentRowIndex
   );
-  console.log("at addNewRow the affectedCells:", affectedCells);
 
   // adjust the rowIndexArr for plot
   const adjustedRowIndexes = rowIndexesDisplayArr.map((index) =>
-    index >= newRowIndex ? index + 1 : index
+    index >= currentRowIndex ? index + 1 : index
   );
-  console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
-
-  const addedIndex = addBefore ? 1 : currentRowIndex + 1;
+  adjustedRowIndexes.push(currentRowIndex);
 
   return {
-    newCellsArray: updatedCells, //the combined new cells array with the new row
-    toBeUpdateInDB: affectedCells, //the cell were rowIndex changed
-    newToAddInDB: newRowCells, //the new row cells to add to the DB
-    updatedRowIndexesArr: [...adjustedRowIndexes, addedIndex],
+    newCellsArray: updatedCells,              // should be new local cells
+    toBeUpdateInDB: affectedCells,            // cells to up date in DB
+    newToAddInDB: newRowCells,                // cells to add into the DB
+    updatedRowIndexesArr: adjustedRowIndexes, // updates indexes to display
   };
 };
 

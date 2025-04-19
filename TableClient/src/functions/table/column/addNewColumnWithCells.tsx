@@ -7,6 +7,7 @@ interface AddColumnProp {
   tableId: string;
   tableIndex: number;
   currentColumnIndex: number;
+  colIndexesDisplayArr: number[];
   headers: CellData[];
   cells: CellData[];
   addBefore: boolean;
@@ -17,6 +18,7 @@ export const addNewColumnWithCells = async ({
   tableId,
   tableIndex,
   currentColumnIndex,
+  colIndexesDisplayArr,
   numOfRows,
   headers,
   cells,
@@ -25,20 +27,18 @@ export const addNewColumnWithCells = async ({
   if (!tableId || headers.length === 0) {
     throw new Error("Invalid input data for addNewColumnWithCells");
   }
-  console.log("numOfRows:", numOfRows)
 
   // Determine the new column index
   const newColumnIndex = addBefore ? currentColumnIndex : currentColumnIndex + 1;
   console.log("newColumnIndex:", newColumnIndex)
   
   // Adjust indices of existing headers
-  const adjustedColumns = headers.map((col) => {
+  const adjustedHeaders = headers.map((col) => {
     if (col.columnIndex >= newColumnIndex) {
       return { ...col, columnIndex: col.columnIndex + 1 };
     }
     return col;
   });
-  console.log("adjustedColumns:", adjustedColumns)
   
   // Adjust indices of existing cells
   const adjustedCells = cells.map((cell) => {
@@ -47,10 +47,9 @@ export const addNewColumnWithCells = async ({
     }
     return cell;
   });
-  console.log("adjustedCells:", adjustedCells)
 
   // Add the new column to the headers array
-  const newColumn: CellData = {
+  const newHeader: CellData = {
     _id: generateObjectId(),
     type: "column",
     data: null,
@@ -61,10 +60,9 @@ export const addNewColumnWithCells = async ({
     visibility: true,
     __v: 0,
   };
-  const updatedColumns = [...adjustedColumns, newColumn];
 
   // Add new cells for the rows corresponding to the new column
-  const newHeaders: CellData[] = Array.from(
+  const newCells: CellData[] = Array.from(
     { length: numOfRows },
     (_, rowIndex) => ({
       _id: generateObjectId(),
@@ -78,27 +76,22 @@ export const addNewColumnWithCells = async ({
       __v: 0,
     })
   );
-  const updatedCells = [...adjustedCells, ...newHeaders];
 
-  // Sort headers and cells
-  const sortedUpdatedColumns = updatedColumns.sort(
-    (a, b) => a.columnIndex - b.columnIndex
+  // adjust the rowIndexArr for plot
+  const adjustedColIndexes = colIndexesDisplayArr.map((index) =>
+    index >= newColumnIndex ? index + 1 : index
   );
-  const sortedUpdatedCells = updatedCells.sort(
-    (a, b) => a.rowIndex - b.rowIndex || a.columnIndex - b.columnIndex
-  );
+  adjustedColIndexes.push(newColumnIndex);
 
-  // Update UI (front-end) state
-  console.log("Updated headers:", sortedUpdatedColumns);
-  console.log("Updated cells:", sortedUpdatedCells);
-
-  const toBeUpdateInDB = [...adjustedColumns,...adjustedCells]
-  const NewToAddInDB = [...newHeaders, newColumn]
+  const toBeUpdateInDB = [...adjustedHeaders,...adjustedCells]
+  const NewToAddInDB = [...newCells, newHeader]
+  
 
   return {
-    updatedColumns: sortedUpdatedColumns,
-    updatedCells: sortedUpdatedCells,
+    updatedHeaders: [...adjustedHeaders, newHeader],
+    updatedCells: [...adjustedCells, ...newCells],
     toBeUpdateInDB: toBeUpdateInDB,
     newToAddInDB:NewToAddInDB,
+    updatedColIndexesArr: adjustedColIndexes, // updates indexes to display
   };
 };
