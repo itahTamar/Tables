@@ -529,6 +529,7 @@ function TablePage() {
       console.log("Cells state before deletion:", cells);
       try {
         const result = await deleteColumnCells({
+          colArrayIdx: colIndexesDisplayArr,
           currentColumnIndex,
           headers,
           cells,
@@ -539,14 +540,14 @@ function TablePage() {
         }
 //@ts-ignore
 
-        setHeaders(result.newColumnsArrayAfterDelete);
+        setHeaders(result.newHeaders);
 //@ts-ignore
 
-        setCells(result.newCellsArrayAfterDelete);
+        setCells(result.newCells);
 //@ts-ignore
 
-        setNumOfColumns((prev) => prev - 1);
-
+        // setNumOfColumns((prev) => prev - 1);
+        setColIndexesDisplayArr(result.newColIdx);
         handelDeleteInDB(result.toBeDeleted, serverUrl);
         handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
         console.log("Column deleted successfully");

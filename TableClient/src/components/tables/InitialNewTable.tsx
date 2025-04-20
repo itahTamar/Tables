@@ -37,11 +37,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
     return null; // Ensure the component returns null in invalid cases
   }
 
-  console.log("InitialNewTable received tableId:", tableId);
-  console.log("InitialNewTable received tableIndex:", tableIndex);
-
-  const { cells, setCells, headers, setHeaders, setRowIndexesDisplayArr, setNumOfColumns, setNumOfRows } =
-    tableContext;
+  const { cells, setCells, headers, setHeaders, setRowIndexesDisplayArr, setColIndexesDisplayArr, setNumOfColumns, setNumOfRows } = tableContext;
 
   const handleInitial = async (event: React.FormEvent) => {
     event.preventDefault(); // Prevent form from reloading the page
@@ -58,7 +54,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
     }
 
     try {
-      console.log(`Starting to add ${columnsNo} column's type cells`);
+      console.log(`InitialNewTable.tsx: Starting to add ${columnsNo} column's type cells`);
 
       // Create new Header's type cells based on columnsNo
       const newHeaders: CellData[] = Array.from(
@@ -76,34 +72,35 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
           __v: 0,
         })
       );
-      console.log("New column's type Cells array:", newHeaders);
+      console.log(`InitialNewTable.tsx: columnsNo =`, newHeaders);
       
-      console.log(`Starting to add ${rowsNo * columnsNo} row's type cells`);
-      const newRowIndexesArr = [];
-      const newRowsCells = [];
-      for (let rowIndex = 0; rowIndex < rowsNo; rowIndex++) {
-        console.log("Adding row:", rowIndex+1);
-        //create new row
-        const newCellsAfterAddingRow = await addNewRow({
-          tableId,
-          tableIndex,
-          currentRowIndex: rowIndex,
-          numOfColumns: columnsNo,
-          cells,
-          rowIndexesDisplayArr: [],
-          addBefore: false,
-        });
-        newRowsCells.push(...newCellsAfterAddingRow.newCellsArray); // Append the new cells to the result array
-        newRowIndexesArr.push(...newCellsAfterAddingRow.updatedRowIndexesArr);
-      }
+      const newCells: CellData[] = Array.from(
+        { length: rowsNo * columnsNo },  // Total length: rows * columns
+        (_, index) => {
+          const rowIndex = Math.floor(index / columnsNo) + 1;  // Determine row based on index
+          const columnIndex = (index % columnsNo) + 1;             // Determine column based on index
+          
+          return {
+            _id: generateObjectId(),
+            type: "cell",
+            data: null,
+            visibility: true,
+            rowIndex: rowIndex,
+            columnIndex: columnIndex,
+            tableIndex: tableIndex,
+            tableId: tableId,
+            __v: 0,
+          };
+        }
+      );
 
-      console.log("New rows's Cells array:", newRowsCells);
-      const addToDB = [...newHeaders, ...newRowsCells];
+      const addToDB = [...newHeaders, ...newCells];
       handleAddToDB(addToDB, serverUrl);
 
       setHeaders(newHeaders);
-      setCells(newRowsCells);
-      setRowIndexesDisplayArr([...new Set(newRowIndexesArr)]);
+      setCells(newCells);
+      setRowIndexesDisplayArr(Array.from({ length: rowsNo }, (_, index) => index + 1));
+      setColIndexesDisplayArr(Array.from({ length: columnsNo }, (_, index) => index + 1));
       setNumOfColumns(columnsNo);
       setNumOfRows(rowsNo)
       onTableCreated();

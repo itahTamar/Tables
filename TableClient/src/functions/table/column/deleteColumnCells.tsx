@@ -1,6 +1,7 @@
 import { CellData } from "../../../types/cellType";
 
 interface DeleteColumnProp {
+  colArrayIdx: number[],
   currentColumnIndex: number;
   headers: CellData[];
   cells: CellData[];
@@ -8,78 +9,45 @@ interface DeleteColumnProp {
 
 // Function to delete one column of the table locally and return items to be deleted
 export const deleteColumnCells = ({
+  colArrayIdx,
   currentColumnIndex,
   headers,
   cells,
 }: DeleteColumnProp): {
   toBeDeleted: CellData[];
   toBeUpdated: CellData[];
-  newCellsArrayAfterDelete: CellData[];
-  newColumnsArrayAfterDelete: CellData[];
+  newCells: CellData[];
+  newHeaders: CellData[];
+  newColIdx: number[];
 } => {
-  console.log("HELLO FROM DELETE COLUMN");
-
-  // Step 1.1: Identify header to be deleted
-  const headerToBeDeleted = headers.filter(
-    (header) => header.columnIndex === currentColumnIndex
-  );
-
-  // Step 1.2: Identify cells to be deleted
-  const cellsToBeDeleted = cells.filter(
-    (cell) => cell.columnIndex === currentColumnIndex
-  );
-
+  // to delete
+  const headerToBeDeleted = headers.filter((header) => header.columnIndex === currentColumnIndex);
+  const cellsToBeDeleted = cells.filter((cell) => cell.columnIndex === currentColumnIndex);
   const toBeDeleted = [...headerToBeDeleted, ...cellsToBeDeleted];
 
-  // Step 2.1: Create ColumnsToBeUpdated array
-  const columnsToBeUpdated = headers
+  // to update
+  const headersToBeUpdated = headers
     .filter((column) => column.columnIndex > currentColumnIndex)
     .map((column) => ({ ...column, columnIndex: column.columnIndex - 1 }));
-
-  // Step 2.2: Create CellsToBeUpdated array
   const cellsToBeUpdated = cells
     .filter((cell) => cell.columnIndex > currentColumnIndex)
     .map((cell) => ({ ...cell, columnIndex: cell.columnIndex - 1 }));
+  const toBeUpdated = [...headersToBeUpdated, ...cellsToBeUpdated];
 
-  const toBeUpdated = [...columnsToBeUpdated, ...cellsToBeUpdated];
+  // unchanged
+  const unchangedHeaders = [...headers.filter((column) => column.columnIndex < currentColumnIndex),];
+  const unchangedCells = [...cells.filter((cell) => cell.columnIndex < currentColumnIndex),];
 
-  // Step 3.1: Create newTempColumns array excluding the deleted column and all headers after
-  const newTempColumns = [
-    ...headers.filter((column) => column.columnIndex < currentColumnIndex),
-  ];
-
-  console.log("At deleteColumnCells the currentColumnIndex:", currentColumnIndex);
-  console.log("At deleteColumnCells the newTempColumns:", newTempColumns);
-
-  // Step 3.2: Create newTempCells array excluding the deleted cells and all row-cells after
-  const newTempCells = [
-    ...cells.filter((cell) => cell.columnIndex < currentColumnIndex),
-  ];
-
-  console.log("At deleteColumnCells the newTempCells:", newTempCells);
-
-  // Step 4.1: Create newCellsArrayAfterDelete excluding the deleted cells and including the updated cells
-  const newCellsArrayAfterDelete = [...newTempCells, ...cellsToBeUpdated];
-
-  // Step 4.2: Create newColumnsArrayAfterDelete excluding the deleted headers and including the updated headers
-  const newColumnsArrayAfterDelete = [...newTempColumns, ...columnsToBeUpdated];
-
-  console.log("At deleteColumnCells the toBeDeleted:", toBeDeleted);
-  console.log("At deleteColumnCells the toBeUpdated:", toBeUpdated);
-  console.log(
-    "At deleteColumnCells the newCellsArrayAfterDelete:",
-    newCellsArrayAfterDelete
-  );
-  console.log(
-    "At deleteColumnCells the newColumnsArrayAfterDelete:",
-    newColumnsArrayAfterDelete
-  );
+  // new local
+  const newCells = [...unchangedCells, ...cellsToBeUpdated];
+  const newHeaders = [...unchangedHeaders, ...headersToBeUpdated];
+  const newColIdx = colArrayIdx.filter(e => e !== currentColumnIndex).map(e => e > currentColumnIndex  ? e - 1 : e); 
 
   return {
-    newCellsArrayAfterDelete,
-    newColumnsArrayAfterDelete,
+    newColIdx,
+    newCells,
+    newHeaders,
     toBeDeleted,
     toBeUpdated,
   };
 };
-//work ok
