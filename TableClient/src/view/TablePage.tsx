@@ -554,7 +554,7 @@ function TablePage() {
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
-    };
+    }; // reviewed
 
     const handleExportCSV = async (tableId: string) => {
       try {

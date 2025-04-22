@@ -154,18 +154,15 @@ const PlotTable: React.FC<PlotTableProps> = ({
 
       if (result) {
         const {
-          newSortedUpdatedColumns,
-          newSortedUpdatedRows,
-          newSortedUpdatedCells,
+          headerToBeInxUpdate,
+          cellsToBeInxUpdate,
         } = result;
-        // setSortedHeaders(newSortedUpdatedColumns);
-        // setSortedRows(newSortedUpdatedRows);
-        setCells(newSortedUpdatedCells);
-        setHeaders(newSortedUpdatedColumns);
+        setCells(result.newCells);
+        setHeaders(result.newHeaders);
 
         // Update indices in the database
-        handleUpdateIndexInDB(newSortedUpdatedColumns, serverUrl);
-        handleUpdateIndexInDB(newSortedUpdatedCells, serverUrl);
+        handleUpdateIndexInDB(headerToBeInxUpdate, serverUrl);
+        handleUpdateIndexInDB(cellsToBeInxUpdate, serverUrl);
       }
 
       // Reset draggedColumnIndex
@@ -177,26 +174,23 @@ const PlotTable: React.FC<PlotTableProps> = ({
         currentRowIndex: draggedRowIndex,
         targetRowIndex: targetRowIndex,
         cellsArr: cells,
-        numOfRows,
-        rowIndexesDisplayArr,
       });
 
       if (result) {
         const {
-          newSortedUpdatedRows,
-          newSortedUpdatedCells,
-          adjustedRowIndexes,
+          newCells,
+          cellsToBeInxUpdate,
         } = result;
         // setSortedRows(newSortedUpdatedRows);
-        setCells(newSortedUpdatedCells);
+        setCells(result.newCells);
 
-        // Preserve the search state by re-filtering the adjustedRowIndexes
-        setRowIndexesDisplayArr((prev) =>
-          prev.filter((index) => adjustedRowIndexes.includes(index))
-        );
+        // // Preserve the search state by re-filtering the adjustedRowIndexes
+        // setRowIndexesDisplayArr((prev) =>
+        //   prev.filter((index) => adjustedRowIndexes.includes(index))
+        // );
 
         // Update indices in the database
-        handleUpdateIndexInDB(newSortedUpdatedCells, serverUrl);
+        handleUpdateIndexInDB(cellsToBeInxUpdate, serverUrl);
       }
 
       // Reset draggedRowIndex

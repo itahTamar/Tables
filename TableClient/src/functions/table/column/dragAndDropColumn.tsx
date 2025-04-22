@@ -1,5 +1,4 @@
-import { CellData } from "../../../types/cellType";
-import { deleteColumnCells } from "./deleteColumnCells";
+import { CellData } from './../../../types/cellType';
 
 interface DragAndDropColumnProp {
   currentColumnIndex: number;
@@ -24,72 +23,79 @@ export const dragAndDropColumn = async ({
       return;
     }
 
-    //grab and remove the entire column
-    const result1 = await deleteColumnCells({
-      currentColumnIndex,
-      headers: headerArr,
-      cells: cellsArr,
-    });
-    if (result1 === undefined) {
-      throw new Error("Result1 is undefined - collect delete column failed");
-    }
-    const dndColumn = result1.toBeDeleted.filter((e) => e.rowIndex === 0);
-    const dndCells = result1.toBeDeleted.filter((e) => e.rowIndex != 0);
-    const newTempCellsArrayAfterDelete = result1.newCellsArrayAfterDelete;
-    const newTempColumnsArrayAfterDelete = result1.newColumnsArrayAfterDelete;
+    const unaffectedCells = cellsArr.filter((c) => c.columnIndex < Math.min(currentColumnIndex,targetColumnIndex) ||
+     c.columnIndex > Math.max(currentColumnIndex,targetColumnIndex));
+    const unaffectedHeaders = headerArr.filter((h) => h.columnIndex < Math.min(currentColumnIndex,targetColumnIndex) ||
+     h.columnIndex > Math.max(currentColumnIndex,targetColumnIndex));
 
-    // Adjust indices of existing headers
-    const adjustedColumns = newTempColumnsArrayAfterDelete.map((col) => {
-      if (col.columnIndex >= targetColumnIndex) {
-        return { ...col, columnIndex: col.columnIndex + 1 };
-      }
-      return col;
-    });
-    console.log("adjustedColumns:", adjustedColumns);
+    let affectedHeaders: CellData[] = [];
+    let affectedCells: CellData[] = [];
+    if (targetColumnIndex<currentColumnIndex){
+      const minIndex = targetColumnIndex;
+      const maxIndex = currentColumnIndex;
 
-    // Adjust indices of existing cells
-    const adjustedCells = newTempCellsArrayAfterDelete.map((cell) => {
-      if (cell.columnIndex >= targetColumnIndex) {
-        return { ...cell, columnIndex: cell.columnIndex + 1 };
-      }
-      return cell;
-    });
-    console.log("adjustedCells:", adjustedCells);
-
-    //Insert the Dragged Column
-    const newSortedUpdatedColumns = [
-      ...adjustedColumns.filter((col) => col.columnIndex < targetColumnIndex),
-      ...dndColumn.map((col) => ({ ...col, columnIndex: targetColumnIndex })),
-      ...adjustedColumns.filter((col) => col.columnIndex >= targetColumnIndex),
-    ];
-    console.log("dnd newSortedUpdatedColumns:", newSortedUpdatedColumns)
-    //Insert the Dragged Cells
-    const newSortedUpdatedCells = [
-      ...adjustedCells.filter((cell) => cell.columnIndex < targetColumnIndex),
-      ...dndCells.map((cell) => ({ ...cell, columnIndex: targetColumnIndex })),
-      ...adjustedCells.filter((cell) => cell.columnIndex >= targetColumnIndex),
-    ];
-    console.log("dnd newSortedUpdatedCells:", newSortedUpdatedCells)
-
-    const rows = newSortedUpdatedCells.reduce<Record<number, CellData[]>>(
-      (acc, cell) => {
-        acc[cell.rowIndex] = acc[cell.rowIndex] || [];
-        acc[cell.rowIndex].push(cell);
-        return acc;
-      },
-      {}
-    );
-    const newSortedUpdatedRows = Object.keys(rows)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map(
-        (rowIndex) =>
-          rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
+      // Step 1: Select all cells in the affected range (inclusive of currentColumnIndex)
+      affectedCells = cellsArr.filter((cell) =>
+        cell.columnIndex >= minIndex && cell.columnIndex <= maxIndex
       );
+      affectedHeaders = headerArr.filter((h) =>
+        h.columnIndex >= minIndex && h.columnIndex <= maxIndex
+      );
+
+      affectedCells.forEach((cell) => {
+        if (cell.columnIndex === maxIndex) {
+          cell.columnIndex = minIndex; // Move original dragged column
+        } else {
+          cell.columnIndex += 1; // Shift others to the right
+        }
+      });
+
+      affectedHeaders.forEach(h=>{
+        if (h.columnIndex === maxIndex) {
+          h.columnIndex = minIndex; // Move original dragged column
+        } else {
+          h.columnIndex += 1; // Shift others to the right
+        }
+      })
+    }
+
+    if (targetColumnIndex>currentColumnIndex){
+      const maxIndex = targetColumnIndex;
+      const minIndex = currentColumnIndex;
+
+      // Step 1: Select all cells in the affected range (inclusive of currentColumnIndex)
+      affectedCells = cellsArr.filter((cell) =>
+        cell.columnIndex >= minIndex && cell.columnIndex <= maxIndex
+      );
+
+      affectedHeaders = headerArr.filter((h) =>
+        h.columnIndex >= minIndex && h.columnIndex <= maxIndex
+      );
+
+      affectedCells.forEach((cell) => {
+        if (cell.columnIndex === minIndex) {
+          cell.columnIndex = maxIndex; // Move original dragged column
+        } else {
+          cell.columnIndex -= 1; // Shift others to the right
+        }
+      });
+      affectedHeaders.forEach(h=>{
+        if (h.columnIndex === minIndex) {
+          h.columnIndex = maxIndex; // Move original dragged column
+        } else {
+          h.columnIndex -= 1; // Shift others to the right
+        }
+      })
+    }
+    
+    const newCells = [...affectedCells,...unaffectedCells] 
+    const newHeaders = [...affectedHeaders,...unaffectedHeaders]
+   
     return {
-      newSortedUpdatedColumns,
-      newSortedUpdatedRows,
-      newSortedUpdatedCells
+      headerToBeInxUpdate: affectedHeaders,
+      cellsToBeInxUpdate: affectedCells,
+      newHeaders,
+      newCells
     };
   } catch (error) {
     console.error("Error handling d&d column:", error);

@@ -5,93 +5,64 @@ interface DragAndDropRowProp {
   currentRowIndex: number;
   targetRowIndex: number;
   cellsArr: CellData[];
-  numOfRows: number;
-  rowIndexesDisplayArr: number[];
 }
 
 export const dragAndDropRow = async ({
   currentRowIndex,
   targetRowIndex,
   cellsArr,
-  numOfRows,
-  rowIndexesDisplayArr,
 }: DragAndDropRowProp) => {
   console.log("HELLO FROM D&D Row");
   try {
-    if (currentRowIndex === 0) return; //avoid moving the header
-    // Avoid performing the operation if indices are the same
-    if (currentRowIndex === targetRowIndex) {
-      console.warn(
-        "Current and target Row indices are the same. No action taken."
-      );
-      return;
-    }
+    if (currentRowIndex === 0 || targetRowIndex === 0 || currentRowIndex === targetRowIndex) return; //avoid moving the header or Avoid performing the operation if indices are the same
+ 
+    const unaffectedCells = cellsArr.filter((c) => c.rowIndex < Math.min(currentRowIndex,targetRowIndex) ||
+     c.rowIndex > Math.max(currentRowIndex,targetRowIndex));
+    console.log("dragAndDropRow.tsx: unaffectedCells =", unaffectedCells)
+    let affectedCells: CellData[] = [];
+    
+    if (targetRowIndex<currentRowIndex){
+      const minIndex = targetRowIndex;
+      const maxIndex = currentRowIndex;
 
-    //grab and remove the entire Row
-    const result1 = await DeleteRowCells({
-      currentRowIndex,
-      cells: cellsArr,
-      numOfRows,
-      rowIndexesDisplayArr,
-    });
-    if (result1 === undefined) {
-      throw new Error("Result1 is undefined - collect delete Row failed");
-    }
-    const dndCells = result1.toBeDeleted;
-    const newTempCellsArrayAfterDelete = result1.newCellsArrayAfterDelete;
-
-    // Adjust indices of existing cells
-    const adjustedCells = newTempCellsArrayAfterDelete.map((cell) => {
-      if (cell.rowIndex >= targetRowIndex) {
-        return { ...cell, rowIndex: cell.rowIndex + 1 };
-      }
-      return cell;
-    });
-    console.log("adjustedCells:", adjustedCells);
-
-    //Insert the Dragged Cells (row)
-    const newSortedUpdatedCells = [
-      ...adjustedCells.filter((cell) => cell.rowIndex < targetRowIndex),
-      ...dndCells.map((cell) => ({ ...cell, rowIndex: targetRowIndex })),
-      ...adjustedCells.filter((cell) => cell.rowIndex >= targetRowIndex),
-    ];
-    console.log("dnd newSortedUpdatedCells:", newSortedUpdatedCells);
-
-    const rows = newSortedUpdatedCells.reduce<Record<number, CellData[]>>(
-      (acc, cell) => {
-        acc[cell.rowIndex] = acc[cell.rowIndex] || [];
-        acc[cell.rowIndex].push(cell);
-        return acc;
-      },
-      {}
-    );
-    const newSortedUpdatedRows = Object.keys(rows)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map(
-        (rowIndex) =>
-          rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || []
+      // Step 1: Select all cells in the affected range (inclusive of currentColumnIndex)
+      affectedCells = cellsArr.filter((cell) =>
+        cell.rowIndex >= minIndex && cell.rowIndex <= maxIndex
       );
 
-    // adjust the rowIndexArr for plot
-    const adjustedRowIndexes = newSortedUpdatedCells.reduce<number[]>(
-      (acc, item) => {  //acc=accumulator
-        if (!acc.includes(item.rowIndex)) {
-          acc.push(item.rowIndex);
+      affectedCells.forEach((cell) => {
+        if (cell.rowIndex === maxIndex) {
+          cell.rowIndex = minIndex; // Move original dragged row
+        } else {
+          cell.rowIndex += 1; // Shift others to the down
         }
-        return acc;
-      },
-      []
-    );
-    console.log(
-      "at dragAndDropRow the adjustedRowIndexes:",
-      adjustedRowIndexes
-    );
+      });
+    }
+
+    if (targetRowIndex>currentRowIndex){
+      const maxIndex = targetRowIndex;
+      const minIndex = currentRowIndex;
+
+      // Step 1: Select all cells in the affected range (inclusive of currentColumnIndex)
+      affectedCells = cellsArr.filter((cell) =>
+        cell.rowIndex >= minIndex && cell.rowIndex <= maxIndex
+      );
+
+      affectedCells.forEach((cell) => {
+        if (cell.rowIndex === minIndex) {
+          cell.rowIndex = maxIndex; // Move original dragged row
+        } else {
+          cell.rowIndex -= 1; // Shift others to the up
+        }
+      });
+    }
+    
+    const newCells = [...affectedCells,...unaffectedCells] 
+
 
     return {
-      newSortedUpdatedRows,
-      newSortedUpdatedCells,
-      adjustedRowIndexes
+      newCells,
+      cellsToBeInxUpdate: affectedCells
     };
   } catch (error) {
     console.error("Error handling d&d Row:", error);
