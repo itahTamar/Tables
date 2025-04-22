@@ -177,20 +177,10 @@ const PlotTable: React.FC<PlotTableProps> = ({
       });
 
       if (result) {
-        const {
-          newCells,
-          cellsToBeInxUpdate,
-        } = result;
-        // setSortedRows(newSortedUpdatedRows);
         setCells(result.newCells);
 
-        // // Preserve the search state by re-filtering the adjustedRowIndexes
-        // setRowIndexesDisplayArr((prev) =>
-        //   prev.filter((index) => adjustedRowIndexes.includes(index))
-        // );
-
         // Update indices in the database
-        handleUpdateIndexInDB(cellsToBeInxUpdate, serverUrl);
+        handleUpdateIndexInDB(result.cellsToBeInxUpdate, serverUrl);
       }
 
       // Reset draggedRowIndex
