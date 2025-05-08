@@ -99,7 +99,6 @@ function TablePage() {
     // gets  headers, cells, num rows, num columns from DB, and updates showGenerateTable state
     const fetchHeadersAndCells = async () => {
       console.log("**** TablePage.tsx: fetchHeadersAndCells: start ****");
-
       try {
         const fetchedHeaders: CellData[] = await getHeaders({serverUrl,tableId,}); // get table's headers (documents)
         const fetchedCells: CellData[] = await getCells({serverUrl,tableId,}); // get table's cells (documents)
@@ -311,20 +310,17 @@ function TablePage() {
 
       try {
         const updatedCell = { ...cell, data: newData };
-        console.log(
-          "at PlotTable handleCellUpdate the updatedCell:",
-          updatedCell
-        );
+        console.log( "at PlotTable handleCellUpdate the updatedCell:", updatedCell);
 
-        //update cell data in db
-        const success = await DocumentRestAPIMethods.update(
-          serverUrl,
-          "tables",
-          { _id: cell._id },
-          { data: newData }
-        );
-        if (success)
-          console.log("at handleCellUpdate Cell updated successfully in db");
+        // //update cell data in db 
+        // const success = await DocumentRestAPIMethods.update(
+        //   serverUrl,
+        //   "tables",
+        //   { _id: cell._id },
+        //   { data: newData }
+        // );
+        // if (success)
+        //   console.log("at handleCellUpdate Cell updated successfully in db");
 
         // Update the visual state (headers or cells data)
         const resolve = await visualDataCellsUpdate(cell, updatedCell);
@@ -358,10 +354,7 @@ function TablePage() {
 
           setNumOfRows((prev) => prev + 1);
 
-          handleUpdateIndexInDB(
-            newCellsAfterAddingRow.toBeUpdateInDB,
-            serverUrl
-          );
+          handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB,serverUrl);
           handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
         }
       } catch (error) {
@@ -404,10 +397,7 @@ function TablePage() {
       const { rowIndex, columnIndex } = menuState;
       if (action === "addRowAfter") {
         setMenuState({ ...menuState, visible: false }); // Close menu after action
-        await handleAddRowBtnClick(false, rowIndex);
-        // } else if (action === "addRowBefore") {
-        //   setMenuState({ ...menuState, visible: false }); // Close menu after action
-        //   await handleAddRowBtnClick(true, rowIndex);
+        await handleAddRowBtnClick(rowIndex);
       } else if (action === "addColumnAfter") {
         setMenuState({ ...menuState, visible: false }); // Close menu after action
         await handleAddColumnBtnClick(false, columnIndex);
@@ -433,21 +423,8 @@ function TablePage() {
     };
 
     const handleAddRowBtnClick = async (
-      addBefore: boolean,
       currentRowIndex: number
     ) => {
-      console.log(
-        "At TablePage/handleAddRowBtnClick the rowIndexesDisplayArr:",
-        rowIndexesDisplayArr
-      );
-      console.log(
-        "At TablePage/handleAddRowBtnClick the numOfRows:",
-        numOfRows
-      );
-      console.log(
-        "At TablePage/handleAddRowBtnClick the numOfColumns:",
-        numOfColumns
-      );
       const newCellsAfterAddingRow = await addNewRow({
         tableId,
         tableIndex,
@@ -471,10 +448,7 @@ function TablePage() {
       addBefore: boolean,
       currentColumnIndex: number
     ) => {
-      console.log(
-        "at handleAddColumnBtnClicked the currentColumnIndex:",
-        currentColumnIndex
-      );
+
       const newColumnAndCellsAfterAddingColumn = await addNewColumnWithCells({
         serverUrl,
         tableId,
@@ -491,10 +465,8 @@ function TablePage() {
       setHeaders(newColumnAndCellsAfterAddingColumn.updatedHeaders);
       setColIndexesDisplayArr(newColumnAndCellsAfterAddingColumn.updatedColIndexesArr)
       setNumOfColumns((prev) => prev + 1);
-      handleUpdateIndexInDB(
-        newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,
-        serverUrl
-      );
+
+      handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,serverUrl);
       handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
     };// reviewed
 
@@ -548,9 +520,9 @@ function TablePage() {
 
         // setNumOfColumns((prev) => prev - 1);
         setColIndexesDisplayArr(result.newColIdx);
+
         handelDeleteInDB(result.toBeDeleted, serverUrl);
         handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
-        console.log("Column deleted successfully");
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
@@ -612,9 +584,29 @@ function TablePage() {
       setTimeout(() => setShowColumnSelector(true), 0); // Delay to ensure state update
     };
 
+    const handleSaveToDB = async () => {
+      const collectionName = "tables"; 
+    
+      const updates = cells.map(cell => ({
+        _id: cell._id,
+        update: {
+          data: cell.data,
+          visibility: cell.visibility,
+          rowIndex: cell.rowIndex,
+          columnIndex: cell.columnIndex,
+        },
+      }));
+    
+      const success = await DocumentRestAPIMethods.bulkUpdate(serverUrl, collectionName, updates);
+    
+      if (success) {
+        console.log("All cells updated successfully.");
+      } else {
+        console.error("Failed to update cells.");
+      }
+    };
+    
     console.log("🔥✅ About to return JSX in TablePage");
-    console.log("🔥✅ About to return JSX in TablePage loading is:", loading);
-    console.log("🔥✅ About to return JSX in TablePage showGenerateTable:", showGenerateTable);
 
     return (
       <div>
@@ -626,6 +618,8 @@ function TablePage() {
           >
             Back
           </button>
+
+          <button className="save absolute px-4 py-2 rounded" onClick={handleSaveToDB}>Save</button>
 
           <h1
             className="tableName absolute top-4"

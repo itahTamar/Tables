@@ -20,6 +20,8 @@ const generateCellsForPlot = (rowIndexesDisplayArr: number[], colIndexesDisplayA
           rows[rowIndex]?.sort((a, b) => a.columnIndex - b.columnIndex) || [] //sort the cells in the row by their column index
       );
 
+    displayHeadersArr.sort((a, b) => a.columnIndex - b.columnIndex);
+
   return {headers: displayHeadersArr, rows: sortedRows}
 }
 export default generateCellsForPlot

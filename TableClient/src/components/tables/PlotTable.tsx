@@ -154,15 +154,15 @@ const PlotTable: React.FC<PlotTableProps> = ({
 
       if (result) {
         const {
-          headerToBeInxUpdate,
-          cellsToBeInxUpdate,
+          // headerToBeInxUpdate,
+          // cellsToBeInxUpdate,
         } = result;
         setCells(result.newCells);
         setHeaders(result.newHeaders);
 
         // Update indices in the database
-        handleUpdateIndexInDB(headerToBeInxUpdate, serverUrl);
-        handleUpdateIndexInDB(cellsToBeInxUpdate, serverUrl);
+        // handleUpdateIndexInDB(headerToBeInxUpdate, serverUrl);
+        // handleUpdateIndexInDB(cellsToBeInxUpdate, serverUrl);
       }
 
       // Reset draggedColumnIndex
@@ -180,7 +180,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
         setCells(result.newCells);
 
         // Update indices in the database
-        handleUpdateIndexInDB(result.cellsToBeInxUpdate, serverUrl);
+        // handleUpdateIndexInDB(result.cellsToBeInxUpdate, serverUrl);
       }
 
       // Reset draggedRowIndex
@@ -232,7 +232,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
         <thead>
           <tr>
             {/* display the sorted headers  */}
-            {displayArr.headers.map((h) => (
+            {
+              displayArr.headers.map((h) => (
               <th
                 key={h._id}
                 className={`border border-gray-400 relative ${
@@ -290,8 +291,10 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     }
                   }}
                 >
-                  {h.data}
+                  {h.data},
+                  
                 </div>
+                <div>({h.rowIndex},{ h.columnIndex})</div>
               </th>
             ))}
           </tr>
@@ -377,6 +380,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       }}
                     />
                   )}
+                  <div>({cell.rowIndex},{cell.columnIndex})</div>
                 </td>
               ))}
             </tr>
