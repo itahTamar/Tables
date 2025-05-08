@@ -6,7 +6,7 @@
    - open new terminal or PowerShell
    - node -v
    - npm -v
-4.  
+3.  
  
 
 
