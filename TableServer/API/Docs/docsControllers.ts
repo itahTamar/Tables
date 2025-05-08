@@ -243,3 +243,30 @@ export async function getDocs(req: any, res: any) {
     return res.status(500).json({ message: "Internal server error" });
   }
 } //work ok
+
+//!update several documents with different updates-values
+export async function bulkUpdateDocs(req: any, res: any) {
+  try {
+    const { collectionName, updates } = req.body;
+
+    if (!collectionName || !updates)
+      throw new Error("Missing collectionName or updates");
+
+    // Ensure _id is ObjectId
+    updates.forEach((item: any) => {
+      if (item._id && typeof item._id === "string") {
+        item._id = new ObjectId(item._id);
+      }
+    });
+
+    const result = await MongoDBWrapper.bulkUpdateDocuments(
+      collectionName,
+      updates
+    );
+
+    res.send({ modifiedCount: result.modifiedCount });
+  } catch (error) {
+    console.error("Error in bulkUpdateDocs:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}

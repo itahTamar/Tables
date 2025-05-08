@@ -281,6 +281,33 @@ class MongoDBWrapper {
       throw error;
     }
   } //work ok
+
+  // NEW METHOD: Bulk update multiple documents with individual updates
+static async bulkUpdateDocuments(
+  collectionName: string,
+  updates: { _id: string; update: object }[]
+) {
+  this.ensureConnected();
+
+  const collection: Collection = this.db!.collection(collectionName);
+
+  const operations = updates.map(item => ({
+    updateOne: {
+      filter: { _id: new Object(item._id) },
+      update: { $set: item.update },
+    },
+  }));
+
+  try {
+    const result = await collection.bulkWrite(operations);
+    console.log(`Bulk updated ${result.modifiedCount} document(s).`);
+    return result;
+  } catch (error) {
+    console.error("Error in bulkUpdateDocuments:", error);
+    throw error;
+  }
+}
+
 }
 
 export { MongoDBWrapper };

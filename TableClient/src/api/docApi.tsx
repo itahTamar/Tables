@@ -68,10 +68,7 @@ class DocumentRestAPIMethods {
     update: object
   ): Promise<boolean> {
     try {
-      console.log(
-        "at DocumentRestAPIMethods.update the collectionName is:",
-        collectionName
-      );
+      console.log("at DocumentRestAPIMethods.update the collectionName is:",collectionName);
       console.log("at DocumentRestAPIMethods.update the query is:", query);
       console.log("at DocumentRestAPIMethods.update the update is:", update);
 
@@ -84,14 +81,8 @@ class DocumentRestAPIMethods {
         },
         { withCredentials: true }
       );
-      console.log(
-        "at DocumentRestAPIMethods.update the response is:",
-        response
-      );
-      console.log(
-        "at DocumentRestAPIMethods.update the response.data is:",
-        response.data
-      );
+      console.log("at DocumentRestAPIMethods.update the response is:",response);
+      console.log("at DocumentRestAPIMethods.update the response.data is:",response.data);
       if (!response.data)
         throw new Error("No document updated in DocumentRestAPIMethods.update");
       return true;
@@ -159,5 +150,25 @@ class DocumentRestAPIMethods {
       return [];
     }
   } //work ok
+
+  // NEW: Bulk update multiple documents
+  static async bulkUpdate(
+    serverUrl: string,
+    collectionName: string,
+    updates: { _id: string; update: object }[]
+  ): Promise<boolean> {
+    try {
+      const response = await axios.patch(
+        `${serverUrl}/api/doc/bulkUpdateDocs`,
+        { collectionName, updates },
+        { withCredentials: true }
+      );
+      return response.data.modifiedCount > 0;
+    } catch (error) {
+      console.error("Error in DocumentRestAPIMethods.bulkUpdate:", error);
+      return false;
+    }
+  }
+
 }
 export { DocumentRestAPIMethods };

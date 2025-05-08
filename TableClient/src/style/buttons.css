@@ -68,8 +68,14 @@
     cursor: pointer; /* Optional: Change the cursor to a pointer */
 }
 
+.save {
+    background-color: rgb(243, 223, 37);
+    right: 10rem;
+    top: 4rem;
+}
+
 @media only screen and (max-width: 435px) {
-            .back {
+            .back .save {
                 font-size: xx-small;  
             }
 }

@@ -1,5 +1,5 @@
 import express from "express";
-import { addDoc, deleteDoc, deleteDocs, getDocs, updateDocs } from "./docsControllers";
+import { addDoc, bulkUpdateDocs, deleteDoc, deleteDocs, getDocs, updateDocs } from "./docsControllers";
 import { extractCookie } from "../helpFunctions";
 import { deleteTablesDocuments, exportTableAsCSV, searchDocsAggPip } from "./specificTablesControllers";
 
@@ -15,5 +15,7 @@ router
   .patch("/updateDocs", updateDocs) //
   .delete("/deleteDoc", deleteDoc) //work
   .delete("/deleteTablesDocs", deleteTablesDocuments) //work
+  .patch("/bulkUpdateDocs", bulkUpdateDocs);
+
 
 export default router;
