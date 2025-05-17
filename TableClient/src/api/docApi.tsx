@@ -17,11 +17,8 @@ class DocumentRestAPIMethods {
         },
         { withCredentials: true }
       );
-      console.log("at DocumentRestAPIMethods.add the response is:", response);
-      console.log(
-        "at DocumentRestAPIMethods.add the response.data.acknowledged is:",
-        response.data.acknowledged
-      );
+      // console.log("at DocumentRestAPIMethods.add the response is:", response);
+      console.log("at DocumentRestAPIMethods.add the response.data.acknowledged is:",response.data.acknowledged);
       if (!response.data.acknowledged)
         throw new Error("No response in DocumentRestAPIMethods.add");
       return true;
@@ -43,10 +40,7 @@ class DocumentRestAPIMethods {
         data: { collectionName, query },
         withCredentials: true,
       });
-      console.log(
-        "at DocumentRestAPIMethods.delete the response is:",
-        response
-      );
+      // console.log("at DocumentRestAPIMethods.delete the response is:",response);
       console.log(
         "at DocumentRestAPIMethods.delete the response.data.acknowledged is:",
         response.data.acknowledged
@@ -68,9 +62,9 @@ class DocumentRestAPIMethods {
     update: object
   ): Promise<boolean> {
     try {
-      console.log("at DocumentRestAPIMethods.update the collectionName is:",collectionName);
-      console.log("at DocumentRestAPIMethods.update the query is:", query);
-      console.log("at DocumentRestAPIMethods.update the update is:", update);
+      // console.log("at DocumentRestAPIMethods.update the collectionName is:",collectionName);
+      // console.log("at DocumentRestAPIMethods.update the query is:", query);
+      // console.log("at DocumentRestAPIMethods.update the update is:", update);
 
       const response = await axios.patch(
         `${serverUrl}/api/doc/updateDocs`,
@@ -81,7 +75,7 @@ class DocumentRestAPIMethods {
         },
         { withCredentials: true }
       );
-      console.log("at DocumentRestAPIMethods.update the response is:",response);
+      // console.log("at DocumentRestAPIMethods.update the response is:",response);
       console.log("at DocumentRestAPIMethods.update the response.data is:",response.data);
       if (!response.data)
         throw new Error("No document updated in DocumentRestAPIMethods.update");
@@ -106,7 +100,7 @@ class DocumentRestAPIMethods {
         responseType: isFile ? "blob" : "json", // Dynamically set response type
         withCredentials: true,
       });
-      console.log("at DocumentRestAPIMethods.get the response is:", response);
+      console.log("at DocumentRestAPIMethods.get the response.data is:", response.data);
       return response.data; // Returns JSON (default) or Blob (if isFile=true)
     } catch (error) {
       console.error("Error in DocumentRestAPIMethods.get document", error);
@@ -129,10 +123,7 @@ class DocumentRestAPIMethods {
           withCredentials: true,
         }
       );
-      console.log(
-        "at DocumentRestAPIMethods.getSearchInTableCells the response is:",
-        response
-      );
+      // console.log("at DocumentRestAPIMethods.getSearchInTableCells the response is:",response);
       console.log(
         "at DocumentRestAPIMethods.getSearchInTableCells the response.data is:",
         response.data

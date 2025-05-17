@@ -5,7 +5,7 @@ export interface CellData {
     visibility: boolean;
     rowIndex: number;
     columnIndex: number;
-    tableIndex: number;
+    // tableIndex: number;
     tableId: string;
     sortState?: "asc" | "desc" | null; //! Add the sortState property
     __v: number;

@@ -26,7 +26,6 @@ interface findTheLastIndexProp {
   
       return lastIndex;
     } catch (error) {
-      console.log("findLastIndex catch an error")
       console.error("Error in findLastIndex:", error);
       return undefined;
     }

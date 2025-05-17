@@ -28,17 +28,17 @@ const AddNewTable: React.FC<AddTableProps> = ({ onClose }) => {
     }
 
     //fine last (max) table index
-    const maxTableIndexValue = tables.reduce((max, current) => {
-      return current.tableIndex > max ? current.tableIndex : max;
-    }, 0);
+    // const maxTableIndexValue = tables.reduce((max, current) => {
+    //   return current.tableIndex > max ? current.tableIndex : max;
+    // }, 0);
 
-    console.log("At handleAddTable the maxTableIndexValue is:", maxTableIndexValue)
+    // console.log("At handleAddTable the maxTableIndexValue is:", maxTableIndexValue)
 
     const success = await DocumentRestAPIMethods.add(serverUrl, "tables", {
       type: "table",
       tableName: tableSubject,
       visibility: true,
-      tableIndex: maxTableIndexValue + 1,
+      // tableIndex: maxTableIndexValue + 1,
       rowNumber: 0,
       columnNumber: 0,
       users: [] 

@@ -12,14 +12,14 @@ import { ServerContext } from "../../context/ServerUrlContext";
 interface InitialNewTableProps {
   onClose: () => void;
   tableId: string;
-  tableIndex: number;
+  // tableIndex: number;
   onTableCreated: () => void;
 }
 
 const InitialNewTable: React.FC<InitialNewTableProps> = ({
   onClose,
   tableId,
-  tableIndex,
+  // tableIndex,
   onTableCreated,
 }) => {
   const serverUrl = useContext(ServerContext);
@@ -32,7 +32,9 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
     throw new Error("TablesContext must be used within a TableProvider");
   }
 
-  if (!tableId || !tableIndex) {
+  if (!tableId 
+    // || !tableIndex
+  ) {
     setMessage("Invalid tableId or tableIndex");
     return null; // Ensure the component returns null in invalid cases
   }
@@ -67,7 +69,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
           visibility: true,
           rowIndex: 0,
           columnIndex: columnIndex + 1,
-          tableIndex: tableIndex,
+          // tableIndex: tableIndex,
           tableId: tableId,
           __v: 0,
         })
@@ -87,7 +89,7 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
             visibility: true,
             rowIndex: rowIndex,
             columnIndex: columnIndex,
-            tableIndex: tableIndex,
+            // tableIndex: tableIndex,
             tableId: tableId,
             __v: 0,
           };

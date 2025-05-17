@@ -17,12 +17,12 @@ disableReactDevTools()
 
 function App() {
   console.log("environment:", environment);
-  console.log("dev_server:", dev_server);
-  console.log("prod_server:", prod_server);
-  console.log("checkEnvironment:", checkEnvironment);
+  // console.log("dev_server:", dev_server);
+  // console.log("prod_server:", prod_server);
+  // console.log("checkEnvironment:", checkEnvironment);
 
   const [serverUrl] = useState<string>(checkEnvironment);
-  console.log("serverUrl:", serverUrl);
+  // console.log("serverUrl:", serverUrl);
 
   const [user, setUser] = useState<any>(null);
   const [email, setUserEmail] = useState<string>("");

@@ -3,7 +3,7 @@ import { DocumentRestAPIMethods } from "../../../api/docApi";
 interface AddRowProp {
   serverUrl: string;
   tableId: string;
-  tableIndex: number;
+  // tableIndex: number;
   rowIndexToInsert: number;
   currentColumnIndex: number;
 }
@@ -11,7 +11,7 @@ interface AddRowProp {
 export const addOneNewRowsTypeCell = async ({
   serverUrl,
   tableId,
-  tableIndex,
+  // tableIndex,
   rowIndexToInsert,
   currentColumnIndex,
 }: AddRowProp) => {
@@ -22,7 +22,7 @@ export const addOneNewRowsTypeCell = async ({
       visibility: true,
       columnIndex: currentColumnIndex,
       rowIndex: rowIndexToInsert,
-      tableIndex: tableIndex,
+      // tableIndex: tableIndex,
       tableId
     }, "addDoc");
 

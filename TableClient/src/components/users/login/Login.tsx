@@ -26,11 +26,7 @@ const Login = () => {
   const handleSubmitLogin = async (ev: React.FormEvent<HTMLFormElement>) => {
     try {
       ev.preventDefault();
-      console.log(
-        "At handleSubmitLogin the email & password are:",
-        email,
-        password
-      );
+      // console.log("At handleSubmitLogin the email & password are:",email,password);
       const response = await login(serverUrl, email, password);
       if (!response) {
         window.alert(

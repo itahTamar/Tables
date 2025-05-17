@@ -10,15 +10,14 @@ export const getHeaders = async ({
   serverUrl,
   tableId,
 }: TablesColumnsProp) => {
-
-  console.log("you at getHeaders");
+  console.log("**getHeaders**");
   try {
     const columnsData = await DocumentRestAPIMethods.get(serverUrl, "tables", {
       type: "column",
       tableId
     }, "getDoc", false);
     if (!columnsData) throw new Error("No headers found.");
-    console.log("at getHeaders the columnsData:", columnsData);
+    // console.log("at getHeaders the columnsData:", columnsData);
     return columnsData;
   } catch (error) {
     console.error("Error fetching tables headers:", error);

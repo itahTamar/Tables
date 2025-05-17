@@ -47,7 +47,7 @@ export const login = async (
       { email, password },
       { withCredentials: true }
     );
-    console.log("at user-api login response from server is:", response);
+    console.log("at user-api login response.data from server is:", response.data);
     return response.data;
 
     //return "ok: true" from server and userID encoded in cookie
@@ -88,15 +88,9 @@ export const recoveryEmail = async ({
       { withCredentials: true }
     );
 
-    console.log("at recoveryEmail response from server is:", response);
-    console.log(
-      "at recoveryEmail response.data from server is:",
-      response.data
-    );
-    console.log(
-      "at recoveryEmail  response.data.ok from server is:",
-      response.data.ok
-    );
+    // console.log("at recoveryEmail response from server is:", response);
+    console.log("at recoveryEmail response.data from server is:",response.data);
+    console.log("at recoveryEmail  response.data.ok from server is:",response.data.ok);
 
     if (!response.data.ok) {
       alert("Recovery Email Failed");
@@ -125,10 +119,7 @@ export const resetPassword = async ({
       { email, password },
       { withCredentials: true }
     );
-    console.log(
-      "at user-api resetPassword response from server is:",
-      response.data.ok
-    );
+    console.log("at user-api resetPassword response from server is:",response.data.ok);
     if (!response.data.ok) {
       alert("at resetPassword -> reset password failed");
       throw new Error(response.data);
@@ -153,11 +144,7 @@ export const updateUserDetails = async ({
       throw new Error(
         "please provide a valid userName, email and password to Update User Details"
       );
-    console.log(
-      "at UpdateUserDetails the userName, email & password are:",
-      email,
-      password
-    );
+    console.log("at UpdateUserDetails the userName, email & password are:",email,password);
     const response = await axios.post(
       `${serverUrl}/api/users/UpdateUserDetails`,
       {
@@ -165,10 +152,7 @@ export const updateUserDetails = async ({
         password,
       }
     );
-    console.log(
-      "at user-api resetPassword response from server is:",
-      response.data.ok
-    );
+    console.log("at user-api resetPassword response from server is:",response.data.ok);
     if (!response.data.ok) {
       alert("at resetPassword -> reset password failed");
       throw new Error(response.data);

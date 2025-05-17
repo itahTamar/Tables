@@ -67,14 +67,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
       handleRightClick(e, rowIndex, columnIndex);
     }
     const success = handleRightClick(e, rowIndex, columnIndex); // Call the prop function
-    console.log(
-      "at handleRightClickWithFlag after handleRightClick rightClickFlag:",
-      rightClickFlag
-    );
-    console.log(
-      "at handleRightClickWithFlag after handleRightClick success:",
-      success
-    );
+    // console.log("at handleRightClickWithFlag after handleRightClick rightClickFlag:",rightClickFlag);
+    console.log("at handleRightClickWithFlag after handleRightClick success:",success);
     // Reset the flag based on the result
     if (success) {
       setRightClickFlag(false);

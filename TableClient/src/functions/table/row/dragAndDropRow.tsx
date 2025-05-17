@@ -18,7 +18,7 @@ export const dragAndDropRow = async ({
  
     const unaffectedCells = cellsArr.filter((c) => c.rowIndex < Math.min(currentRowIndex,targetRowIndex) ||
      c.rowIndex > Math.max(currentRowIndex,targetRowIndex));
-    console.log("dragAndDropRow.tsx: unaffectedCells =", unaffectedCells)
+    // console.log("dragAndDropRow.tsx: unaffectedCells =", unaffectedCells)
     let affectedCells: CellData[] = [];
     
     if (targetRowIndex<currentRowIndex){

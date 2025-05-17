@@ -2,7 +2,7 @@ import { CellData } from "../../../types/cellType";
 
 interface AddRowProp {
   tableId: string;
-  tableIndex: number;
+  // tableIndex: number;
   currentRowIndex: number;
   numOfColumns: number;
   cells: CellData[];
@@ -17,14 +17,16 @@ interface AddRowProp {
 
 export const addNewRow = async ({
   tableId,
-  tableIndex,
+  // tableIndex,
   currentRowIndex,
   numOfColumns,
   rowIndexesDisplayArr,
   cells,
 }: AddRowProp) => {
   
-  if (!tableId || !tableIndex || !numOfColumns) {
+  if (!tableId
+    //  || !tableIndex 
+     || !numOfColumns) {
     throw new Error("Invalid input data for addNewRow");
   }
 
@@ -47,7 +49,7 @@ export const addNewRow = async ({
       visibility: true, // Keep hidden headers hidden
       rowIndex: currentRowIndex,
       columnIndex: columnIndex + 1,
-      tableIndex: tableIndex,
+      // tableIndex: tableIndex,
       tableId: tableId,
       __v: 0,
     })
@@ -69,7 +71,7 @@ export const addNewRow = async ({
 
   return {
     newCellsArray: updatedCells,              // should be new local cells
-    toBeUpdateInDB: affectedCells,            // cells to up date in DB
+    toBeUpdateInDB: affectedCells,            // cells to update in DB
     newToAddInDB: newRowCells,                // cells to add into the DB
     updatedRowIndexesArr: adjustedRowIndexes, // updates indexes to display
   };

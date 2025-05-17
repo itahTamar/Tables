@@ -61,7 +61,7 @@ export default function UpdateUserDetails() {
   ) => {
     try {
       ev.preventDefault();
-      console.log("At handleSubmitUpdateUserDetails, the serverUrl is:", serverUrl);
+      // console.log("At handleSubmitUpdateUserDetails, the serverUrl is:", serverUrl);
       if (password === confirmPassword) {
         const data = { newUserName, newEmail, password };
         if (!data) throw new Error("update detail failed - no userName, email or password");

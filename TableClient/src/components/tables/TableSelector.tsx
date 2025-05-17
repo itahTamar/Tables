@@ -4,24 +4,24 @@ import { TableData } from "../../types/tableType";
 interface TableSelectorProps {
   tables: TableData[] | undefined;
   onClose: () => void;
-  onSave: (selectedTables: number[]) => void;
+  onSave: (selectedTables: string[]) => void;
 }
 
 const TableSelector: React.FC<TableSelectorProps> = ({ onClose, onSave, tables}) => {
-  const [selectedTables, setSelectedTables] = useState<number[]>(
+  const [selectedTables, setSelectedTables] = useState<string[]>(
     []
   );
   if(tables === undefined) throw new Error("at TableSelector table is undefined");
   
   useEffect(() => {
-    setSelectedTables(tables.filter(table => table.visibility !== false).map(table => table.tableIndex));
+    setSelectedTables(tables.filter(table => table.visibility !== false).map(table => table._id));
   }, [tables]);
 
-  const handleCheckboxChange = (tableIndex: number) => {
+  const handleCheckboxChange = (tableId: string) => {
     setSelectedTables(prev =>
-      prev.includes(tableIndex)
-        ? prev.filter(idx => idx !== tableIndex)
-        : [...prev, tableIndex]
+      prev.includes(tableId)
+        ? prev.filter(idx => idx !== tableId)
+        : [...prev, tableId]
     );
   };
 
@@ -33,8 +33,8 @@ const TableSelector: React.FC<TableSelectorProps> = ({ onClose, onSave, tables})
           <label key={table._id} className="flex items-center mb-2">
             <input
               type="checkbox"
-              checked={selectedTables.includes(table.tableIndex)}
-              onChange={() => handleCheckboxChange(table.tableIndex)}
+              checked={selectedTables.includes(table._id)}
+              onChange={() => handleCheckboxChange(table._id)}
               className="mr-2"
             />
             {table.tableName}
@@ -49,7 +49,7 @@ const TableSelector: React.FC<TableSelectorProps> = ({ onClose, onSave, tables})
           </button>
           <button
             onClick={() => {
-              console.log("Saving selected tables:", selectedTables);
+              // console.log("Saving selected tables:", selectedTables);
               onSave(selectedTables);
             }}
             className="px-4 py-2 bg-blue-500 text-white rounded"

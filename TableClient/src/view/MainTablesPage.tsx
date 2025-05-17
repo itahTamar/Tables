@@ -169,13 +169,13 @@ const MainTablesPage: React.FC = () => {
     setMenuState((prev) => ({ ...prev, visible: false }));
   };
 
-  const handleSaveSelectedTables = async (selectedTablesIndices: number[]) => {
+  const handleSaveSelectedTables = async (selectedTablesIndices: string[]) => {
     setDropdownOpen(false);
   
     //Ensure local state is updated before saving
     const updatedTables = tables.map((table) => ({
       ...table,
-      visibility: selectedTablesIndices.includes(table.tableIndex),
+      visibility: selectedTablesIndices.includes(table._id),
     }));
     setTables(updatedTables); // Update UI state immediately
     

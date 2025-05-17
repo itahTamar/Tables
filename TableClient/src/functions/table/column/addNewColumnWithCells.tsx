@@ -5,7 +5,7 @@ import { generateObjectId } from "../row/addNewRow";
 interface AddColumnProp {
   serverUrl: string;
   tableId: string;
-  tableIndex: number;
+  // tableIndex: number;
   currentColumnIndex: number;
   colIndexesDisplayArr: number[];
   headers: CellData[];
@@ -16,7 +16,7 @@ interface AddColumnProp {
 
 export const addNewColumnWithCells = async ({
   tableId,
-  tableIndex,
+  // tableIndex,
   currentColumnIndex,
   colIndexesDisplayArr,
   numOfRows,
@@ -30,7 +30,7 @@ export const addNewColumnWithCells = async ({
 
   // Determine the new column index
   const newColumnIndex = addBefore ? currentColumnIndex : currentColumnIndex + 1;
-  console.log("newColumnIndex:", newColumnIndex)
+  // console.log("newColumnIndex:", newColumnIndex)
   
   // Adjust indices of existing headers
   const adjustedHeaders = headers.map((col) => {
@@ -55,7 +55,7 @@ export const addNewColumnWithCells = async ({
     data: null,
     columnIndex: newColumnIndex,
     rowIndex: 0,
-    tableIndex,
+    // tableIndex,
     tableId,
     visibility: true,
     __v: 0,
@@ -69,7 +69,7 @@ export const addNewColumnWithCells = async ({
       type: "cell",
       columnIndex: newColumnIndex,
       rowIndex: rowIndex + 1,
-      tableIndex,
+      // tableIndex,
       tableId,
       data: null,
       visibility: true,

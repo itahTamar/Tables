@@ -10,7 +10,7 @@ export async function searchDocsAggPip(req: any, res: any) {
 
     const { collectionName, tableId, regexToSearch } = req.query;
     console.log(
-      "At searchDocsAggPip collectionName, tableIndex, regexToSearch:",
+      "At searchDocsAggPip collectionName, tableId, regexToSearch:",
       collectionName,
       tableId,
       regexToSearch
@@ -18,7 +18,7 @@ export async function searchDocsAggPip(req: any, res: any) {
 
     if (!collectionName || tableId === undefined || !regexToSearch) {
       throw new Error(
-        "Missing required fields: collectionName, tableIndex, or regexToSearch"
+        "Missing required fields: collectionName, tableId, or regexToSearch"
       );
     }
 

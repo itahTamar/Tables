@@ -23,7 +23,6 @@ import { CellData } from "../types/cellType";
 import SelectionMenu from "./../components/tables/SelectionMenu";
 // import { hideOrRevealColumn } from "../functions/table/column/hideOrRevealColumn";
 import ColumnSelector from "../components/columns/ColumnSelector";
-import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 
 function TablePage() {
@@ -52,6 +51,11 @@ function TablePage() {
       columnIndex: number;
       elementType?: string;
     }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
+    const [isOperationPending, setIsOperationPending] = useState(false);
+    
+    const [toAdd, setToAdd] = useState<string[]>([])
+    const [toDelete, setToDelete] = useState([])
+    const [toUpdate, setToUpdate] = useState([])
 
     if (!tableId) throw new Error("at TablePage no tableId in params!");
 
@@ -78,9 +82,9 @@ function TablePage() {
       numOfColumns===undefined ||
       numOfRows===undefined
     ) {
-      console.log("⏳ line 83: Waiting for tables to load...");
-      console.log("⏳ Debug info:");
-      console.log("cells, headers, numOfColumns, numOfRows:", cells, headers, numOfColumns, numOfRows);
+      // console.log("⏳ line 83: Waiting for tables to load...");
+      // console.log("⏳ Debug info:");
+      // console.log("cells, headers, numOfColumns, numOfRows:", cells, headers, numOfColumns, numOfRows);
       return <div>Loading cells and headers...</div>;
     }
 
@@ -92,14 +96,19 @@ function TablePage() {
       setNumOfColumns===undefined ||
       setNumOfRows===undefined
     ) {
-      console.log("TablePage.tsx line 96: setCells,setHeaders,setRowIndexesDisplayArr,setColIndexesDisplayArr,setNumOfColumns,setNumOfRows:",setCells,setHeaders,setRowIndexesDisplayArr,setColIndexesDisplayArr,setNumOfColumns,setNumOfRows);
+      // console.log("TablePage.tsx line 96: setCells,setHeaders,setRowIndexesDisplayArr,setColIndexesDisplayArr,setNumOfColumns,setNumOfRows:",setCells,setHeaders,setRowIndexesDisplayArr,setColIndexesDisplayArr,setNumOfColumns,setNumOfRows);
       return <div>problem with sets!</div>;
     }
 
     // gets  headers, cells, num rows, num columns from DB, and updates showGenerateTable state
     const fetchHeadersAndCells = async () => {
       console.log("**** TablePage.tsx: fetchHeadersAndCells: start ****");
+        if (isOperationPending) {
+          console.warn('Previous operation is still pending. Please wait.');
+          return;
+        }
       try {
+        setIsOperationPending(true);
         const fetchedHeaders: CellData[] = await getHeaders({serverUrl,tableId,}); // get table's headers (documents)
         const fetchedCells: CellData[] = await getCells({serverUrl,tableId,}); // get table's cells (documents)
 
@@ -111,13 +120,13 @@ function TablePage() {
         const tempRIndexDisplayArr = [...new Set(fetchedCells.map((e) => e.rowIndex)),]; 
         setRowIndexesDisplayArr(tempRIndexDisplayArr);
         setNumOfRows(tempRIndexDisplayArr.length);
-        console.log("TablePage.tsx: tempRIndexDisplayArr = ", tempRIndexDisplayArr);
+        // console.log("TablePage.tsx: tempRIndexDisplayArr = ", tempRIndexDisplayArr);
 
         // Ensure all columns are displayed on initial load or when search is cleared
         const tempCIndexDisplayArr = [...new Set(fetchedHeaders.map((e) => e.columnIndex)),]; 
         setColIndexesDisplayArr(tempCIndexDisplayArr);
         setNumOfColumns(tempCIndexDisplayArr.length);
-        console.log("TablePage.tsx: tempCIndexDisplayArr = ", tempCIndexDisplayArr);
+        // console.log("TablePage.tsx: tempCIndexDisplayArr = ", tempCIndexDisplayArr);
         
         // ✅ Update showGenerateTable *inside setState* to ensure it's synced
         setShowGenerateTable(() => {
@@ -132,6 +141,7 @@ function TablePage() {
         console.error("Error fetching headers or cells:", error);
       } finally {
         setLoading(false); // Stop loading
+        setIsOperationPending(false);
       }
     };
 
@@ -139,8 +149,19 @@ function TablePage() {
     useEffect(() => {
       console.log("**** TablePage.tsx: useEffect[]: start ****");
       const fetchTables = async () => {
+        if (isOperationPending) {
+          console.warn('Previous operation is still pending. Please wait.');
+          return;
+        }
         if (tables.length === 0) {
-          await getAllUserTables(); // here should set 'tablesFetched' to True or False also updates 'tables'
+          setIsOperationPending(true);
+          try {
+            await getAllUserTables(); // here should set 'tablesFetched' to True or False also updates 'tables'
+          } catch (error) {
+            console.error('Error re-fetching tables', error)
+          } finally {
+            setIsOperationPending(false)
+          }
         }
       };
       fetchTables();
@@ -192,7 +213,7 @@ function TablePage() {
         document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    console.log("Context values:", { serverUrl, tableContext });
+    // console.log("Context values:", { serverUrl, tableContext });
     //Verification
     if (!serverUrl) console.error("🚨 Missing serverUrl!");
     if (!tableContext) console.error("🚨 Missing tableContext!");
@@ -217,11 +238,11 @@ function TablePage() {
       return <div>Loading colIndexesDisplayArr...</div>;
     }
 
-    console.log("Current rowIndexesDisplayArr:", rowIndexesDisplayArr);
-    console.log("Current cells:", cells);
-    console.log("Current headers:", headers);
-    console.log("Current tableId:", tableId);
-    console.log("All tables in context:", tables);
+    // console.log("Current rowIndexesDisplayArr:", rowIndexesDisplayArr);
+    // console.log("Current cells:", cells);
+    // console.log("Current headers:", headers);
+    // console.log("Current tableId:", tableId);
+    // console.log("All tables in context:", tables);
 
     const table = tables.find((t) => t._id === tableId);
     if (!table || table === undefined) {
@@ -233,10 +254,10 @@ function TablePage() {
 
     //Wait until tables are loaded before accessing `tableName
     const tableName = table.tableName;
-    const tableIndex = table.tableIndex;
+    // const tableIndex = table.tableIndex;
 
-    console.log("Current tableName:", tableName);
-    console.log("Current tableIndex:", tableIndex);
+    // console.log("Current tableName:", tableName);
+    // console.log("Current tableIndex:", tableIndex);
 
     // Dynamically calculate `displayArr` based on `rowIndexesDisplayArr` and `cells`
     const displayArr = generateCellsForPlot(rowIndexesDisplayArr, colIndexesDisplayArr, cells, headers);
@@ -303,31 +324,24 @@ function TablePage() {
       newData: any,
       prevData: any
     ) => {
-      console.log("at handleCellUpdate the prevData is:", prevData);
-      console.log("at handleCellUpdate the newData is:", newData);
+      // console.log("at handleCellUpdate the prevData is:", prevData);
+      // console.log("at handleCellUpdate the newData is:", newData);
       if (prevData === null && newData === "") return;
       if (prevData === newData) return;
+      
+      if (isOperationPending) {
+        console.warn('Previous operation is still pending. Please wait.');
+        return;
+      }
+      setIsOperationPending(true);
 
       try {
         const updatedCell = { ...cell, data: newData };
         console.log( "at PlotTable handleCellUpdate the updatedCell:", updatedCell);
 
-        // //update cell data in db 
-        // const success = await DocumentRestAPIMethods.update(
-        //   serverUrl,
-        //   "tables",
-        //   { _id: cell._id },
-        //   { data: newData }
-        // );
-        // if (success)
-        //   console.log("at handleCellUpdate Cell updated successfully in db");
-
         // Update the visual state (headers or cells data)
         const resolve = await visualDataCellsUpdate(cell, updatedCell);
-        console.log(
-          "at handleCellUpdate after visualCellsUpdate the resolve is:",
-          resolve
-        );
+        console.log("at handleCellUpdate after visualCellsUpdate the resolve is:",resolve);
 
         //add new empty first row if needed
         let newCellsAfterAddingRow; 
@@ -338,27 +352,29 @@ function TablePage() {
           newData != null &&
           cell.rowIndex === 1
         ) {
-          newCellsAfterAddingRow = await addNewRow({
+            newCellsAfterAddingRow = await addNewRow({
             tableId,
-            tableIndex,
+            // tableIndex,
             currentRowIndex: 1,
             numOfColumns,
             cells: resolve,
             rowIndexesDisplayArr,
-          });
-
+          });  
+        
           setCells(newCellsAfterAddingRow.newCellsArray);
           setRowIndexesDisplayArr([
             ...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),
           ]);
 
-          setNumOfRows((prev) => prev + 1);
+          // setNumOfRows((prev) => prev + 1);
 
-          handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB,serverUrl);
-          handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
+          // await handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB,serverUrl);
+          // await handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
         }
       } catch (error) {
         console.error("Error in handleCellUpdate:", error);
+      } finally {
+        setIsOperationPending(false)
       }
     };
 
@@ -378,7 +394,7 @@ function TablePage() {
           columnIndex,
           elementType,
         });
-        console.log(`Right-clicked on row ${rowIndex}, column ${columnIndex}`);
+        // console.log(`Right-clicked on row ${rowIndex}, column ${columnIndex}`);
         return true; // Return true on success
       } catch (error) {
         console.error("Error in handleRightClick:", error);
@@ -425,52 +441,80 @@ function TablePage() {
     const handleAddRowBtnClick = async (
       currentRowIndex: number
     ) => {
-      const newCellsAfterAddingRow = await addNewRow({
-        tableId,
-        tableIndex,
-        currentRowIndex,
-        numOfColumns,
-        rowIndexesDisplayArr,
-        cells,
-      });
-      console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
-      setCells(newCellsAfterAddingRow.newCellsArray);
-      setRowIndexesDisplayArr([
-        ...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),
-      ]);
-      setNumOfRows((prev) => prev + 1);
-
-      handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
-      handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
+      if (isOperationPending) {
+      console.warn('Previous operation is still pending. Please wait.');
+      return;
+      }
+      setIsOperationPending(true);
+      try {
+        const newCellsAfterAddingRow = await addNewRow({
+          tableId,
+          // tableIndex,
+          currentRowIndex,
+          numOfColumns,
+          rowIndexesDisplayArr,
+          cells,
+        });
+        // console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
+        setCells(newCellsAfterAddingRow.newCellsArray);
+        setRowIndexesDisplayArr([
+          ...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),
+        ]);
+        addUniqeItemToArray(newCellsAfterAddingRow.newToAddInDB, toAdd, setToAdd)
+        // setNumOfRows((prev) => prev + 1);
+      
+        // await handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
+        // await handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);        
+      } catch (error) {
+        console.error('Error in handleAddRowBtnClick', error)
+      } finally { 
+        setIsOperationPending(false)
+      }
     };// reviewed
 
     const handleAddColumnBtnClick = async (
       addBefore: boolean,
       currentColumnIndex: number
     ) => {
+      if (isOperationPending) {
+      console.warn('Previous operation is still pending. Please wait.');
+      return;
+      }
+      setIsOperationPending(true);
 
-      const newColumnAndCellsAfterAddingColumn = await addNewColumnWithCells({
-        serverUrl,
-        tableId,
-        tableIndex,
-        currentColumnIndex,
-        colIndexesDisplayArr,
-        numOfRows,
-        headers,
-        cells,
-        addBefore,
-      });
+      try {
+        const newColumnAndCellsAfterAddingColumn = await addNewColumnWithCells({
+          serverUrl,
+          tableId,
+          // tableIndex,
+          currentColumnIndex,
+          colIndexesDisplayArr,
+          numOfRows,
+          headers,
+          cells,
+          addBefore,
+        });
 
-      setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
-      setHeaders(newColumnAndCellsAfterAddingColumn.updatedHeaders);
-      setColIndexesDisplayArr(newColumnAndCellsAfterAddingColumn.updatedColIndexesArr)
-      setNumOfColumns((prev) => prev + 1);
+        setCells(newColumnAndCellsAfterAddingColumn.updatedCells);
+        setHeaders(newColumnAndCellsAfterAddingColumn.updatedHeaders);
+        setColIndexesDisplayArr(newColumnAndCellsAfterAddingColumn.updatedColIndexesArr)
+        // setNumOfColumns((prev) => prev + 1);
 
-      handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,serverUrl);
-      handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
+        // await handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,serverUrl);
+        // await handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);        
+      } catch (error) {
+        console.error('Error in handleAddRowBtnClick', error)
+      } finally { 
+        setIsOperationPending(false)
+      }
     };// reviewed
 
     const handleDeleteRowBtnClick = async (currentRowIndex: number) => {
+      if (isOperationPending) {
+        console.warn('Previous operation is still pending. Please wait.');
+        return;
+      }
+      setIsOperationPending(true);
       try {
         if (currentRowIndex != 0) {
           const result = await DeleteRowCells({
@@ -485,20 +529,27 @@ function TablePage() {
           }
           setCells(result.newCellsArrayAfterDelete);
           setRowIndexesDisplayArr([...new Set(result.updatedRowIndexesArr)]);
-          setNumOfRows((prev) => prev - 1);
+          // setNumOfRows((prev) => prev - 1);
 
-          handelDeleteInDB(result.toBeDeleted, serverUrl);
-          handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
+          // await handelDeleteInDB(result.toBeDeleted, serverUrl);
+          // await handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
           console.log("Row deleted successfully");
         }
       } catch (error) {
         console.error("Error handling delete row:", error);
+      } finally { 
+        setIsOperationPending(false)
       }
     }; // reviewed
 
     const handleDeleteColumnBtnClick = async (currentColumnIndex: number) => {
-      console.log("Columns state before deletion:", headers);
-      console.log("Cells state before deletion:", cells);
+      // console.log("Columns state before deletion:", headers);
+      // console.log("Cells state before deletion:", cells);
+      if (isOperationPending) {
+        console.warn('Previous operation is still pending. Please wait.');
+        return;
+      }
+      setIsOperationPending(true);
       try {
         const result = await deleteColumnCells({
           colArrayIdx: colIndexesDisplayArr,
@@ -510,21 +561,16 @@ function TablePage() {
         if (result === undefined) {
           throw new Error("Result is undefined - delete column failed");
         }
-//@ts-ignore
-
         setHeaders(result.newHeaders);
-//@ts-ignore
-
         setCells(result.newCells);
-//@ts-ignore
-
-        // setNumOfColumns((prev) => prev - 1);
         setColIndexesDisplayArr(result.newColIdx);
 
-        handelDeleteInDB(result.toBeDeleted, serverUrl);
-        handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
+        // await handelDeleteInDB(result.toBeDeleted, serverUrl);
+        // await handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
       } catch (error) {
         console.error("Error handling delete row:", error);
+      } finally { 
+        setIsOperationPending(false)
       }
     }; // reviewed
 
@@ -586,26 +632,45 @@ function TablePage() {
 
     const handleSaveToDB = async () => {
       const collectionName = "tables"; 
-    
-      const updates = cells.map(cell => ({
-        _id: cell._id,
-        update: {
-          data: cell.data,
-          visibility: cell.visibility,
-          rowIndex: cell.rowIndex,
-          columnIndex: cell.columnIndex,
-        },
-      }));
-    
-      const success = await DocumentRestAPIMethods.bulkUpdate(serverUrl, collectionName, updates);
-    
-      if (success) {
-        console.log("All cells updated successfully.");
-      } else {
-        console.error("Failed to update cells.");
+      if (isOperationPending) {
+        console.warn('Previous operation is still pending. Please wait before saving.');
+        return;
+      }
+      setIsOperationPending(true);    
+      try {
+        const updates = cells.map(cell => ({
+          _id: cell._id,
+          update: {
+            data: cell.data,
+            // visibility: cell.visibility,
+            rowIndex: cell.rowIndex,
+            columnIndex: cell.columnIndex,
+          },
+        }));
+      
+        const success = await DocumentRestAPIMethods.bulkUpdate(serverUrl, collectionName, updates);
+      
+        if (success) {
+          console.log("All cells updated successfully.");
+        } else {
+          console.error("Failed to update cells.");
+        }        
+      } catch (error) {
+        console.error("Error during bulk update:", error);
+      } finally {
+        setIsOperationPending(false); // Reset the flag at the end
       }
     };
     
+    const addUniqeItemToArray = (newItems: CellData[], currentArray: string[], setState: React.Dispatch<React.SetStateAction<string[]>>) => {
+      const updatedArray = [...currentArray] //create a copy of the current array
+      newItems.forEach((item) => {
+        if (!updatedArray.includes(item._id)) {
+          updatedArray.push(item._id)
+        }
+      })
+      setState(updatedArray)
+    }
     console.log("🔥✅ About to return JSX in TablePage");
 
     return (
@@ -731,7 +796,7 @@ function TablePage() {
                   }}
                   onTableCreated={() => setShowGenerateTable(false)} // Hide button
                   tableId={tableId}
-                  tableIndex={tableIndex}
+                  // tableIndex={tableIndex}
                 />
               </PopupWithAnimation>
             )}

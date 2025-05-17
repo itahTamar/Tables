@@ -3,7 +3,7 @@ export interface TableData {
     _id: string;
     tableName: string;
     visibility: boolean;
-    tableIndex: number;
+    // tableIndex: number;
     rowNumber: number;
     columnNumber: number;
     __v: number;

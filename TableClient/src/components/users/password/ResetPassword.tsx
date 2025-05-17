@@ -57,7 +57,7 @@ function ResetPassword() {
   ) => {
     try {
       ev.preventDefault();
-      console.log("At handleSubmitRegister, the serverUrl is:", serverUrl);
+      // console.log("At handleSubmitRegister, the serverUrl is:", serverUrl);
       if (password === confirmPassword) {
         const data = { email, password };
         if (!data) throw new Error("register failed - no email or password");

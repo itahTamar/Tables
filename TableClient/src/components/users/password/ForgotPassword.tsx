@@ -11,12 +11,12 @@ const ForgotPassword = () => {
   const handleSubmitEmail = async (ev: React.FormEvent<HTMLFormElement>) => {
     try {
       ev.preventDefault();
-      console.log("At handleSubmitEmail, the serverUrl is:", serverUrl);
-      console.log("At handleSubmitEmail, the email:", email);
+      // console.log("At handleSubmitEmail, the serverUrl is:", serverUrl);
+      // console.log("At handleSubmitEmail, the email:", email);
       if (!email) throw new Error("Reset password failed - no email");
       const response = await recoveryEmail({ serverUrl, email });
       if (!response) throw new Error("recoveryEmail failed from server");
-      console.log("At handleSubmitEmail, the response from server:", response);
+      // console.log("At handleSubmitEmail, the response from server:", response);
       const OTP = response.otp;
       navigate("/otpCode", { state: { email, OTP } });
     } catch (error) {

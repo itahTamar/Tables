@@ -3,25 +3,25 @@ import { DocumentRestAPIMethods } from "../../../api/docApi";
 interface AddColumnProp {
   serverUrl: string;
   tableId: string;
-  tableIndex: number;
+  // tableIndex: number;
   columnIndexToInsert: number;
 }
 //regular standalone function to add only one column type column to table collection
 export const addOneNewCellsTypeColumn = async ({
   serverUrl,
   tableId,
-  tableIndex,
+  // tableIndex,
   columnIndexToInsert,
 }: AddColumnProp) => {
   try {
-    console.log("at addOneNewColumnsTypeColumn the columnIndexToInsert:", columnIndexToInsert)
+    // console.log("at addOneNewColumnsTypeColumn the columnIndexToInsert:", columnIndexToInsert)
     const success = await DocumentRestAPIMethods.add(serverUrl, "tables", {
       type: "column",
       data: " ",
       visibility: true,
       columnIndex: columnIndexToInsert,
       rowIndex: 0,
-      tableIndex: tableIndex,
+      // tableIndex: tableIndex,
       tableId
     }, "addDoc");
 

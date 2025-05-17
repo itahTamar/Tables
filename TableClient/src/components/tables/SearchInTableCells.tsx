@@ -36,7 +36,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
         const resultSearchIndexes = [
           ...new Set(cells.map((cell) => cell.rowIndex)),
         ];
-        console.log("Resetting rowIndexesDisplayArr:", resultSearchIndexes); // Debug log
+        // console.log("Resetting rowIndexesDisplayArr:", resultSearchIndexes); // Debug log
         setRowIndexesDisplayArr(resultSearchIndexes);
       }
     }, 1000);
@@ -50,8 +50,8 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
   };
 
   const handleSearchResults = (target: string) => {
-    console.log("Search Query:", target);
-    console.log("Checked Columns:", checkedColumns);
+    // console.log("Search Query:", target);
+    // console.log("Checked Columns:", checkedColumns);
 
     let resultSearchIndexes: number[];
 
@@ -61,7 +61,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
         ? cells.filter((cell) => checkedColumns.includes(cell.columnIndex))
         : cells;
 
-    console.log("filteredCells:", filteredCells);
+    // console.log("filteredCells:", filteredCells);
     if (filteredCells.length === 0) {
       console.warn("No filtered cells found!");
     }
@@ -73,7 +73,7 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
           .filter((cell) => cell.data && cell.data.includes(target))
           .map((cell) => cell.rowIndex)
       );
-      console.log("Rows to Exclude:", Array.from(rowsToExclude));
+      // console.log("Rows to Exclude:", Array.from(rowsToExclude));
 
       // Include only row indices that are NOT in rowsToExclude
       resultSearchIndexes = cells
@@ -85,19 +85,19 @@ const SearchInTableCells: React.FC<SearchInTableCellsProps> = ({
         .filter((cell) => cell.data && cell.data.includes(target))
         .map((cell) => cell.rowIndex);
     }
-    console.log("Result Search Indexes:", resultSearchIndexes);
+    // console.log("Result Search Indexes:", resultSearchIndexes);
     
     // Ensure rowIndex 1 is included in the result
     if (!resultSearchIndexes.includes(1)) {
       resultSearchIndexes.push(1);
     }
 
-    console.log("Updating rowIndexesDisplayArr for search:", resultSearchIndexes);
+    // console.log("Updating rowIndexesDisplayArr for search:", resultSearchIndexes);
     setRowIndexesDisplayArr([...new Set(resultSearchIndexes)]);
   };
 
   useEffect(() => {
-    console.log("SearchInTableCells: Updated rowIndexesDisplayArr:", rowIndexesDisplayArr);
+    // console.log("SearchInTableCells: Updated rowIndexesDisplayArr:", rowIndexesDisplayArr);
   }, [rowIndexesDisplayArr]);
 
   useEffect(() => {

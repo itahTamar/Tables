@@ -38,7 +38,7 @@ export const DeleteRowCells = ({
   const adjustedRowIndexes = rowIndexesDisplayArr.filter(index => index !== currentRowIndex).map((index) =>
     index > currentRowIndex  ? index - 1 : index
   ); // adjust the rowIndexArr for plot
-  console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
+  // console.log("at addNewRow the adjustedRowIndexes:", adjustedRowIndexes);
 
   return {
     newCellsArrayAfterDelete: newCellsArrayAfterDelete,
