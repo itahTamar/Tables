@@ -23,11 +23,12 @@ export const addNewRow = async ({
   rowIndexesDisplayArr,
   cells,
 }: AddRowProp) => {
-  
   if (!tableId || !tableIndex || !numOfColumns) {
     throw new Error("Invalid input data for addNewRow");
   }
 
+  if (currentRowIndex<1)
+    currentRowIndex = 1
   // Adjust rowIndex for existing cells - the row before the current row to insert and the row after with adjusted rowIndex
   const adjustedCells = cells.map((cell) => {
     if (cell.rowIndex >= currentRowIndex) {

@@ -78,9 +78,6 @@ function TablePage() {
       numOfColumns===undefined ||
       numOfRows===undefined
     ) {
-      console.log("⏳ line 83: Waiting for tables to load...");
-      console.log("⏳ Debug info:");
-      console.log("cells, headers, numOfColumns, numOfRows:", cells, headers, numOfColumns, numOfRows);
       return <div>Loading cells and headers...</div>;
     }
 
@@ -92,14 +89,14 @@ function TablePage() {
       setNumOfColumns===undefined ||
       setNumOfRows===undefined
     ) {
-      console.log("TablePage.tsx line 96: setCells,setHeaders,setRowIndexesDisplayArr,setColIndexesDisplayArr,setNumOfColumns,setNumOfRows:",setCells,setHeaders,setRowIndexesDisplayArr,setColIndexesDisplayArr,setNumOfColumns,setNumOfRows);
       return <div>problem with sets!</div>;
     }
 
-    // gets  headers, cells, num rows, num columns from DB, and updates showGenerateTable state
+    // gets  headers, cells, num rows, num columns from DB, and updates showGenerateTable state from DB
     const fetchHeadersAndCells = async () => {
       console.log("**** TablePage.tsx: fetchHeadersAndCells: start ****");
       try {
+//! get from DB
         const fetchedHeaders: CellData[] = await getHeaders({serverUrl,tableId,}); // get table's headers (documents)
         const fetchedCells: CellData[] = await getCells({serverUrl,tableId,}); // get table's cells (documents)
 
@@ -117,15 +114,13 @@ function TablePage() {
         const tempCIndexDisplayArr = [...new Set(fetchedHeaders.map((e) => e.columnIndex)),]; 
         setColIndexesDisplayArr(tempCIndexDisplayArr);
         setNumOfColumns(tempCIndexDisplayArr.length);
-        console.log("TablePage.tsx: tempCIndexDisplayArr = ", tempCIndexDisplayArr);
-        
         // ✅ Update showGenerateTable *inside setState* to ensure it's synced
         setShowGenerateTable(() => {
           const newState = tempCIndexDisplayArr.length === 0;
           return newState;
         });
 
-        // Set into local memory
+        // Set into "local memory"
         setHeaders(fetchedHeaders);
         setCells(fetchedCells);
       } catch (error) {
@@ -136,18 +131,19 @@ function TablePage() {
     };
 
     //get user's tables every time the page is loaded (on init, refresh, ...)
-    useEffect(() => {
+    useEffect(() => { // triggered - Once when tablesFetched becomes true
       console.log("**** TablePage.tsx: useEffect[]: start ****");
       const fetchTables = async () => {
         if (tables.length === 0) {
+//! tables from DB
           await getAllUserTables(); // here should set 'tablesFetched' to True or False also updates 'tables'
         }
       };
-      fetchTables();
+      fetchTables(); // call DB
     }, []);
 
-    // Fetch headers and cells
-    useEffect(() => {
+    // Fetch headers and cells from DB
+    useEffect(() => { // triggered - Every time selectedTable changes
       console.log("**** TablePage.tsx: useEffect[tablesFetched, showGenerateTable,]: start ****");
 
       if (!tablesFetched) {
@@ -161,7 +157,7 @@ function TablePage() {
     }, [tablesFetched, showGenerateTable,]);
 
     // Close the menu if the click is outside the table
-    useEffect(() => {
+    useEffect(() => { // triggered - Whenever cells are updated (via fetch, edit, add/delete)
       const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as HTMLElement;
         if (
@@ -178,7 +174,7 @@ function TablePage() {
 
     // Close the dropdown when clicking outside
     const dropdownRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
+    useEffect(() => { // triggered - Once on component mount
       const handleClickOutside = (event: MouseEvent) => {
         if (
           dropdownRef.current &&
@@ -216,13 +212,6 @@ function TablePage() {
       console.log("⏳ !colIndexesDisplayArr || !setColIndexesDisplayArr: Waiting for tables to load...");
       return <div>Loading colIndexesDisplayArr...</div>;
     }
-
-    console.log("Current rowIndexesDisplayArr:", rowIndexesDisplayArr);
-    console.log("Current cells:", cells);
-    console.log("Current headers:", headers);
-    console.log("Current tableId:", tableId);
-    console.log("All tables in context:", tables);
-
     const table = tables.find((t) => t._id === tableId);
     if (!table || table === undefined) {
       console.log(
@@ -249,6 +238,7 @@ function TablePage() {
 
     const handleTableRenameUpdate = async (rename: string) => {
       try {
+//! update the table name in DB
         const success = await DocumentRestAPIMethods.update(
           serverUrl,
           "tables",
@@ -258,7 +248,7 @@ function TablePage() {
         if (success) {
           console.log("Table renamed successfully");
 
-          // Update the tableName in the tableContext
+          // Update the tableName in the tableContext (UI)
           tableContext.setTables((prevTables) =>
             prevTables != undefined
               ? prevTables.map((table) =>
@@ -278,24 +268,18 @@ function TablePage() {
     const visualDataCellsUpdate = (
       cell: CellData,
       updatedCell: CellData
-    ): CellData[] => {
-      if (cell.rowIndex === 0) {
-        const newHeaders = headers.map((c) =>
-          c._id === cell._id ? updatedCell : c
-        );
-        setHeaders((prev) => {
-          if (JSON.stringify(prev) === JSON.stringify(newHeaders)) return prev;
-          return newHeaders;
-        });
-        return []; // Return the updated array
-      } else {
-        const newCells = cells.map((c) =>
-          c._id === cell._id ? updatedCell : c
-        );
+    ): { updatedCells: CellData[]; isHeader: boolean } => {
+      const isHeader = cell.rowIndex === 0;
 
-        setCells(newCells); // Update the state
-        return newCells; // Return the updated cells array
+      const source = isHeader ? headers : cells;
+
+      const updated = [...source];
+      const index = updated.findIndex((c) => c._id === updatedCell._id);
+
+      if (index !== -1) {
+        updated[index] = updatedCell;
       }
+      return {updatedCells: isHeader ? [] : updated,isHeader,};
     };
 
     const handleCellUpdate = async (
@@ -303,60 +287,26 @@ function TablePage() {
       newData: any,
       prevData: any
     ) => {
-      console.log("at handleCellUpdate the prevData is:", prevData);
-      console.log("at handleCellUpdate the newData is:", newData);
       if (prevData === null && newData === "") return;
       if (prevData === newData) return;
 
       try {
         const updatedCell = { ...cell, data: newData };
-        console.log( "at PlotTable handleCellUpdate the updatedCell:", updatedCell);
-
-        // //update cell data in db 
-        // const success = await DocumentRestAPIMethods.update(
-        //   serverUrl,
-        //   "tables",
-        //   { _id: cell._id },
-        //   { data: newData }
-        // );
-        // if (success)
-        //   console.log("at handleCellUpdate Cell updated successfully in db");
-
-        // Update the visual state (headers or cells data)
-        const resolve = await visualDataCellsUpdate(cell, updatedCell);
-        console.log(
-          "at handleCellUpdate after visualCellsUpdate the resolve is:",
-          resolve
-        );
+        const result = await visualDataCellsUpdate(cell, updatedCell);
 
         //add new empty first row if needed
         let newCellsAfterAddingRow; 
-        if (
-          //checks if the visual data update work/finish
-          resolve.length > 0 &&
-          newData != "" &&
-          newData != null &&
-          cell.rowIndex === 1
-        ) {
-          newCellsAfterAddingRow = await addNewRow({
-            tableId,
-            tableIndex,
-            currentRowIndex: 1,
-            numOfColumns,
-            cells: resolve,
-            rowIndexesDisplayArr,
-          });
-
+        if (!result.isHeader && result.updatedCells.length > 0 &&
+          newData != "" && newData != null && cell.rowIndex === 1 ) {
+          newCellsAfterAddingRow = await addNewRow({ tableId, tableIndex, currentRowIndex: 1, 
+            numOfColumns, cells: result.updatedCells, rowIndexesDisplayArr, });
           setCells(newCellsAfterAddingRow.newCellsArray);
-          setRowIndexesDisplayArr([
-            ...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),
-          ]);
-
+          setRowIndexesDisplayArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),]);
           setNumOfRows((prev) => prev + 1);
-
-          handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB,serverUrl);
-          handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
         }
+        else
+          setCells(result.updatedCells);
+
       } catch (error) {
         console.error("Error in handleCellUpdate:", error);
       }
@@ -440,8 +390,9 @@ function TablePage() {
       ]);
       setNumOfRows((prev) => prev + 1);
 
-      handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
-      handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
+//! update indexes in DB + add the new documents into DB
+      // handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
+      // handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
     };// reviewed
 
     const handleAddColumnBtnClick = async (
@@ -466,8 +417,9 @@ function TablePage() {
       setColIndexesDisplayArr(newColumnAndCellsAfterAddingColumn.updatedColIndexesArr)
       setNumOfColumns((prev) => prev + 1);
 
-      handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,serverUrl);
-      handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
+//! update indexes in DB + add the new documents into DB
+      // handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,serverUrl);
+      // handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
     };// reviewed
 
     const handleDeleteRowBtnClick = async (currentRowIndex: number) => {
@@ -487,8 +439,9 @@ function TablePage() {
           setRowIndexesDisplayArr([...new Set(result.updatedRowIndexesArr)]);
           setNumOfRows((prev) => prev - 1);
 
-          handelDeleteInDB(result.toBeDeleted, serverUrl);
-          handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
+//! update indexes in DB + delete the documents in DB
+          // handelDeleteInDB(result.toBeDeleted, serverUrl);
+          // handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
           console.log("Row deleted successfully");
         }
       } catch (error) {
@@ -520,13 +473,15 @@ function TablePage() {
 
         // setNumOfColumns((prev) => prev - 1);
         setColIndexesDisplayArr(result.newColIdx);
+        console.error("*** TablePage.tsx: result.toBeDeleted = ",result.toBeDeleted);
 
-        handelDeleteInDB(result.toBeDeleted, serverUrl);
-        handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
+//! update indexes in DB + delete the documents in DB
+        // handelDeleteInDB(result.toBeDeleted, serverUrl);
+        // handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
-    }; // reviewed
+    };
 
     const handleExportCSV = async (tableId: string) => {
       try {
@@ -569,13 +524,6 @@ function TablePage() {
     ) => {
       setDropdownOpen(false);
       setColIndexesDisplayArr(selectedColumnIndices)
-      // // update headers visibility state
-      // const updatedHeaders = headers.map((column) => ({
-      //   ...column,
-      //   visibility: selectedColumnIndices.includes(column.columnIndex),
-      // }));
-      // // update the headers local
-      // setHeaders(updatedHeaders);
       setShowColumnSelector(false);
     };
 
@@ -585,26 +533,58 @@ function TablePage() {
     };
 
     const handleSaveToDB = async () => {
-      const collectionName = "tables"; 
-    
-      const updates = cells.map(cell => ({
-        _id: cell._id,
-        update: {
-          data: cell.data,
-          visibility: cell.visibility,
-          rowIndex: cell.rowIndex,
-          columnIndex: cell.columnIndex,
-        },
-      }));
-    
-      const success = await DocumentRestAPIMethods.bulkUpdate(serverUrl, collectionName, updates);
-    
-      if (success) {
-        console.log("All cells updated successfully.");
-      } else {
-        console.error("Failed to update cells.");
+      const collectionName = "tables";
+      const currentDocs = [...headers, ...cells];
+      // add to_delete field to document
+      try {
+        // 1. Get all current _ids in local memory
+        const currentIds = new Set(currentDocs.map(doc => doc._id));
+
+        // 2. Fetch all documents in DB for this tableId
+        const fetchedHeaders: CellData[] = await getHeaders({serverUrl,tableId,}); // get table's headers (documents)
+        const fetchedCells: CellData[] = await getCells({serverUrl,tableId,}); // get table's cells (documents)
+        const existingDocs = [...fetchedHeaders, ...fetchedCells]
+        const existingIds = new Set(existingDocs.map(doc => doc._id));
+
+        // 3. Determine which _ids are stale (exist in DB but not locally)
+        const toDelete = [...existingIds].filter(id => !currentIds.has(id));
+
+        // 4. Build update (upsert) operations for headers + cells
+        const updates = currentDocs.map(doc => ({
+          _id: doc._id,
+          update: {
+            data: doc.data,
+            visibility: doc.visibility,
+            rowIndex: doc.rowIndex,
+            columnIndex: doc.columnIndex,
+            tableId: doc.tableId,
+            type: doc.type,
+          },
+        }));
+
+        // 5. Delete stale docs (if any)
+        if (toDelete.length > 0) {
+          await DocumentRestAPIMethods.bulkDelete(serverUrl, collectionName, toDelete);
+          console.log(`🗑️ Deleted ${toDelete.length} stale documents`);
+        }
+
+        // 6. Upsert all current docs
+        const success = await DocumentRestAPIMethods.bulkUpdate(
+          serverUrl,
+          collectionName,
+          updates
+        );
+
+        if (success) {
+          console.log("✅ All cells and headers saved successfully.");
+        } else {
+          console.error("❌ Failed to save cells and headers.");
+        }
+      } catch (error) {
+        console.error("❌ Error in handleSaveToDB:", error);
       }
     };
+
     
     console.log("🔥✅ About to return JSX in TablePage");
 
@@ -618,9 +598,9 @@ function TablePage() {
           >
             Back
           </button>
-
+          {/* Save Button */}
           <button className="save absolute px-4 py-2 rounded" onClick={handleSaveToDB}>Save</button>
-
+          {/* table name */}
           <h1
             className="tableName absolute top-4"
             contentEditable //give the h1 tag an update ability
@@ -631,11 +611,12 @@ function TablePage() {
           >
             {tableName}
           </h1>
-
+            {/*user search window */}
             <SearchInTableCells />
 
           {/* Dropdown Menu */}
           <div className="dropDownMenuBtn text-left" ref={dropdownRef}>
+            {/*Action button */}
             <button
               onClick={toggleDropdown}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
@@ -757,14 +738,7 @@ function TablePage() {
                     <button onClick={() => handleMenuAction("addRowAfter")}>
                       Add Row
                     </button>
-                  </li>
-                  {/* <li>
-                    {menuState.rowIndex != 0 ? (
-                      <button onClick={() => handleMenuAction("addRowBefore")}>
-                        Add Row Before
-                      </button>
-                    ) : null}
-                  </li> */}
+                  </li>    
                   <li>
                     {(cells.length !== 0 && menuState.rowIndex !== 0) ||
                     (cells.length === 0 && menuState.rowIndex === 0) ? (
@@ -792,24 +766,6 @@ function TablePage() {
                       Delete Column
                     </button>
                   </li>
-                  {/* hide and reveal column  */}
-                  {/* <li>
-                    <button onClick={() => handleMenuAction("hideColumn")}>
-                      Hide Column
-                    </button>
-                  </li>
-                  {cells.some(
-                    (cell) =>
-                      (cell.columnIndex === menuState.columnIndex - 1 ||
-                        cell.columnIndex === menuState.columnIndex + 1) &&
-                      !cell.visibility
-                  ) && (
-                    <li>
-                      <button onClick={() => handleMenuAction("revealColumn")}>
-                        Reveal Column
-                      </button>
-                    </li>
-                  )} */}
                 </ul>
               </SelectionMenu>
             )}

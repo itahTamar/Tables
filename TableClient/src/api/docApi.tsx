@@ -61,17 +61,8 @@ class DocumentRestAPIMethods {
   } //work ok
 
   //update document
-  static async update(
-    serverUrl: string,
-    collectionName: string,
-    query: object,
-    update: object
-  ): Promise<boolean> {
+  static async update(serverUrl: string, collectionName: string, query: object, update: object): Promise<boolean> {
     try {
-      console.log("at DocumentRestAPIMethods.update the collectionName is:",collectionName);
-      console.log("at DocumentRestAPIMethods.update the query is:", query);
-      console.log("at DocumentRestAPIMethods.update the update is:", update);
-
       const response = await axios.patch(
         `${serverUrl}/api/doc/updateDocs`,
         {
@@ -81,8 +72,6 @@ class DocumentRestAPIMethods {
         },
         { withCredentials: true }
       );
-      console.log("at DocumentRestAPIMethods.update the response is:",response);
-      console.log("at DocumentRestAPIMethods.update the response.data is:",response.data);
       if (!response.data)
         throw new Error("No document updated in DocumentRestAPIMethods.update");
       return true;
@@ -90,7 +79,7 @@ class DocumentRestAPIMethods {
       console.error("Error DocumentRestAPIMethods.update document");
       return false;
     }
-  } //work ok
+  }
 
   //get documents
   static async get(
@@ -169,6 +158,27 @@ class DocumentRestAPIMethods {
       return false;
     }
   }
+
+  // NEW: Bulk delete multiple documents by _id
+  static async bulkDelete(
+    serverUrl: string,
+    collectionName: string,
+    ids: string[]
+  ): Promise<boolean> {
+    try {
+      const response = await axios.delete(`${serverUrl}/api/doc/bulkDeleteDocs`, {
+        data: { collectionName, ids },
+        withCredentials: true,
+      });
+
+      console.log("bulkDelete response:", response.data);
+      return response.data.deletedCount === ids.length;
+    } catch (error) {
+      console.error("Error in DocumentRestAPIMethods.bulkDelete:", error);
+      return false;
+    }
+  }
+
 
 }
 export { DocumentRestAPIMethods };
