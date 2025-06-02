@@ -316,14 +316,12 @@ function TablePage() {
     const handleRightClick = (
       event: React.MouseEvent,
       rowIndex: number,
-      columnIndex: number
+      columnIndex: number,
+      cellId: string
     ): boolean => {
       try {
         const target = event.target as HTMLElement;
         const elementType = target.tagName;
-        const targetCell = cells.find(
-          (cell) => cell.rowIndex === rowIndex && cell.columnIndex === columnIndex
-        );
         setMenuState({
           visible: true,
           x: event.pageX,
@@ -331,7 +329,7 @@ function TablePage() {
           rowIndex,
           columnIndex,
           elementType,
-          cellId: targetCell?._id || "",
+          cellId,
         });
         console.log(`Right-clicked on row ${rowIndex}, column ${columnIndex}`);
         return true; // Return true on success

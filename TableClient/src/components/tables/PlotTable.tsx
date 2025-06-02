@@ -12,7 +12,8 @@ interface PlotTableProps {
   handleRightClick: (
     event: React.MouseEvent,
     rowIndex: number,
-    columnIndex: number
+    columnIndex: number,
+    cellId: string
   ) => boolean;
   handleCellUpdate: (
     cell: CellData,
@@ -65,9 +66,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
     setRightClickFlag(true); // Set flag to true
     const target = e.target as HTMLElement;
     if (target.tagName === "A" || target.tagName === "IMG") {
-      handleRightClick(e, rowIndex, columnIndex);
+      handleRightClick(e, rowIndex, columnIndex, _id);
     }
-    const success = handleRightClick(e, rowIndex, columnIndex); // Call the prop function
+    const success = handleRightClick(e, rowIndex, columnIndex, _id); // Call the prop function
     console.log(
       "at handleRightClickWithFlag after handleRightClick rightClickFlag:",
       rightClickFlag
