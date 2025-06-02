@@ -6,7 +6,6 @@
    - open new terminal or PowerShell and verify versions
    - node -v
    - npm -v
-  
    - if not found check in powershell path: &env:PATH
    - look for C:\Program Files\nodejs\
    - if not exist add it to windows PATH
@@ -20,6 +19,8 @@
    - npm init (will create packge json file)
    - npm i typescript express cookie-parser dotenv cors mongoose
    - npx tsc
+   - ![Uploading image.png…]()
+
 4. run: npm run dev
 5. install client side:
    - npm install
@@ -27,6 +28,8 @@
    - npm i react-router-dom
    - npm i dotenv
    - npm i --save-dev @types/js-cookie
+   - ![image](https://github.com/user-attachments/assets/211e2320-a174-4451-aa25-3c15db003ba5)
+
 6. run: npm run dev
  
 
