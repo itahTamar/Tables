@@ -51,7 +51,8 @@ function TablePage() {
       rowIndex: number;
       columnIndex: number;
       elementType?: string;
-    }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1 });
+      cellId: string; 
+    }>({ visible: false, x: 0, y: 0, rowIndex: -1, columnIndex: -1, cellId: "" });
 
     if (!tableId) throw new Error("at TablePage no tableId in params!");
 
@@ -320,6 +321,9 @@ function TablePage() {
       try {
         const target = event.target as HTMLElement;
         const elementType = target.tagName;
+        const targetCell = cells.find(
+          (cell) => cell.rowIndex === rowIndex && cell.columnIndex === columnIndex
+        );
         setMenuState({
           visible: true,
           x: event.pageX,
@@ -327,6 +331,7 @@ function TablePage() {
           rowIndex,
           columnIndex,
           elementType,
+          cellId: targetCell?._id || "",
         });
         console.log(`Right-clicked on row ${rowIndex}, column ${columnIndex}`);
         return true; // Return true on success
@@ -344,7 +349,7 @@ function TablePage() {
     };
 
     const handleMenuAction = async (action: string) => {
-      const { rowIndex, columnIndex } = menuState;
+      const { rowIndex, columnIndex, cellId } = menuState;
       if (action === "addRowAfter") {
         setMenuState({ ...menuState, visible: false }); // Close menu after action
         await handleAddRowBtnClick(rowIndex);
@@ -369,6 +374,9 @@ function TablePage() {
           await handleCellUpdate(cellToClear, null, cellToClear.data); // Clear the cell data
         }
         setMenuState({ ...menuState, visible: false }); // Close menu
+      } else if (action === "deleteCell") {
+        setMenuState({ ...menuState, visible: false }); // Close menu after action
+        await handleDeleteCellBtnClick(cellId);
       }
     };
 
@@ -463,23 +471,25 @@ function TablePage() {
         if (result === undefined) {
           throw new Error("Result is undefined - delete column failed");
         }
-//@ts-ignore
-
         setHeaders(result.newHeaders);
-//@ts-ignore
-
         setCells(result.newCells);
-//@ts-ignore
-
-        // setNumOfColumns((prev) => prev - 1);
         setColIndexesDisplayArr(result.newColIdx);
         console.error("*** TablePage.tsx: result.toBeDeleted = ",result.toBeDeleted);
-
-//! update indexes in DB + delete the documents in DB
-        // handelDeleteInDB(result.toBeDeleted, serverUrl);
-        // handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
       } catch (error) {
         console.error("Error handling delete row:", error);
+      }
+    };
+
+    const removeCellFromState = (cellIdToRemove: string) => {
+      setCells((prevCells) => prevCells.filter((cell) => cell._id !== cellIdToRemove));
+    };
+
+    const handleDeleteCellBtnClick = async (cellId: string) => {
+      try {
+        removeCellFromState(cellId)
+
+      } catch (error) {
+        console.error("Error handling delete Cell:", error);
       }
     };
 
@@ -764,6 +774,11 @@ function TablePage() {
                   <li>
                     <button onClick={() => handleMenuAction("deleteColumn")}>
                       Delete Column
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => handleMenuAction("deleteCell")}>
+                      Delete Cell
                     </button>
                   </li>
                 </ul>
