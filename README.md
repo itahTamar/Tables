@@ -19,8 +19,7 @@
    - npm init (will create packge json file)
    - npm i typescript express cookie-parser dotenv cors mongoose
    - npx tsc
-   - ![Uploading image.png…]()
-
+   - ![image](https://github.com/user-attachments/assets/42fd70b7-524c-4802-ae24-ed246a3a5bae)
 4. run: npm run dev
 5. install client side:
    - npm install
