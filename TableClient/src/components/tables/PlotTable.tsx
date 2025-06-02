@@ -58,7 +58,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
   const handleRightClickWithFlag = (
     e: React.MouseEvent,
     rowIndex: number,
-    columnIndex: number
+    columnIndex: number,
+    _id: string
   ) => {
     e.preventDefault();
     setRightClickFlag(true); // Set flag to true
@@ -243,7 +244,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   handleRightClickWithFlag(
                     e,
                     h.rowIndex,
-                    h.columnIndex
+                    h.columnIndex,
+                    h._id
                   )
                 }
                 draggable
@@ -310,7 +312,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     dragOverRowIndex === cell.rowIndex ? "drag-over" : ""
                   }`}
                   onContextMenu={(e) =>
-                    handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex)
+                    handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex, cell._id)
                   }
                   onPaste={(e) => handlePasteImage(e, cell)}
                   draggable
@@ -332,7 +334,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         handleRightClickWithFlag(
                           e,
                           cell.rowIndex,
-                          cell.columnIndex
+                          cell.columnIndex,
+                          cell._id
                         )
                       }
                     />
@@ -346,7 +349,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         handleRightClickWithFlag(
                           e,
                           cell.rowIndex,
-                          cell.columnIndex
+                          cell.columnIndex,
+                          cell._id
                         )
                       }
                     >
