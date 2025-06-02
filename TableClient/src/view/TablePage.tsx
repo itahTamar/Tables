@@ -117,8 +117,6 @@ function TablePage() {
         const tempCIndexDisplayArr = [...new Set(fetchedHeaders.map((e) => e.columnIndex)),]; 
         setColIndexesDisplayArr(tempCIndexDisplayArr);
         setNumOfColumns(tempCIndexDisplayArr.length);
-        console.log("TablePage.tsx: tempCIndexDisplayArr = ", tempCIndexDisplayArr);
-        
         // ✅ Update showGenerateTable *inside setState* to ensure it's synced
         setShowGenerateTable(() => {
           const newState = tempCIndexDisplayArr.length === 0;
@@ -136,7 +134,7 @@ function TablePage() {
     };
 
     //get user's tables every time the page is loaded (on init, refresh, ...)
-    useEffect(() => {
+    useEffect(() => { // triggered - Once when tablesFetched becomes true
       console.log("**** TablePage.tsx: useEffect[]: start ****");
       const fetchTables = async () => {
         if (tables.length === 0) {
@@ -147,7 +145,7 @@ function TablePage() {
     }, []);
 
     // Fetch headers and cells
-    useEffect(() => {
+    useEffect(() => { // triggered - Every time selectedTable changes
       console.log("**** TablePage.tsx: useEffect[tablesFetched, showGenerateTable,]: start ****");
 
       if (!tablesFetched) {
@@ -161,7 +159,7 @@ function TablePage() {
     }, [tablesFetched, showGenerateTable,]);
 
     // Close the menu if the click is outside the table
-    useEffect(() => {
+    useEffect(() => { // triggered - Whenever cells are updated (via fetch, edit, add/delete)
       const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as HTMLElement;
         if (
@@ -178,7 +176,7 @@ function TablePage() {
 
     // Close the dropdown when clicking outside
     const dropdownRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
+    useEffect(() => { // triggered - Once on component mount
       const handleClickOutside = (event: MouseEvent) => {
         if (
           dropdownRef.current &&
@@ -312,15 +310,10 @@ function TablePage() {
         const updatedCell = { ...cell, data: newData };
         console.log( "at PlotTable handleCellUpdate the updatedCell:", updatedCell);
 
-        // //update cell data in db 
-        // const success = await DocumentRestAPIMethods.update(
-        //   serverUrl,
-        //   "tables",
-        //   { _id: cell._id },
-        //   { data: newData }
-        // );
-        // if (success)
-        //   console.log("at handleCellUpdate Cell updated successfully in db");
+        //update cell data in db 
+        const success = await DocumentRestAPIMethods.update(serverUrl, "tables", { _id: cell._id }, { data: newData });
+        if (success)
+          console.log("at handleCellUpdate Cell updated successfully in db");
 
         // Update the visual state (headers or cells data)
         const resolve = await visualDataCellsUpdate(cell, updatedCell);
@@ -520,13 +513,14 @@ function TablePage() {
 
         // setNumOfColumns((prev) => prev - 1);
         setColIndexesDisplayArr(result.newColIdx);
+        console.error("*** TablePage.tsx: result.toBeDeleted = ",result.toBeDeleted);
 
         handelDeleteInDB(result.toBeDeleted, serverUrl);
         handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
-    }; // reviewed
+    };
 
     const handleExportCSV = async (tableId: string) => {
       try {

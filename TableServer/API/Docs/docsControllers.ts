@@ -116,11 +116,7 @@ export async function updateDoc(req: any, res: any) {
     }
 
     // update the doc to MongoDB
-    const response = await MongoDBWrapper.updateDocument(
-      collectionName,
-      query,
-      update
-    );
+    const response = await MongoDBWrapper.updateDocument(collectionName, query, update);
     console.log("At updateDoc the response:", response);
     return response;
   } catch (error) {

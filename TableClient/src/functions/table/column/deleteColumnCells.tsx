@@ -24,7 +24,7 @@ export const deleteColumnCells = ({
   const headerToBeDeleted = headers.filter((header) => header.columnIndex === currentColumnIndex);
   const cellsToBeDeleted = cells.filter((cell) => cell.columnIndex === currentColumnIndex);
   const toBeDeleted = [...headerToBeDeleted, ...cellsToBeDeleted];
-
+  console.log("********** !!! deleteColumnCell.tsx: cellsToBeDeleted",cellsToBeDeleted)
   // to update
   const headersToBeUpdated = headers
     .filter((column) => column.columnIndex > currentColumnIndex)
@@ -39,8 +39,8 @@ export const deleteColumnCells = ({
   const unchangedCells = [...cells.filter((cell) => cell.columnIndex < currentColumnIndex),];
 
   // new local
-  const newCells = [...unchangedCells, ...cellsToBeUpdated];
-  const newHeaders = [...unchangedHeaders, ...headersToBeUpdated];
+  const newCells = [...unchangedCells, ...cellsToBeUpdated]; // cells after all changes will be applied
+  const newHeaders = [...unchangedHeaders, ...headersToBeUpdated]; // headers after all changes will be applied
   const newColIdx = colArrayIdx.filter(e => e !== currentColumnIndex).map(e => e > currentColumnIndex  ? e - 1 : e); 
 
   return {
