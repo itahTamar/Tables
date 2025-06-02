@@ -295,6 +295,7 @@ static async bulkUpdateDocuments(
     updateOne: {
       filter: { _id: new Object(item._id) },
       update: { $set: item.update },
+      upsert: true, // ✅ this ensures insert if not found
     },
   }));
 
@@ -307,6 +308,34 @@ static async bulkUpdateDocuments(
     throw error;
   }
 }
+
+// NEW METHOD: Bulk delete documents by array of _ids
+static async bulkDeleteDocuments(
+  collectionName: string,
+  ids: string[] | object[]
+) {
+  this.ensureConnected();
+
+  const collection: Collection = this.db!.collection(collectionName);
+
+  // Convert string _ids to ObjectId where needed
+  const objectIds = ids.map((id) =>
+    typeof id === "string" ? new Object(id) : id
+  );
+
+  try {
+    const result: DeleteResult = await collection.deleteMany({
+      _id: { $in: objectIds },
+    });
+    console.log(`Bulk deleted ${result.deletedCount} document(s).`);
+    return result;
+  } catch (error) {
+    console.error("Error in bulkDeleteDocuments:", error);
+    throw error;
+  }
+}
+
+
 
 }
 

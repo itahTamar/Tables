@@ -159,5 +159,26 @@ class DocumentRestAPIMethods {
     }
   }
 
+  // NEW: Bulk delete multiple documents by _id
+  static async bulkDelete(
+    serverUrl: string,
+    collectionName: string,
+    ids: string[]
+  ): Promise<boolean> {
+    try {
+      const response = await axios.delete(`${serverUrl}/api/doc/bulkDeleteDocs`, {
+        data: { collectionName, ids },
+        withCredentials: true,
+      });
+
+      console.log("bulkDelete response:", response.data);
+      return response.data.deletedCount === ids.length;
+    } catch (error) {
+      console.error("Error in DocumentRestAPIMethods.bulkDelete:", error);
+      return false;
+    }
+  }
+
+
 }
 export { DocumentRestAPIMethods };

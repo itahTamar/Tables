@@ -266,3 +266,32 @@ export async function bulkUpdateDocs(req: any, res: any) {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
+
+
+//!bulk delete multiple documents by their _id
+export async function bulkDeleteDocs(req: any, res: any) {
+  try {
+    const { collectionName, ids } = req.body;
+
+    if (!collectionName || !Array.isArray(ids)) {
+      throw new Error("Missing collectionName or ids");
+    }
+
+    // Convert all string _id values to ObjectId
+    const objectIds = ids.map((id) =>
+      typeof id === "string" ? new ObjectId(id) : id
+    );
+
+    const response = await MongoDBWrapper.deleteDocuments(collectionName, {
+      _id: { $in: objectIds },
+    });
+
+    console.log("At bulkDeleteDocs the response:", response);
+
+    res.send({ deletedCount: response.deletedCount });
+  } catch (error) {
+    console.error("Error in bulkDeleteDocs:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
