@@ -18,13 +18,8 @@
    - Open PowerShell as Administrator and run: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 3. install backend packeges
    - npm init (will create packge json file)
-   - npm i typescript
+   - npm i typescript express cookie-parser dotenv cors mongoose
    - npx tsc
-   - npm i express
-   - npm i cookie-parser
-   - npm i dotenv
-   - npm i cors
-   - npm i mongoose
 4. run: npm run dev
 5. install client side:
    - npm install
