@@ -746,9 +746,9 @@ function TablePage() {
 
             {menuState.visible && (
               <SelectionMenu x={menuState.x} y={menuState.y}>
-                <ul className="list-none space-y-2">
+                <ul className="list-none space-y-0.5 w-15">
                 <li>
-                  <button onClick={() => {
+                  <button className="w-full h-8 text-sm"  onClick={() => {
                       const cell = (menuState.rowIndex === 0
                         ? headers
                         : cells
@@ -764,7 +764,7 @@ function TablePage() {
                     }}>Copy</button>
                 </li>
                 <li>
-                  <button onClick={() => {
+                  <button className="w-full h-8 text-sm" onClick={() => {
                       const cell = (menuState.rowIndex === 0
                         ? headers
                         : cells
@@ -782,31 +782,31 @@ function TablePage() {
                   {menuState.elementType === "A" ||
                   menuState.elementType === "IMG" ? (
                     <li>
-                      <button onClick={() => handleMenuAction("clearData")}> Clear Data </button>
+                      <button className="w-full h-8 text-sm" onClick={() => handleMenuAction("clearData")}> Clear Data </button>
                     </li>
                   ) : null}
                   <li>
-                    <button onClick={() => handleMenuAction("addRowAfter")}>Add Row</button>
+                    <button className="w-full h-8 text-sm" onClick={() => handleMenuAction("addRowAfter")}>Add Row</button>
                   </li>
                   <li>
                     {menuState.columnIndex === 1 ? (
-                      <button onClick={() => handleMenuAction("addColumnBefore")}>Add Column Before</button>
+                      <button className="w-full h-8 text-sm" onClick={() => handleMenuAction("addColumnBefore")}>Add Column Before</button>
                     ) : null}
                   </li>    
                   <li>
-                    <button onClick={() => handleMenuAction("addColumnAfter")}>Add Column</button>
+                    <button className="w-full h-8 text-sm" onClick={() => handleMenuAction("addColumnAfter")}>Add Column</button>
                   </li>
                   <li>
                     {(cells.length !== 0 && menuState.rowIndex !== 0) ||
                     (cells.length === 0 && menuState.rowIndex === 0) ? (
-                      <button className="bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteRow")}>Delete Row</button>
+                      <button className="w-full h-8 text-sm bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteRow")}>Delete Row</button>
                     ) : null}
                   </li>
                   <li>
-                    <button className="bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteColumn")}>Delete Column</button>
+                    <button className="w-full h-8 text-sm bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteColumn")}>Delete Column</button>
                   </li>
                   <li>
-                    <button className="bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteCell")}>Delete Cell</button>
+                    <button className="w-full h-8 text-sm bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteCell")}>Delete Cell</button>
                   </li>
                 </ul>
               </SelectionMenu>
