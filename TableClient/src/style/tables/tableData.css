@@ -6,10 +6,13 @@
   overflow-y: auto;
   position: relative; /* For positioning resize handles */
   max-height: 40rem; /* Set a fixed height for the scrollable container */
+  height: 85vh;
+  width: 95vh;
 }
 
 /* Table styles */
 .table-auto {
+  max-width: unset;
   table-layout: auto;
   width: 100%;
   border-collapse: collapse;
@@ -20,11 +23,13 @@ thead {
   background-color: gainsboro;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 10;
 }
 
 /* Table cell styles */
 td, th {
+  border: 1px solid gray;
+  vertical-align: top;
   min-width: 5rem; /* minimum width for each cell */
  /* max-height: 7rem; /* Maximum height for each cell */
   word-wrap: break-word; /* Ensure long text wraps within the cell */
