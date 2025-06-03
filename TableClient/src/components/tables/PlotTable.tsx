@@ -179,10 +179,12 @@ const PlotTable: React.FC<PlotTableProps> = ({
 
   return (
     <div>
+      {cells.length > 0 && headers.length > 0 && 
       <div style={{ padding: "0.5rem", fontSize: "0.9rem", backgroundColor: isMismatch ? "#ffeeba" : "#f4f4f4" }}>
         Total Cells: {totalCells}, Max Row Index: {maxRow}, Max Column Index: {maxCol}, Expected Cells: {expectedCells}
         {isMismatch && <strong> ⚠ Mismatch Detected</strong>}
-      </div>
+      </div>}
+
       <div className="table-container" style={{ width: "100vw", height: "calc(100vh - 3rem)", overflow: "auto" }}>
         <table className="table-auto border-collapse border border-gray-400 w-full text-center">
           <thead>

@@ -112,29 +112,28 @@ const InitialNewTable: React.FC<InitialNewTableProps> = ({
 
   return (
     <div>
-      <form className="relative top-24" onSubmit={handleInitial}>
-        <div>
-          <label>Rows</label>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={rowsNo}
-            onChange={(ev) => setRowsNo(Math.max(parseInt(ev.target.value), 1))}
-            className="border border-black m-2 rounded-2xl indent-4"
-          />
-        </div>
-        <div>
-          <label>Columns</label>
-          <input
-            type="number"
-            placeholder="Columns"
-            value={columnsNo}
-            onChange={(ev) =>
-              setColumnsNo(Math.max(parseInt(ev.target.value), 1))
-            }
-            className="border border-black m-2 rounded-2xl indent-4"
-          />
-        </div>
+      <form className="relative top" onSubmit={handleInitial}>
+      <div className="flex items-center justify-between w-full max-w-xs mb-3">
+        <label className="w-[45%] text-sm font-semibold">Rows</label>
+        <input
+          type="number"
+          placeholder="Rows"
+          value={rowsNo}
+          onChange={(ev) => setRowsNo(Math.max(parseInt(ev.target.value), 1))}
+          className="w-[50%] border border-black rounded-xl px-2 py-1 text-sm"
+        />
+      </div>
+
+      <div className="flex items-center justify-between w-full max-w-xs mb-4">
+        <label className="w-[45%] text-sm font-semibold">Columns</label>
+        <input
+          type="number"
+          placeholder="Columns"
+          value={columnsNo}
+          onChange={(ev) => setColumnsNo(Math.max(parseInt(ev.target.value), 1))}
+          className="w-[50%] border border-black rounded-xl px-2 py-1 text-sm"
+        />
+      </div>
         <button type="submit" className="add-button">
           Create
         </button>

@@ -1,46 +1,47 @@
 .popup2 {
-    position: absolute;
-    top:5rem;
-      right: 3rem; /* Align with the right edge of the button */
-      width: auto; /* Set width based on content */
-      height: auto; /* Adjust height based on content */
-      max-height: 50vh; /* Limit height to prevent overflow */
-    background-color: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
+  position: fixed;
+  inset: 0; /* shorthand for top, left, bottom, right = 0 */
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1;
+}
   
-  .popup2-open {
-    opacity: 1;
-    visibility: visible;
-    animation: popupGrow 0.6s ease forwards;
-  }
+.popup2-open {
+  opacity: 1;
+  visibility: visible;
+}
   
-  .popup2-inner {
-    position: relative;
-    height: 20rem; 
-    width: 20rem; 
-    background-color: #7dfafa;
-    border-radius: 2rem;
-    overflow: hidden;
-    transform-origin: top right;
-  }
+.popup2-inner {
+  background-color: #7dfafa;
+  border-radius: 1rem;
+  padding: 2rem 2rem 2rem 2rem;
+  padding-right: 5rem;
+  width: auto;
+  height: auto;
+  min-width: 16rem;
+  max-width: 90vw;
+  max-height: 25vh;
+  overflow: auto;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
   
-  .close2 {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    font-size: 1.2rem;
-    padding: 0 0.5rem;
-    background-color: transparent;
-    cursor: pointer;
-    border: none;
-    outline: none;
-  }
+  
+.close2 {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 1.2rem;
+  padding: 0.25rem 0.5rem;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
   
   @keyframes popupGrow {
     0% {

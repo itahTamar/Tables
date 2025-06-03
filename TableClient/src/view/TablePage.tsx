@@ -711,19 +711,16 @@ function TablePage() {
           <>
             {/*Initial the table*/}
             {showGenerateTable && (
-              <button
-                onClick={() => setShowPopupInitialTable(true)}
-                className="absolute flex items-center justify-center w-30 h-12 bg-blue-500 hover:bg-blue-600"
-                title="Generate Table" // Tooltip message on hover
-              >
-                <span
-                  className="text-white text-2xl text-center"
-                  style={{ paddingBottom: "0.33rem" }}
-                >
-                  Generate Table
-                </span>
-              </button>
-            )}
+                <div className="flex justify-center items-center h-[calc(100vh-20rem)] w-full">
+                  <button
+                    onClick={() => setShowPopupInitialTable(true)}
+                    className="w-50 h-15 bg-blue-500 hover:bg-blue-600 text-white text-2xl rounded shadow"
+                    title="Generate Table"
+                  >
+                    Generate Table
+                  </button>
+                </div>
+              )}
 
             {showPopupInitialTable && (
               <PopupWithAnimation
