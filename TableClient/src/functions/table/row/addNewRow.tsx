@@ -4,9 +4,9 @@ interface AddRowProp {
   tableId: string;
   tableIndex: number;
   currentRowIndex: number;
-  numOfColumns: number;
   cells: CellData[];
   rowIndexesDisplayArr: number[];
+  headers: CellData[];
 }
 
 /**
@@ -19,16 +19,19 @@ export const addNewRow = async ({
   tableId,
   tableIndex,
   currentRowIndex,
-  numOfColumns,
   rowIndexesDisplayArr,
   cells,
+  headers,
 }: AddRowProp) => {
-  if (!tableId || !tableIndex || !numOfColumns) {
+  if (!tableId || !tableIndex) {
     throw new Error("Invalid input data for addNewRow");
   }
 
-  if (currentRowIndex<1)
-    currentRowIndex = 1
+  if (currentRowIndex<1) currentRowIndex = 1
+
+  // 🟨 Determine number of columns based on current headers
+  const numOfColumns = headers.length;
+  
   // Adjust rowIndex for existing cells - the row before the current row to insert and the row after with adjusted rowIndex
   const adjustedCells = cells.map((cell) => {
     if (cell.rowIndex >= currentRowIndex) {
@@ -41,11 +44,10 @@ export const addNewRow = async ({
   const newRowCells: CellData[] = Array.from(
     { length: numOfColumns },
     (_, columnIndex) => ({
-      //columnIndex by default of "Array.from" start from 0
-      _id: generateObjectId(), // Placeholder function to generate a unique ID
+      _id: generateObjectId(), 
       type: "cell",
       data: null,
-      visibility: true, // Keep hidden headers hidden
+      visibility: true, 
       rowIndex: currentRowIndex,
       columnIndex: columnIndex + 1,
       tableIndex: tableIndex,
@@ -58,9 +60,7 @@ export const addNewRow = async ({
   const updatedCells = [...adjustedCells, ...newRowCells];
 
   // Determine affected cells based on the updated state
-  const affectedCells = adjustedCells.filter(
-    (cell) => cell.rowIndex >= currentRowIndex
-  );
+  const affectedCells = adjustedCells.filter( (cell) => cell.rowIndex >= currentRowIndex );
 
   // adjust the rowIndexArr for plot
   const adjustedRowIndexes = rowIndexesDisplayArr.map((index) =>
@@ -70,8 +70,6 @@ export const addNewRow = async ({
 
   return {
     newCellsArray: updatedCells,              // should be new local cells
-    toBeUpdateInDB: affectedCells,            // cells to up date in DB
-    newToAddInDB: newRowCells,                // cells to add into the DB
     updatedRowIndexesArr: adjustedRowIndexes, // updates indexes to display
   };
 };

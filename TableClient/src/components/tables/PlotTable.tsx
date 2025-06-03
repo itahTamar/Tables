@@ -175,15 +175,17 @@ const PlotTable: React.FC<PlotTableProps> = ({
     }
   };
 
-  // Calculate table stats
   const totalCells = cells.length;
   const maxRow = Math.max(...cells.map(cell => cell.rowIndex), 0);
   const maxCol = Math.max(...cells.map(cell => cell.columnIndex), 0);
+  const expectedCells = (maxRow + 1*0) * (maxCol + 1*0);
+  const isMismatch = expectedCells !== totalCells;
 
   return (
     <div>
-      <div style={{ padding: "0.5rem", fontSize: "0.9rem", backgroundColor: "#f4f4f4" }}>
-        Total Cells: {totalCells}, Max Row Index: {maxRow}, Max Column Index: {maxCol}
+      <div style={{ padding: "0.5rem", fontSize: "0.9rem", backgroundColor: isMismatch ? "#ffeeba" : "#f4f4f4" }}>
+        Total Cells: {totalCells}, Max Row Index: {maxRow}, Max Column Index: {maxCol}, Expected Cells: {expectedCells}
+        {isMismatch && <strong> ⚠ Mismatch Detected</strong>}
       </div>
       <div className="table-container" style={{ width: "100vw", height: "calc(100vh - 3rem)", overflow: "auto" }}>
         <table className="table-auto border-collapse border border-gray-400 w-full text-center">
@@ -230,7 +232,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
           </thead>
           <tbody>
             {displayArr.rows.map((row, rowIndex) => (
-              <tr key={`row-${rowIndex}`}>
+              <tr key={`row-${rowIndex}`} style={isMismatch ? { backgroundColor: "#fff3cd" } : {}}>
                 {row.map((cell) => (
                   <td
                     key={cell._id}

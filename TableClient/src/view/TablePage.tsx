@@ -7,9 +7,6 @@ import PlotTable from "../components/tables/PlotTable";
 import SearchInTableCells from "../components/tables/SearchInTableCells";
 import { ServerContext } from "../context/ServerUrlContext";
 import { TablesContext } from "../context/tableContext";
-import { handelDeleteInDB } from "../functions/dbHandler/handelDeleteInDB";
-import { handleAddToDB } from "../functions/dbHandler/handleAddToDB";
-import { handleUpdateIndexInDB } from "../functions/dbHandler/handleUpdateIndexInDB";
 import { addNewColumnWithCells } from "../functions/table/column/addNewColumnWithCells";
 import { deleteColumnCells } from "../functions/table/column/deleteColumnCells";
 import { getHeaders } from "../functions/table/column/getHeaders";
@@ -23,7 +20,6 @@ import { CellData } from "../types/cellType";
 import SelectionMenu from "./../components/tables/SelectionMenu";
 // import { hideOrRevealColumn } from "../functions/table/column/hideOrRevealColumn";
 import ColumnSelector from "../components/columns/ColumnSelector";
-import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 
 function TablePage() {
@@ -299,8 +295,8 @@ function TablePage() {
         let newCellsAfterAddingRow; 
         if (!result.isHeader && result.updatedCells.length > 0 &&
           newData != "" && newData != null && cell.rowIndex === 1 ) {
-          newCellsAfterAddingRow = await addNewRow({ tableId, tableIndex, currentRowIndex: 1, 
-            numOfColumns, cells: result.updatedCells, rowIndexesDisplayArr, });
+          newCellsAfterAddingRow = await addNewRow({ tableId: tableId, tableIndex: tableIndex, currentRowIndex: 1, 
+            cells: result.updatedCells, rowIndexesDisplayArr: rowIndexesDisplayArr, headers: headers});
           setCells(newCellsAfterAddingRow.newCellsArray);
           setRowIndexesDisplayArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),]);
           setNumOfRows((prev) => prev + 1);
@@ -385,9 +381,9 @@ function TablePage() {
         tableId,
         tableIndex,
         currentRowIndex,
-        numOfColumns,
         rowIndexesDisplayArr,
         cells,
+        headers,
       });
       console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
       setCells(newCellsAfterAddingRow.newCellsArray);
@@ -422,11 +418,7 @@ function TablePage() {
       setHeaders(newColumnAndCellsAfterAddingColumn.updatedHeaders);
       setColIndexesDisplayArr(newColumnAndCellsAfterAddingColumn.updatedColIndexesArr)
       setNumOfColumns((prev) => prev + 1);
-
-//! update indexes in DB + add the new documents into DB
-      // handleUpdateIndexInDB(newColumnAndCellsAfterAddingColumn.toBeUpdateInDB,serverUrl);
-      // handleAddToDB(newColumnAndCellsAfterAddingColumn.newToAddInDB, serverUrl);
-    };// reviewed
+    };
 
     const handleDeleteRowBtnClick = async (currentRowIndex: number) => {
       try {
@@ -445,15 +437,12 @@ function TablePage() {
           setRowIndexesDisplayArr([...new Set(result.updatedRowIndexesArr)]);
           setNumOfRows((prev) => prev - 1);
 
-//! update indexes in DB + delete the documents in DB
-          // handelDeleteInDB(result.toBeDeleted, serverUrl);
-          // handleUpdateIndexInDB(result.toBeUpdated, serverUrl);
           console.log("Row deleted successfully");
         }
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
-    }; // reviewed
+    };
 
     const handleDeleteColumnBtnClick = async (currentColumnIndex: number) => {
       console.log("Columns state before deletion:", headers);
@@ -467,12 +456,11 @@ function TablePage() {
         });
 
         if (result === undefined) {
-          throw new Error("Result is undefined - delete column failed");
+          throw new Error("!!!****!!!!!!Result is undefined - delete column failed");
         }
         setHeaders(result.newHeaders);
         setCells(result.newCells);
         setColIndexesDisplayArr(result.newColIdx);
-        console.error("*** TablePage.tsx: result.toBeDeleted = ",result.toBeDeleted);
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
@@ -541,21 +529,25 @@ function TablePage() {
     };
 
     const handleSaveToDB = async () => {
+      console.log("!!!! ✅0 start to handleSaveToDB✅ !!!!")
       const collectionName = "tables";
       const currentDocs = [...headers, ...cells];
       // add to_delete field to document
       try {
         // 1. Get all current _ids in local memory
         const currentIds = new Set(currentDocs.map(doc => doc._id));
+        console.log("!!!! ✅1 currentIds✅ !!!!",currentIds)
 
         // 2. Fetch all documents in DB for this tableId
         const fetchedHeaders: CellData[] = await getHeaders({serverUrl,tableId,}); // get table's headers (documents)
         const fetchedCells: CellData[] = await getCells({serverUrl,tableId,}); // get table's cells (documents)
         const existingDocs = [...fetchedHeaders, ...fetchedCells]
         const existingIds = new Set(existingDocs.map(doc => doc._id));
+        console.log("!!!! ✅2 currentIds✅ !!!!",currentIds)
 
         // 3. Determine which _ids are stale (exist in DB but not locally)
         const toDelete = [...existingIds].filter(id => !currentIds.has(id));
+        console.log("!!!! ✅3 currentIds✅ !!!!",currentIds)
 
         // 4. Build update (upsert) operations for headers + cells
         const updates = currentDocs.map(doc => ({
@@ -569,12 +561,14 @@ function TablePage() {
             type: doc.type,
           },
         }));
+        console.log("!!!! ✅4 currentIds✅ !!!!",currentIds)
 
         // 5. Delete stale docs (if any)
         if (toDelete.length > 0) {
           await DocumentRestAPIMethods.bulkDelete(serverUrl, collectionName, toDelete);
           console.log(`🗑️ Deleted ${toDelete.length} stale documents`);
         }
+        console.log("!!!! ✅5 currentIds✅ !!!!",currentIds)
 
         // 6. Upsert all current docs
         const success = await DocumentRestAPIMethods.bulkUpdate(
@@ -582,6 +576,7 @@ function TablePage() {
           collectionName,
           updates
         );
+        console.log("!!!! ✅6 currentIds✅ !!!!",currentIds)
 
         if (success) {
           console.log("✅ All cells and headers saved successfully.");

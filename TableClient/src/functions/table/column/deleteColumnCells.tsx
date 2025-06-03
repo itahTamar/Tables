@@ -14,40 +14,34 @@ export const deleteColumnCells = ({
   headers,
   cells,
 }: DeleteColumnProp): {
-  toBeDeleted: CellData[];
-  toBeUpdated: CellData[];
   newCells: CellData[];
   newHeaders: CellData[];
   newColIdx: number[];
 } => {
-  // to delete
-  const headerToBeDeleted = headers.filter((header) => header.columnIndex === currentColumnIndex);
-  const cellsToBeDeleted = cells.filter((cell) => cell.columnIndex === currentColumnIndex);
-  const toBeDeleted = [...headerToBeDeleted, ...cellsToBeDeleted];
-  console.log("********** !!! deleteColumnCell.tsx: cellsToBeDeleted",cellsToBeDeleted)
-  // to update
-  const headersToBeUpdated = headers
-    .filter((column) => column.columnIndex > currentColumnIndex)
-    .map((column) => ({ ...column, columnIndex: column.columnIndex - 1 }));
-  const cellsToBeUpdated = cells
-    .filter((cell) => cell.columnIndex > currentColumnIndex)
-    .map((cell) => ({ ...cell, columnIndex: cell.columnIndex - 1 }));
-  const toBeUpdated = [...headersToBeUpdated, ...cellsToBeUpdated];
+  // Remove the target column and shift others left
+  const newHeaders = headers
+    .filter((h) => h.columnIndex !== currentColumnIndex)
+    .map((h) =>
+      h.columnIndex > currentColumnIndex
+        ? { ...h, columnIndex: h.columnIndex - 1 }
+        : h
+    );
 
-  // unchanged
-  const unchangedHeaders = [...headers.filter((column) => column.columnIndex < currentColumnIndex),];
-  const unchangedCells = [...cells.filter((cell) => cell.columnIndex < currentColumnIndex),];
-
-  // new local
-  const newCells = [...unchangedCells, ...cellsToBeUpdated]; // cells after all changes will be applied
-  const newHeaders = [...unchangedHeaders, ...headersToBeUpdated]; // headers after all changes will be applied
-  const newColIdx = colArrayIdx.filter(e => e !== currentColumnIndex).map(e => e > currentColumnIndex  ? e - 1 : e); 
+  const newCells = cells
+    .filter((cell) => cell.columnIndex !== currentColumnIndex)
+    .map((cell) =>
+      cell.columnIndex > currentColumnIndex
+        ? { ...cell, columnIndex: cell.columnIndex - 1 }
+        : cell
+    );
+  
+  const newColIdx = colArrayIdx
+    .filter((i) => i !== currentColumnIndex)
+    .map((i) => (i > currentColumnIndex ? i - 1 : i));
 
   return {
-    newColIdx,
-    newCells,
     newHeaders,
-    toBeDeleted,
-    toBeUpdated,
+    newCells,
+    newColIdx,
   };
 };

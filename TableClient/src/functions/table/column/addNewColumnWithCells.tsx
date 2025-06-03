@@ -83,15 +83,9 @@ export const addNewColumnWithCells = async ({
   );
   adjustedColIndexes.push(newColumnIndex);
 
-  const toBeUpdateInDB = [...adjustedHeaders,...adjustedCells]
-  const NewToAddInDB = [...newCells, newHeader]
-  
-
   return {
     updatedHeaders: [...adjustedHeaders, newHeader],
     updatedCells: [...adjustedCells, ...newCells],
-    toBeUpdateInDB: toBeUpdateInDB,
-    newToAddInDB:NewToAddInDB,
     updatedColIndexesArr: adjustedColIndexes, // updates indexes to display
   };
 };
