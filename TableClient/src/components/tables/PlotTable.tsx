@@ -30,6 +30,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
 }) => {
   const serverUrl = useContext(ServerContext);
   const tableContext = useContext(TablesContext);
+  const [imagePopup, setImagePopup] = useState<string | null>(null);
+
   if (!tableContext) {
     throw new Error("TablePage must be used within a TableProvider");
   }
@@ -249,7 +251,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       <img
                         src={cell.data}
                         alt="Pasted"
-                        className="max-w-full"
+                        className="max-w-full cursor-pointer"
+                        onClick={() => setImagePopup(cell.data)} // ✅ this opens the image popup
                       />
                     ) : cell.data && cell.data.startsWith("http") ? (
                       <a
@@ -290,6 +293,36 @@ const PlotTable: React.FC<PlotTableProps> = ({
           </tbody>
         </table>
       </div>
+
+      {imagePopup && (
+        <div
+          onClick={() => setImagePopup(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            cursor: "pointer",
+          }}
+        >
+          <img
+            src={imagePopup}
+            alt="Large view"
+            style={{
+              maxWidth: "90%",
+              maxHeight: "90%",
+              boxShadow: "0 0 10px white",
+              borderRadius: "8px",
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
