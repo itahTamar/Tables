@@ -223,7 +223,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   >
                     {h.data}
                   </div>
-                  <div style={{ color: "rgb(255, 255, 255)" }}>({h.rowIndex},{h.columnIndex})</div>
+                  <div style={{ color: "rgb(255, 255, 255)", fontSize:"0.7rem", textAlign: "left" }}>({h.rowIndex},{h.columnIndex})</div>
                 </th>
               ))}
             </tr>
@@ -282,7 +282,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         }}
                       />
                     )}
-                    <div style={{ color: "rgb(230, 230, 230)" }}>({cell.rowIndex},{cell.columnIndex})</div>
+                    <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem" , textAlign: "left" }}>({cell.rowIndex},{cell.columnIndex})</div>
                   </td>
                 ))}
               </tr>
