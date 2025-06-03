@@ -38,6 +38,7 @@ function TablePage() {
     const [showPopupInitialTable, setShowPopupInitialTable] = useState(false);
     const [loading, setLoading] = useState(true);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [clipboardData, setClipboardData] = useState<{ data: any; isHeader: boolean } | null>(null);
     const [showColumnSelector, setShowColumnSelector] = useState(false);
     const [showGenerateTable, setShowGenerateTable] = useState(false);
     const [menuState, setMenuState] = useState<{
@@ -339,6 +340,27 @@ function TablePage() {
       setCells([]);
       setRowIndexesDisplayArr([]);
       navigate("/mainTablesPage");
+    };
+
+    // Copy cell content to local clipboard
+    const handleCopyCell = (cell: CellData) => {
+      const isHeader = cell.rowIndex === 0;
+      setClipboardData({ data: cell.data, isHeader });
+      console.log("📋 Copied:", { data: cell.data, isHeader });
+    };
+
+    // Paste clipboard content into selected cell
+    const handlePasteCell = async (cell: CellData) => {
+      if (!clipboardData) return;
+
+      const isHeader = cell.rowIndex === 0;
+      if (clipboardData.isHeader !== isHeader) {
+        console.warn("🚫 Cannot paste header data into a regular cell or vice versa.");
+        return;
+      }
+
+      await handleCellUpdate(cell, clipboardData.data, cell.data);
+      console.log("📥 Pasted:", clipboardData.data);
     };
 
     const handleMenuAction = async (action: string) => {
@@ -728,6 +750,38 @@ function TablePage() {
             {menuState.visible && (
               <SelectionMenu x={menuState.x} y={menuState.y}>
                 <ul className="list-none space-y-2">
+                <li>
+                  <button onClick={() => {
+                      const cell = (menuState.rowIndex === 0
+                        ? headers
+                        : cells
+                      ).find(
+                        (c) =>
+                          c.rowIndex === menuState.rowIndex &&
+                          c.columnIndex === menuState.columnIndex
+                      );
+                      if (cell) {
+                        handleCopyCell(cell);
+                        setMenuState((prev) => ({ ...prev, visible: false })); // ✅ close the menu
+                      }
+                    }}>Copy</button>
+                </li>
+                <li>
+                  <button onClick={() => {
+                      const cell = (menuState.rowIndex === 0
+                        ? headers
+                        : cells
+                      ).find(
+                        (c) =>
+                          c.rowIndex === menuState.rowIndex &&
+                          c.columnIndex === menuState.columnIndex
+                      );
+                      if (cell) {
+                        handlePasteCell(cell);
+                        setMenuState((prev) => ({ ...prev, visible: false })); // ✅ close the menu
+                      }
+                    }}>Paste</button>
+                </li>
                   {menuState.elementType === "A" ||
                   menuState.elementType === "IMG" ? (
                     <li>
