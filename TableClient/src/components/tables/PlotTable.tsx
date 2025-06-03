@@ -175,109 +175,119 @@ const PlotTable: React.FC<PlotTableProps> = ({
     }
   };
 
+  // Calculate table stats
+  const totalCells = cells.length;
+  const maxRow = Math.max(...cells.map(cell => cell.rowIndex), 0);
+  const maxCol = Math.max(...cells.map(cell => cell.columnIndex), 0);
+
   return (
-    <div className="table-container" style={{ width: "100vw", height: "100vh", overflow: "auto" }}>
-      <table className="table-auto border-collapse border border-gray-400 w-full text-center">
-        <thead>
-          <tr>
-            {displayArr.headers.map((h) => (
-              <th
-                key={h._id}
-                className={`border border-gray-400 relative ${dragOverColumnIndex === h.columnIndex ? "drag-over" : ""}`}
-                onContextMenu={(e) => handleRightClickWithFlag(e, h.rowIndex, h.columnIndex, h._id)}
-                draggable
-                onDragStart={(e) => handleDragStart(e, h.columnIndex, h.rowIndex)}
-                onDragOver={(e) => handleDragOver(e, h.columnIndex, h.rowIndex)}
-                onDrop={(e) => handleDrop(e, h.columnIndex, h.rowIndex)}
-                onDragEnd={handleDragEnd}
-              >
-                <div className="absolute top-1 left-1">
-                  <input
-                    type="checkbox"
-                    className="checkedBoxColumns"
-                    checked={checkedColumns.includes(h.columnIndex)}
-                    onChange={() => handleCheckboxChange(h.columnIndex)}
-                  />
-                </div>
-                <div className="sort-button" onClick={() => handleSort(h)}>
-                  <i className={`fa-solid ${getSortIcon(h.sortState || null)}`}></i>
-                </div>
-                <div
-                  contentEditable
-                  suppressContentEditableWarning
-                  className="w-full h-full text-center outline-none"
-                  onBlur={(e) => {
-                    if (!rightClickFlag) {
-                      handleCellUpdate(h, e.currentTarget.textContent || "", h.data);
-                    }
-                  }}
-                >
-                  {h.data}
-                </div>
-                <div style={{ color: "rgb(255, 255, 255)" }}>({h.rowIndex},{h.columnIndex})</div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {displayArr.rows.map((row, rowIndex) => (
-            <tr key={`row-${rowIndex}`}>
-              {row.map((cell) => (
-                <td
-                  key={cell._id}
-                  className={`border border-gray-400 h-auto ${dragOverRowIndex === cell.rowIndex ? "drag-over" : ""}`}
-                  onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex, cell._id)}
-                  onPaste={(e) => handlePasteImage(e, cell)}
+    <div>
+      <div style={{ padding: "0.5rem", fontSize: "0.9rem", backgroundColor: "#f4f4f4" }}>
+        Total Cells: {totalCells}, Max Row Index: {maxRow}, Max Column Index: {maxCol}
+      </div>
+      <div className="table-container" style={{ width: "100vw", height: "calc(100vh - 3rem)", overflow: "auto" }}>
+        <table className="table-auto border-collapse border border-gray-400 w-full text-center">
+          <thead>
+            <tr>
+              {displayArr.headers.map((h) => (
+                <th
+                  key={h._id}
+                  className={`border border-gray-400 relative ${dragOverColumnIndex === h.columnIndex ? "drag-over" : ""}`}
+                  onContextMenu={(e) => handleRightClickWithFlag(e, h.rowIndex, h.columnIndex, h._id)}
                   draggable
-                  onDragStart={(e) => handleDragStart(e, cell.columnIndex, cell.rowIndex)}
-                  onDragOver={(e) => handleDragOver(e, cell.columnIndex, cell.rowIndex)}
-                  onDrop={(e) => handleDrop(e, cell.columnIndex, cell.rowIndex)}
+                  onDragStart={(e) => handleDragStart(e, h.columnIndex, h.rowIndex)}
+                  onDragOver={(e) => handleDragOver(e, h.columnIndex, h.rowIndex)}
+                  onDrop={(e) => handleDrop(e, h.columnIndex, h.rowIndex)}
                   onDragEnd={handleDragEnd}
                 >
-                  {cell.data && cell.data.startsWith("data:image") ? (
-                    <img
-                      src={cell.data}
-                      alt="Pasted"
-                      className="max-w-full"
+                  <div className="absolute top-1 left-1">
+                    <input
+                      type="checkbox"
+                      className="checkedBoxColumns"
+                      checked={checkedColumns.includes(h.columnIndex)}
+                      onChange={() => handleCheckboxChange(h.columnIndex)}
                     />
-                  ) : cell.data && cell.data.startsWith("http") ? (
-                    <a
-                      href={cell.data}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
-                    >
-                      Go to
-                    </a>
-                  ) : (
-                    <textarea
-                      className="plotTableTextarea w-full h-auto"
-                      defaultValue={cell.data}
-                      ref={(el) => {
-                        if (el) {
-                          el.style.height = "auto";
-                          el.style.height = Math.min(el.scrollHeight, 200) + "px";
-                        }
-                      }}
-                      onInput={(e) => {
-                        const target = e.currentTarget;
-                        target.style.height = "auto";
-                        target.style.height = Math.min(target.scrollHeight, 200) + "px";
-                      }}
-                      onBlur={(e) => {
-                        if (!rightClickFlag) {
-                          handleCellUpdate(cell, e.currentTarget.value, cell.data);
-                        }
-                      }}
-                    />
-                  )}
-                  <div style={{ color: "rgb(230, 230, 230)" }}>({cell.rowIndex},{cell.columnIndex})</div>
-                </td>
+                  </div>
+                  <div className="sort-button" onClick={() => handleSort(h)}>
+                    <i className={`fa-solid ${getSortIcon(h.sortState || null)}`}></i>
+                  </div>
+                  <div
+                    contentEditable
+                    suppressContentEditableWarning
+                    className="w-full h-full text-center outline-none"
+                    onBlur={(e) => {
+                      if (!rightClickFlag) {
+                        handleCellUpdate(h, e.currentTarget.textContent || "", h.data);
+                      }
+                    }}
+                  >
+                    {h.data}
+                  </div>
+                  <div style={{ color: "rgb(255, 255, 255)" }}>({h.rowIndex},{h.columnIndex})</div>
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {displayArr.rows.map((row, rowIndex) => (
+              <tr key={`row-${rowIndex}`}>
+                {row.map((cell) => (
+                  <td
+                    key={cell._id}
+                    className={`border border-gray-400 h-auto ${dragOverRowIndex === cell.rowIndex ? "drag-over" : ""}`}
+                    onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex, cell._id)}
+                    onPaste={(e) => handlePasteImage(e, cell)}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, cell.columnIndex, cell.rowIndex)}
+                    onDragOver={(e) => handleDragOver(e, cell.columnIndex, cell.rowIndex)}
+                    onDrop={(e) => handleDrop(e, cell.columnIndex, cell.rowIndex)}
+                    onDragEnd={handleDragEnd}
+                  >
+                    {cell.data && cell.data.startsWith("data:image") ? (
+                      <img
+                        src={cell.data}
+                        alt="Pasted"
+                        className="max-w-full"
+                      />
+                    ) : cell.data && cell.data.startsWith("http") ? (
+                      <a
+                        href={cell.data}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        Go to
+                      </a>
+                    ) : (
+                      <textarea
+                        className="plotTableTextarea w-full h-auto"
+                        defaultValue={cell.data}
+                        ref={(el) => {
+                          if (el) {
+                            el.style.height = "auto";
+                            el.style.height = Math.min(el.scrollHeight, 200) + "px";
+                          }
+                        }}
+                        onInput={(e) => {
+                          const target = e.currentTarget;
+                          target.style.height = "auto";
+                          target.style.height = Math.min(target.scrollHeight, 200) + "px";
+                        }}
+                        onBlur={(e) => {
+                          if (!rightClickFlag) {
+                            handleCellUpdate(cell, e.currentTarget.value, cell.data);
+                          }
+                        }}
+                      />
+                    )}
+                    <div style={{ color: "rgb(230, 230, 230)" }}>({cell.rowIndex},{cell.columnIndex})</div>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
