@@ -12,7 +12,6 @@ import "../style/search.css";
 import TableSelector from "../components/tables/TableSelector";
 import { TablesContext } from "../context/tableContext";
 import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
-import Cookies from "js-cookie";
 import axios from "axios";
 
 const MainTablesPage: React.FC = () => {

@@ -3,7 +3,6 @@ import { TablesContext } from "../../context/tableContext";
 import "../../style/tables/tableData.css";
 import { CellData } from "../../types/cellType";
 import { dragAndDropColumn } from "../../functions/table/column/dragAndDropColumn";
-import { ServerContext } from "../../context/ServerUrlContext";
 import { dragAndDropRow } from "../../functions/table/row/dragAndDropRow";
 import { sortTableByColumn } from "../../functions/table/column/sortTableByColumn";
 
