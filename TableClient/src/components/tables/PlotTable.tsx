@@ -267,12 +267,13 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       <textarea
                         className="plotTableTextarea w-full h-auto"
                         defaultValue={cell.data}
-                        ref={(el) => {
-                          if (el) {
-                            el.style.height = "auto";
-                            el.style.height = Math.min(el.scrollHeight, 200) + "px";
-                          }
-                        }}
+                        // ref={(el) => {
+                        //   if (el) {
+                        //     el.style.width = "auto";
+                        //     el.style.height = "auto";
+                        //     el.style.height = Math.min(el.scrollHeight, 200) + "px";
+                        //   }
+                        // }}
                         onInput={(e) => {
                           const target = e.currentTarget;
                           target.style.height = "auto";
@@ -295,34 +296,57 @@ const PlotTable: React.FC<PlotTableProps> = ({
       </div>
 
       {imagePopup && (
-        <div
-          onClick={() => setImagePopup(null)}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            cursor: "pointer",
-          }}
-        >
-          <img
-            src={imagePopup}
-            alt="Large view"
-            style={{
-              maxWidth: "90%",
-              maxHeight: "90%",
-              boxShadow: "0 0 10px white",
-              borderRadius: "8px",
-            }}
-          />
-        </div>
-      )}
+  <div
+    onClick={() => setImagePopup(null)}
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100vw",
+      height: "100vh",
+      backgroundColor: "rgba(0,0,0,0.85)",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      zIndex: 1000,
+      // overflowY: "auto",
+    }}
+  >
+    <img
+      src={imagePopup}
+      alt="Large view"
+      style={{
+        marginTop: "2.5vh",          // Shift the image up visually
+        maxWidth: "90vw",
+        maxHeight: "90vh",
+        boxShadow: "0 0 5px white",
+        borderRadius: "8px",
+        marginBottom: "0.5rem",
+        cursor: "auto",
+      }}
+      onClick={(e) => e.stopPropagation()}
+    />
+    <a
+      href={imagePopup}
+      download="image.png"
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        padding: "0.1rem 0.1rem",
+        backgroundColor: "#fff",
+        borderRadius: "2px",
+        color: "#000",
+        textDecoration: "none",
+        fontWeight: "regular",
+        boxShadow: "10 10px 1px rgba(0,0,0,0.3)",
+        marginBottom: "0.1rem",     // Give spacing below the button
+        maxHeight: "3vh",
+      }}
+    >Download Image</a>
+  </div>
+)}
+
+
     </div>
   );
 };
