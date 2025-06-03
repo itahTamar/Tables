@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { TablesContext } from "../../context/tableContext";
 import "../../style/tables/tableData.css";
 import { CellData } from "../../types/cellType";
-import { handleUpdateIndexInDB } from "../../functions/dbHandler/handleUpdateIndexInDB";
 import { dragAndDropColumn } from "../../functions/table/column/dragAndDropColumn";
 import { ServerContext } from "../../context/ServerUrlContext";
 import { dragAndDropRow } from "../../functions/table/row/dragAndDropRow";
@@ -28,7 +27,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
   handleCellUpdate,
   displayArr,
 }) => {
-  const serverUrl = useContext(ServerContext);
   const tableContext = useContext(TablesContext);
   const [imagePopup, setImagePopup] = useState<string | null>(null);
 
@@ -42,9 +40,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
     setCheckedColumns,
     cells,
     setCells,
-    numOfRows,
-    rowIndexesDisplayArr,
-    setRowIndexesDisplayArr,
   } = tableContext;
 
   const [rightClickFlag, setRightClickFlag] = useState(false);

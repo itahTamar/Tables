@@ -1,5 +1,4 @@
 import { CellData } from "../../../types/cellType";
-import { DeleteRowCells } from "./deleteRowCells";
 
 interface DragAndDropRowProp {
   currentRowIndex: number;

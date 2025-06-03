@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import { TablesContext } from "../../context/tableContext";
 import {
-  addNewRow,
   generateObjectId,
 } from "../../functions/table/row/addNewRow";
 import "../../style/buttons.css";

@@ -59,9 +59,6 @@ export const addNewRow = async ({
   // Combine the adjusted cells with the new row
   const updatedCells = [...adjustedCells, ...newRowCells];
 
-  // Determine affected cells based on the updated state
-  const affectedCells = adjustedCells.filter( (cell) => cell.rowIndex >= currentRowIndex );
-
   // adjust the rowIndexArr for plot
   const adjustedRowIndexes = rowIndexesDisplayArr.map((index) =>
     index >= currentRowIndex ? index + 1 : index
