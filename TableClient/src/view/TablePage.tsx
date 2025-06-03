@@ -265,9 +265,8 @@ function TablePage() {
     const visualDataCellsUpdate = (
       cell: CellData,
       updatedCell: CellData
-    ): { updatedCells: CellData[]; isHeader: boolean } => {
+    ): { updatedArray: CellData[]; isHeader: boolean } => {
       const isHeader = cell.rowIndex === 0;
-
       const source = isHeader ? headers : cells;
 
       const updated = [...source];
@@ -276,7 +275,7 @@ function TablePage() {
       if (index !== -1) {
         updated[index] = updatedCell;
       }
-      return {updatedCells: isHeader ? [] : updated,isHeader,};
+      return {updatedArray: updated, isHeader};
     };
 
     const handleCellUpdate = async (
@@ -293,16 +292,19 @@ function TablePage() {
 
         //add new empty first row if needed
         let newCellsAfterAddingRow; 
-        if (!result.isHeader && result.updatedCells.length > 0 &&
+        if (!result.isHeader && result.updatedArray.length > 0 &&
           newData != "" && newData != null && cell.rowIndex === 1 ) {
           newCellsAfterAddingRow = await addNewRow({ tableId: tableId, tableIndex: tableIndex, currentRowIndex: 1, 
-            cells: result.updatedCells, rowIndexesDisplayArr: rowIndexesDisplayArr, headers: headers});
+            cells: result.updatedArray, rowIndexesDisplayArr: rowIndexesDisplayArr, headers: headers});
           setCells(newCellsAfterAddingRow.newCellsArray);
           setRowIndexesDisplayArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),]);
           setNumOfRows((prev) => prev + 1);
         }
-        else
-          setCells(result.updatedCells);
+        else if (result.updatedArray)
+          if (result.isHeader) 
+            setHeaders(result.updatedArray)
+          else 
+            setCells(result.updatedArray)
 
       } catch (error) {
         console.error("Error in handleCellUpdate:", error);
@@ -732,47 +734,31 @@ function TablePage() {
                   {menuState.elementType === "A" ||
                   menuState.elementType === "IMG" ? (
                     <li>
-                      <button onClick={() => handleMenuAction("clearData")}>
-                        Clear Data
-                      </button>
+                      <button onClick={() => handleMenuAction("clearData")}> Clear Data </button>
                     </li>
                   ) : null}
                   <li>
-                    <button onClick={() => handleMenuAction("addRowAfter")}>
-                      Add Row
-                    </button>
-                  </li>    
-                  <li>
-                    {(cells.length !== 0 && menuState.rowIndex !== 0) ||
-                    (cells.length === 0 && menuState.rowIndex === 0) ? (
-                      <button onClick={() => handleMenuAction("deleteRow")}>
-                        Delete Row
-                      </button>
-                    ) : null}
-                  </li>
-                  <li>
-                    <button onClick={() => handleMenuAction("addColumnAfter")}>
-                      Add Column
-                    </button>
+                    <button onClick={() => handleMenuAction("addRowAfter")}>Add Row</button>
                   </li>
                   <li>
                     {menuState.columnIndex === 1 ? (
-                      <button
-                        onClick={() => handleMenuAction("addColumnBefore")}
-                      >
-                        Add Column Before
-                      </button>
+                      <button onClick={() => handleMenuAction("addColumnBefore")}>Add Column Before</button>
+                    ) : null}
+                  </li>    
+                  <li>
+                    <button onClick={() => handleMenuAction("addColumnAfter")}>Add Column</button>
+                  </li>
+                  <li>
+                    {(cells.length !== 0 && menuState.rowIndex !== 0) ||
+                    (cells.length === 0 && menuState.rowIndex === 0) ? (
+                      <button className="bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteRow")}>Delete Row</button>
                     ) : null}
                   </li>
                   <li>
-                    <button onClick={() => handleMenuAction("deleteColumn")}>
-                      Delete Column
-                    </button>
+                    <button className="bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteColumn")}>Delete Column</button>
                   </li>
                   <li>
-                    <button onClick={() => handleMenuAction("deleteCell")}>
-                      Delete Cell
-                    </button>
+                    <button className="bg-red-100 text-red-700" onClick={() => handleMenuAction("deleteCell")}>Delete Cell</button>
                   </li>
                 </ul>
               </SelectionMenu>
