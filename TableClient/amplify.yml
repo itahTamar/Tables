@@ -5,12 +5,13 @@ frontend:
       commands:
         - nvm install 20
         - nvm use 20
+        - cd TableClient
         - npm install
     build:
       commands:
         - npm run build
   artifacts:
-    baseDirectory: build
+    baseDirectory: TableClient/dist
     files:
       - '**/*'
   cache:
