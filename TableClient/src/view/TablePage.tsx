@@ -153,14 +153,11 @@ function TablePage() {
       }
     }, [tablesFetched, showGenerateTable,]);
 
-    // Close the menu if the click is outside the table
+    // Close the selection menu if the user clicks outside of it
     useEffect(() => { // triggered - Whenever cells are updated (via fetch, edit, add/delete)
       const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as HTMLElement;
-        if (
-          !target.closest(".table-container") &&
-          !target.closest(".selection-menu")
-        ) {
+        if (!target.closest(".selection-menu")) {
           setMenuState((prev) => ({ ...prev, visible: false }));
         }
       };
