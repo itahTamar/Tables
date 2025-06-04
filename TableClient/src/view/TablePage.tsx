@@ -345,23 +345,61 @@ function TablePage() {
     // Copy cell content to local clipboard
     const handleCopyCell = (cell: CellData) => {
       const isHeader = cell.rowIndex === 0;
+      const text = cell.data ?? "";
+      
+      // Save to internal state
       setClipboardData({ data: cell.data, isHeader });
-      console.log("📋 Copied:", { data: cell.data, isHeader });
+      
+      // Copy to system clipboard
+      navigator.clipboard.writeText(text).then(() => {
+        console.log("📋 Copied to system clipboard:", text);
+      }).catch(err => {
+        console.error("Clipboard write failed:", err);
+      });
     };
 
     // Paste clipboard content into selected cell
     const handlePasteCell = async (cell: CellData) => {
-      if (!clipboardData) return;
-
       const isHeader = cell.rowIndex === 0;
-      if (clipboardData.isHeader !== isHeader) {
-        console.warn("🚫 Cannot paste header data into a regular cell or vice versa.");
+
+      // If internal state exists and types match, use that first
+      if (clipboardData) {
+        if (clipboardData.isHeader !== isHeader) {
+          console.warn("🚫 Cannot paste header data into a regular cell or vice versa.");
+          return;
+        }
+        await handleCellUpdate(cell, clipboardData.data, cell.data);
+        console.log("📥 Pasted from internal clipboard");
         return;
       }
 
-      await handleCellUpdate(cell, clipboardData.data, cell.data);
-      console.log("📥 Pasted:", clipboardData.data);
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          for (const type of item.types) {
+            if (type.startsWith("image/")) {
+              const blob = await item.getType(type);
+              const reader = new FileReader();
+              reader.onload = () => {
+                const dataUrl = reader.result as string;
+                handleCellUpdate(cell, dataUrl, cell.data);
+              };
+              reader.readAsDataURL(blob);
+              return; // Only handle the first image
+            }
+          }
+        }
+
+        // Fallback: if not image, try text
+        const text = await navigator.clipboard.readText();
+        await handleCellUpdate(cell, text, cell.data);
+        console.log("📥 Pasted text from system clipboard");
+
+      } catch (error) {
+        console.error("Clipboard read failed:", error);
+      }
     };
+
 
     const handleMenuAction = async (action: string) => {
       const { rowIndex, columnIndex, cellId } = menuState;
