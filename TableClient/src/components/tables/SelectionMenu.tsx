@@ -33,10 +33,12 @@ const SelectionMenu = forwardRef<HTMLDivElement, SelectionMenuProps>(
         {children}
         {showPasteHelper && (
           <textarea
-            placeholder="📋 Paste here (Tablet Support)"
+            placeholder="📋 Paste here (Tablet/Desktop)"
             onPaste={(e) => {
               const text = e.clipboardData.getData("text");
               const items = e.clipboardData.items;
+
+              let handled = false;
 
               for (const item of items) {
                 if (item.type.startsWith("image/")) {
@@ -47,14 +49,25 @@ const SelectionMenu = forwardRef<HTMLDivElement, SelectionMenuProps>(
                       onPasteImage?.(reader.result as string);
                     };
                     reader.readAsDataURL(file);
+                    handled = true;
+                    break;
                   }
-                  e.preventDefault();
-                  return;
                 }
               }
 
-              if (text) {
+              if (!handled && text) {
                 onPasteText?.(text);
+              }
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              const file = e.dataTransfer?.files?.[0];
+              if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                  onPasteImage?.(reader.result as string);
+                };
+                reader.readAsDataURL(file);
               }
             }}
             style={{
@@ -66,6 +79,41 @@ const SelectionMenu = forwardRef<HTMLDivElement, SelectionMenuProps>(
               padding: "0.5rem",
             }}
           />
+
+          // <textarea
+          //   placeholder="📋 Paste here (Tablet Support)"
+          //   onPaste={(e) => {
+          //     const text = e.clipboardData.getData("text");
+          //     const items = e.clipboardData.items;
+
+          //     for (const item of items) {
+          //       if (item.type.startsWith("image/")) {
+          //         const file = item.getAsFile();
+          //         if (file) {
+          //           const reader = new FileReader();
+          //           reader.onload = () => {
+          //             onPasteImage?.(reader.result as string);
+          //           };
+          //           reader.readAsDataURL(file);
+          //         }
+          //         e.preventDefault();
+          //         return;
+          //       }
+          //     }
+
+          //     if (text) {
+          //       onPasteText?.(text);
+          //     }
+          //   }}
+          //   style={{
+          //     minHeight: "4rem",
+          //     width: "100%",
+          //     marginTop: "0.5rem",
+          //     border: "1px dashed gray",
+          //     fontSize: "0.9rem",
+          //     padding: "0.5rem",
+          //   }}
+          // />
         )}
       </div>
     );
