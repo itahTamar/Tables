@@ -26,7 +26,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
   handleCellUpdate,
   displayArr,
 }) => {
-  const devFlag = false;
+  const devFlag = true;
   
   const tableContext = useContext(TablesContext);
   const [imagePopup, setImagePopup] = useState<string | null>(null);
@@ -239,11 +239,21 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex, cell._id)}
                     onTouchStart={(e) => {
                       e.stopPropagation();
+                      const touch = e.touches?.[0];
                       const timeout = setTimeout(() => {
-                        handleRightClickWithFlag(e as any, cell.rowIndex, cell.columnIndex, cell._id);
+                        if (touch) {
+                          const fakeMouseEvent = {
+                            pageX: touch.pageX,
+                            pageY: touch.pageY,
+                            preventDefault: () => {},
+                            stopPropagation: () => {},
+                          } as unknown as React.MouseEvent;
+                          handleRightClickWithFlag(fakeMouseEvent, cell.rowIndex, cell.columnIndex, cell._id);
+                        }
                       }, 600);
                       (e.target as any)._longPressTimeout = timeout;
                     }}
+
                     onTouchEnd={(e) => {
                       const timeout = (e.target as any)._longPressTimeout;
                       if (timeout) clearTimeout(timeout);
