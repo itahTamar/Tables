@@ -202,11 +202,12 @@ const PlotTable: React.FC<PlotTableProps> = ({
                   onDragEnd={handleDragEnd}
                 >
                   <div className="absolute top-1 left-1">
-                    <input
+                    <input 
                       type="checkbox"
                       className="checkedBoxColumns"
                       checked={checkedColumns.includes(h.columnIndex)}
                       onChange={() => handleCheckboxChange(h.columnIndex)}
+                      aria-label={`Toggle column ${h.columnIndex}`}
                     />
                   </div>
                   <div className="sort-button" onClick={() => handleSort(h)}>
@@ -261,7 +262,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         Go to
                       </a>
                     ) : (
-                      <textarea
+                      <textarea title="Editable cell" placeholder="..."
                         className="plotTableTextarea w-full h-auto"
                         defaultValue={cell.data}
                         // ref={(el) => {
