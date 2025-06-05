@@ -26,6 +26,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
   handleCellUpdate,
   displayArr,
 }) => {
+  const devFlag = false;
+  
   const tableContext = useContext(TablesContext);
   const [imagePopup, setImagePopup] = useState<string | null>(null);
 
@@ -176,10 +178,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
   const maxCol = Math.max(...cells.map(cell => cell.columnIndex), 0);
   const expectedCells = (maxRow + 1*0) * (maxCol + 1*0);
   const isMismatch = expectedCells !== totalCells;
-
   return (
     <div>
-      {cells.length > 0 && headers.length > 0 && 
+      {cells.length > 0 && headers.length > 0 && devFlag && 
       <div style={{ padding: "0.5rem", fontSize: "0.9rem", backgroundColor: isMismatch ? "#ffeeba" : "#f4f4f4" }}>
         Total Cells: {totalCells}, Max Row Index: {maxRow}, Max Column Index: {maxCol}, Expected Cells: {expectedCells}
         {isMismatch && <strong> ⚠ Mismatch Detected</strong>}
@@ -236,31 +237,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     key={cell._id}
                     className={`border border-gray-400 h-auto ${dragOverRowIndex === cell.rowIndex ? "drag-over" : ""}`}
                     onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex, cell._id)}
-                    onTouchStart={(e) => {
-                      e.stopPropagation();
-                      const touch = e.touches?.[0];
-                      const timeout = setTimeout(() => {
-                        if (touch) {
-                          const fakeMouseEvent = {
-                            pageX: touch.pageX,
-                            pageY: touch.pageY,
-                            preventDefault: () => {},
-                            stopPropagation: () => {},
-                          } as unknown as React.MouseEvent;
-                          handleRightClickWithFlag(fakeMouseEvent, cell.rowIndex, cell.columnIndex, cell._id);
-                        }
-                      }, 600);
-                      (e.target as any)._longPressTimeout = timeout;
-                    }}
-
-                    onTouchEnd={(e) => {
-                      const timeout = (e.target as any)._longPressTimeout;
-                      if (timeout) clearTimeout(timeout);
-                    }}
-                    onTouchMove={(e) => {
-                      const timeout = (e.target as any)._longPressTimeout;
-                      if (timeout) clearTimeout(timeout);
-                    }}
                     onPaste={(e) => handlePasteImage(e, cell)}
                     draggable
                     onDragStart={(e) => handleDragStart(e, cell.columnIndex, cell.rowIndex)}
@@ -273,7 +249,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         src={cell.data}
                         alt="Pasted"
                         className="max-w-full cursor-pointer"
-                        onClick={() => setImagePopup(cell.data)}
+                        onClick={() => setImagePopup(cell.data)} // ✅ this opens the image popup
                       />
                     ) : cell.data && cell.data.startsWith("http") ? (
                       <a
@@ -288,6 +264,13 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       <textarea
                         className="plotTableTextarea w-full h-auto"
                         defaultValue={cell.data}
+                        // ref={(el) => {
+                        //   if (el) {
+                        //     el.style.width = "auto";
+                        //     el.style.height = "auto";
+                        //     el.style.height = Math.min(el.scrollHeight, 200) + "px";
+                        //   }
+                        // }}
                         onInput={(e) => {
                           const target = e.currentTarget;
                           target.style.height = "auto";
@@ -300,9 +283,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         }}
                       />
                     )}
-                    <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem", textAlign: "left" }}>
-                      ({cell.rowIndex},{cell.columnIndex})
-                    </div>
+                    <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem" , textAlign: "left" }}>({cell.rowIndex},{cell.columnIndex})</div>
                   </td>
                 ))}
               </tr>
