@@ -67,15 +67,19 @@ const SelectionMenu = forwardRef<HTMLDivElement, SelectionMenuProps>(
                 }
 
                 if (!foundImage) {
-                  const text = e.clipboardData.getData("text");
-                  if (text) onPasteText?.(text);
+                const text = e.clipboardData.getData("text");
 
+                if (text) {
+                  onPasteText?.(text);
+                } else {
                   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
                   if (isMobile) {
                     const input = document.getElementById("hiddenFileInput") as HTMLInputElement;
+                    alert("📷 Pasting screenshots is not supported on this device. Please select the screenshot manually.");
                     input?.click();
                   }
                 }
+              }
 
                 e.preventDefault();
               }}
