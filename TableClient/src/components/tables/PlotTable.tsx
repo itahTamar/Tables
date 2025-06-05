@@ -270,40 +270,40 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     }}
                   >
                     {cell.data && cell.data.startsWith("data:image") ? (
-                      <img
-                        src={cell.data}
-                        alt="Pasted"
-                        className="max-w-full cursor-pointer"
-                        onClick={() => setImagePopup(cell.data)}
-                      />
-                    ) : cell.data && cell.data.startsWith("http") ? (
-                      <a
-                        href={cell.data}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
-                      >
-                        Go to
-                      </a>
-                    ) : cell.data ? (
-                      <textarea
-                        title="Editable cell" placeholder="..."
-                        className="plotTableTextarea w-full h-auto"
-                        defaultValue={cell.data}
-                        onInput={(e) => {
-                          const target = e.currentTarget;
-                          target.style.height = "auto";
-                          target.style.height = Math.min(target.scrollHeight, 200) + "px";
-                        }}
-                        onBlur={(e) => {
-                          if (!rightClickFlag) {
-                            handleCellUpdate(cell, e.currentTarget.value, cell.data);
-                          }
-                        }}
-                      />
-                    ) : (
-                      <div style={{ minHeight: "1.5rem" }}>&nbsp;</div>
-                    )}
+                    <img
+                      src={cell.data}
+                      alt="Pasted"
+                      className="max-w-full cursor-pointer"
+                      onClick={() => setImagePopup(cell.data)}
+                    />
+                  ) : cell.data && cell.data.startsWith("http") ? (
+                    <a
+                      href={cell.data}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      Go to
+                    </a>
+                  ) : (
+                    <textarea
+                      title="Editable cell"
+                      placeholder="..."
+                      className="plotTableTextarea w-full h-auto"
+                      defaultValue={cell.data || ""}
+                      onInput={(e) => {
+                        const target = e.currentTarget;
+                        target.style.height = "auto";
+                        target.style.height = Math.min(target.scrollHeight, 200) + "px";
+                      }}
+                      onBlur={(e) => {
+                        if (!rightClickFlag) {
+                          handleCellUpdate(cell, e.currentTarget.value, cell.data);
+                        }
+                      }}
+                    />
+                  )}
+
                     <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem", textAlign: "left" }}>
                       ({cell.rowIndex},{cell.columnIndex})
                     </div>
