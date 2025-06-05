@@ -70,7 +70,7 @@ const SelectionMenu = forwardRef<HTMLDivElement, SelectionMenuProps>(
                   const text = e.clipboardData.getData("text");
                   if (text) onPasteText?.(text);
 
-                  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
                   if (isMobile) {
                     const input = document.getElementById("hiddenFileInput") as HTMLInputElement;
                     input?.click();
