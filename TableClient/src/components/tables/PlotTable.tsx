@@ -246,35 +246,35 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     onDrop={(e) => handleDrop(e, cell.columnIndex, cell.rowIndex)}
                     onDragEnd={handleDragEnd}
                     onTouchStart={(e) => {
-                    const touch = e.touches?.[0];
-                    const timeout = setTimeout(() => {
-                      if (touch) {
-                        const simulatedEvent = {
-                          pageX: touch.pageX,
-                          pageY: touch.pageY,
-                          preventDefault: () => {},
-                          stopPropagation: () => {},
-                        } as unknown as React.MouseEvent;
-                        handleRightClickWithFlag(simulatedEvent, cell.rowIndex, cell.columnIndex, cell._id);
-                      }
-                    }, 600);
-                    (e.currentTarget as any)._longPressTimeout = timeout;
-                  }}
-                  onTouchEnd={(e) => {
-                    const timeout = (e.currentTarget as any)._longPressTimeout;
-                    if (timeout) clearTimeout(timeout);
-                  }}
-                  onTouchMove={(e) => {
-                    const timeout = (e.currentTarget as any)._longPressTimeout;
-                    if (timeout) clearTimeout(timeout);
-                  }}
+                      const touch = e.touches?.[0];
+                      const timeout = setTimeout(() => {
+                        if (touch) {
+                          const simulatedEvent = {
+                            pageX: touch.pageX,
+                            pageY: touch.pageY,
+                            preventDefault: () => {},
+                            stopPropagation: () => {},
+                          } as unknown as React.MouseEvent;
+                          handleRightClickWithFlag(simulatedEvent, cell.rowIndex, cell.columnIndex, cell._id);
+                        }
+                      }, 600);
+                      (e.currentTarget as any)._longPressTimeout = timeout;
+                    }}
+                    onTouchEnd={(e) => {
+                      const timeout = (e.currentTarget as any)._longPressTimeout;
+                      if (timeout) clearTimeout(timeout);
+                    }}
+                    onTouchMove={(e) => {
+                      const timeout = (e.currentTarget as any)._longPressTimeout;
+                      if (timeout) clearTimeout(timeout);
+                    }}
                   >
                     {cell.data && cell.data.startsWith("data:image") ? (
                       <img
                         src={cell.data}
                         alt="Pasted"
                         className="max-w-full cursor-pointer"
-                        onClick={() => setImagePopup(cell.data)} // ✅ this opens the image popup
+                        onClick={() => setImagePopup(cell.data)}
                       />
                     ) : cell.data && cell.data.startsWith("http") ? (
                       <a
@@ -285,8 +285,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       >
                         Go to
                       </a>
-                    ) : (
-                      <textarea title="Editable cell" placeholder="..."
+                    ) : cell.data ? (
+                      <textarea
+                        title="Editable cell" placeholder="..."
                         className="plotTableTextarea w-full h-auto"
                         defaultValue={cell.data}
                         onInput={(e) => {
@@ -300,6 +301,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
                           }
                         }}
                       />
+                    ) : (
+                      <div style={{ minHeight: "1.5rem" }}>&nbsp;</div>
                     )}
                     <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem", textAlign: "left" }}>
                       ({cell.rowIndex},{cell.columnIndex})
