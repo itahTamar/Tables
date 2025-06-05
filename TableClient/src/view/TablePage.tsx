@@ -358,6 +358,12 @@ function TablePage() {
       });
     };
 
+    const findCell = ({ rowIndex, columnIndex }: typeof menuState) =>
+      (rowIndex === 0 ? headers : cells).find(
+        (c) => c.rowIndex === rowIndex && c.columnIndex === columnIndex
+    );
+
+
     // Paste clipboard content into selected cell
     const handlePasteCell = async (cell: CellData) => {
       const isHeader = cell.rowIndex === 0;
@@ -783,7 +789,19 @@ function TablePage() {
             />
 
             {menuState.visible && (
-              <SelectionMenu x={menuState.x} y={menuState.y}>
+              <SelectionMenu 
+                x={menuState.x} 
+                y={menuState.y}onPasteText={(text) => {
+                    const cell = findCell(menuState);
+                    if (cell) handleCellUpdate(cell, text, cell.data);
+                    setMenuState((prev) => ({ ...prev, visible: false }));
+                  }}
+                  onPasteImage={(imgData) => {
+                    const cell = findCell(menuState);
+                    if (cell) handleCellUpdate(cell, imgData, cell.data);
+                    setMenuState((prev) => ({ ...prev, visible: false }));
+                  }}
+                >
                 <ul className="list-none space-y-0.5 w-15">
                 <li>
                   <button className="w-full h-8 text-sm"  onClick={() => {
