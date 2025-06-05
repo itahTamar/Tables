@@ -26,6 +26,8 @@ const PlotTable: React.FC<PlotTableProps> = ({
   handleCellUpdate,
   displayArr,
 }) => {
+  const devFlag = false;
+  
   const tableContext = useContext(TablesContext);
   const [imagePopup, setImagePopup] = useState<string | null>(null);
 
@@ -176,10 +178,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
   const maxCol = Math.max(...cells.map(cell => cell.columnIndex), 0);
   const expectedCells = (maxRow + 1*0) * (maxCol + 1*0);
   const isMismatch = expectedCells !== totalCells;
-
   return (
     <div>
-      {cells.length > 0 && headers.length > 0 && 
+      {cells.length > 0 && headers.length > 0 && devFlag && 
       <div style={{ padding: "0.5rem", fontSize: "0.9rem", backgroundColor: isMismatch ? "#ffeeba" : "#f4f4f4" }}>
         Total Cells: {totalCells}, Max Row Index: {maxRow}, Max Column Index: {maxCol}, Expected Cells: {expectedCells}
         {isMismatch && <strong> ⚠ Mismatch Detected</strong>}
