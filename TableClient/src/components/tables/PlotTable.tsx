@@ -237,6 +237,21 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     key={cell._id}
                     className={`border border-gray-400 h-auto ${dragOverRowIndex === cell.rowIndex ? "drag-over" : ""}`}
                     onContextMenu={(e) => handleRightClickWithFlag(e, cell.rowIndex, cell.columnIndex, cell._id)}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      const timeout = setTimeout(() => {
+                        handleRightClickWithFlag(e as any, cell.rowIndex, cell.columnIndex, cell._id);
+                      }, 600);
+                      (e.target as any)._longPressTimeout = timeout;
+                    }}
+                    onTouchEnd={(e) => {
+                      const timeout = (e.target as any)._longPressTimeout;
+                      if (timeout) clearTimeout(timeout);
+                    }}
+                    onTouchMove={(e) => {
+                      const timeout = (e.target as any)._longPressTimeout;
+                      if (timeout) clearTimeout(timeout);
+                    }}
                     onPaste={(e) => handlePasteImage(e, cell)}
                     draggable
                     onDragStart={(e) => handleDragStart(e, cell.columnIndex, cell.rowIndex)}
@@ -249,7 +264,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         src={cell.data}
                         alt="Pasted"
                         className="max-w-full cursor-pointer"
-                        onClick={() => setImagePopup(cell.data)} // ✅ this opens the image popup
+                        onClick={() => setImagePopup(cell.data)}
                       />
                     ) : cell.data && cell.data.startsWith("http") ? (
                       <a
@@ -264,13 +279,6 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       <textarea
                         className="plotTableTextarea w-full h-auto"
                         defaultValue={cell.data}
-                        // ref={(el) => {
-                        //   if (el) {
-                        //     el.style.width = "auto";
-                        //     el.style.height = "auto";
-                        //     el.style.height = Math.min(el.scrollHeight, 200) + "px";
-                        //   }
-                        // }}
                         onInput={(e) => {
                           const target = e.currentTarget;
                           target.style.height = "auto";
@@ -283,7 +291,9 @@ const PlotTable: React.FC<PlotTableProps> = ({
                         }}
                       />
                     )}
-                    <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem" , textAlign: "left" }}>({cell.rowIndex},{cell.columnIndex})</div>
+                    <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem", textAlign: "left" }}>
+                      ({cell.rowIndex},{cell.columnIndex})
+                    </div>
                   </td>
                 ))}
               </tr>
