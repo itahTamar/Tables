@@ -791,7 +791,9 @@ function TablePage() {
             {menuState.visible && (
               <SelectionMenu 
                 x={menuState.x} 
-                y={menuState.y}onPasteText={(text) => {
+                y={menuState.y}
+                showPasteHelper={true}
+                onPasteText={(text) => {
                     const cell = findCell(menuState);
                     if (cell) handleCellUpdate(cell, text, cell.data);
                     setMenuState((prev) => ({ ...prev, visible: false }));

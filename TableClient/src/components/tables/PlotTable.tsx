@@ -26,7 +26,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
   handleCellUpdate,
   displayArr,
 }) => {
-  const devFlag = true;
+  const devFlag = false;
   
   const tableContext = useContext(TablesContext);
   const [imagePopup, setImagePopup] = useState<string | null>(null);
