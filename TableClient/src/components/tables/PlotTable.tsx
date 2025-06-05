@@ -245,6 +245,29 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     onDragOver={(e) => handleDragOver(e, cell.columnIndex, cell.rowIndex)}
                     onDrop={(e) => handleDrop(e, cell.columnIndex, cell.rowIndex)}
                     onDragEnd={handleDragEnd}
+                    onTouchStart={(e) => {
+                    const touch = e.touches?.[0];
+                    const timeout = setTimeout(() => {
+                      if (touch) {
+                        const simulatedEvent = {
+                          pageX: touch.pageX,
+                          pageY: touch.pageY,
+                          preventDefault: () => {},
+                          stopPropagation: () => {},
+                        } as unknown as React.MouseEvent;
+                        handleRightClickWithFlag(simulatedEvent, cell.rowIndex, cell.columnIndex, cell._id);
+                      }
+                    }, 600);
+                    (e.currentTarget as any)._longPressTimeout = timeout;
+                  }}
+                  onTouchEnd={(e) => {
+                    const timeout = (e.currentTarget as any)._longPressTimeout;
+                    if (timeout) clearTimeout(timeout);
+                  }}
+                  onTouchMove={(e) => {
+                    const timeout = (e.currentTarget as any)._longPressTimeout;
+                    if (timeout) clearTimeout(timeout);
+                  }}
                   >
                     {cell.data && cell.data.startsWith("data:image") ? (
                       <img
