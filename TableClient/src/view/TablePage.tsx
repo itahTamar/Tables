@@ -21,6 +21,8 @@ import SelectionMenu from "./../components/tables/SelectionMenu";
 // import { hideOrRevealColumn } from "../functions/table/column/hideOrRevealColumn";
 import ColumnSelector from "../components/columns/ColumnSelector";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
+import { addToSaveQueue } from "../utils/saveQueue";
+
 
 function TablePage() {
   try {
@@ -309,6 +311,16 @@ function TablePage() {
       }
     };
 
+    const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const scheduleAutoSave = () => {
+      if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+      idleTimeoutRef.current = setTimeout(() => {
+        console.log("💾 Auto-saving due to idle...");
+        addToSaveQueue(handleSaveToDB); // Add to queue
+      }, 10000); // 10 seconds idle threshold
+    };
+
     const handleRightClick = (
       event: React.MouseEvent,
       rowIndex: number,
@@ -375,6 +387,7 @@ function TablePage() {
           return;
         }
         await handleCellUpdate(cell, clipboardData.data, cell.data);
+        scheduleAutoSave();
         console.log("📥 Pasted from internal clipboard");
         return;
       }
@@ -399,6 +412,7 @@ function TablePage() {
         // Fallback: if not image, try text
         const text = await navigator.clipboard.readText();
         await handleCellUpdate(cell, text, cell.data);
+        scheduleAutoSave();
         console.log("📥 Pasted text from system clipboard");
 
       } catch (error) {
@@ -431,6 +445,7 @@ function TablePage() {
         );
         if (cellToClear) {
           await handleCellUpdate(cellToClear, null, cellToClear.data); // Clear the cell data
+          scheduleAutoSave();
         }
         setMenuState({ ...menuState, visible: false }); // Close menu
       } else if (action === "deleteCell") {
