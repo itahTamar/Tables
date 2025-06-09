@@ -25,6 +25,8 @@ import { addToSaveQueue } from "../utils/saveQueue";
 
 
 function TablePage() {
+  const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   try {
     //variables:
     console.log("🛠️ Inside TablePage Component");
@@ -300,18 +302,18 @@ function TablePage() {
           setRowIndexesDisplayArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),]);
           setNumOfRows((prev) => prev + 1);
         }
-        else if (result.updatedArray)
+        else if (result.updatedArray){
           if (result.isHeader) 
             setHeaders(result.updatedArray)
           else 
             setCells(result.updatedArray)
 
+          scheduleAutoSave();
+        }
       } catch (error) {
         console.error("Error in handleCellUpdate:", error);
       }
     };
-
-    const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const scheduleAutoSave = () => {
       if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
@@ -387,7 +389,6 @@ function TablePage() {
           return;
         }
         await handleCellUpdate(cell, clipboardData.data, cell.data);
-        scheduleAutoSave();
         console.log("📥 Pasted from internal clipboard");
         return;
       }
@@ -412,7 +413,6 @@ function TablePage() {
         // Fallback: if not image, try text
         const text = await navigator.clipboard.readText();
         await handleCellUpdate(cell, text, cell.data);
-        scheduleAutoSave();
         console.log("📥 Pasted text from system clipboard");
 
       } catch (error) {
@@ -445,7 +445,6 @@ function TablePage() {
         );
         if (cellToClear) {
           await handleCellUpdate(cellToClear, null, cellToClear.data); // Clear the cell data
-          scheduleAutoSave();
         }
         setMenuState({ ...menuState, visible: false }); // Close menu
       } else if (action === "deleteCell") {
@@ -609,6 +608,7 @@ function TablePage() {
     };
 
     const handleSaveToDB = async () => {
+      setIsSaving(true);
       console.log("!!!! ✅0 start to handleSaveToDB✅ !!!!")
       const collectionName = "tables";
       const currentDocs = [...headers, ...cells];
@@ -665,6 +665,8 @@ function TablePage() {
         }
       } catch (error) {
         console.error("❌ Error in handleSaveToDB:", error);
+      } finally {
+        setIsSaving(false);
       }
     };
 
@@ -674,6 +676,11 @@ function TablePage() {
     return (
       <div>
         <header className="flex justify-between items-center">
+          {isSaving && (
+            <div className="absolute top-2 right-2 text-sm text-gray-500 italic animate-pulse">
+              Auto-saving...
+            </div>
+          )}
           {/* Back Button */}
           <button
             onClick={() => handleBackBtnClick()}
