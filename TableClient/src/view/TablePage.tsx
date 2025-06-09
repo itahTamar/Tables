@@ -677,7 +677,7 @@ function TablePage() {
         <header className="flex justify-between items-center">
           {isSaving && (
             <div className="absolute top-2 right-2 text-sm text-gray-500 italic animate-pulse">
-              Auto-saving...
+              Saving...
             </div>
           )}
           {/* Back Button */}
