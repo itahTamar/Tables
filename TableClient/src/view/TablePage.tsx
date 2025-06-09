@@ -320,7 +320,7 @@ function TablePage() {
       idleTimeoutRef.current = setTimeout(() => {
         console.log("💾 Auto-saving due to idle...");
         addToSaveQueue(handleSaveToDB); // Add to queue
-      }, 10000); // 10 seconds idle threshold
+      }, 1000); // 10 seconds idle threshold
     };
 
     const handleRightClick = (
