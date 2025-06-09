@@ -307,9 +307,8 @@ function TablePage() {
             setHeaders(result.updatedArray)
           else 
             setCells(result.updatedArray)
-
-          scheduleAutoSave();
         }
+        scheduleAutoSave();
       } catch (error) {
         console.error("Error in handleCellUpdate:", error);
       }
