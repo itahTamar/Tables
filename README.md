@@ -31,6 +31,12 @@ V0
    - ![image](https://github.com/user-attachments/assets/211e2320-a174-4451-aa25-3c15db003ba5)
 
 6. run: npm run dev
+
+## searching inside mongoDB using its GUI
+1. examples:
+- { "users.userId": "67ec..." }
+- { _id: ObjectId("682c...") }
+- { tableId: "6773..."}
  
 
 
