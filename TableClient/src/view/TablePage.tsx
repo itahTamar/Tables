@@ -287,27 +287,7 @@ function TablePage() {
         if (!result) return null;
 
         // Handle first-row auto-insertion logic
-        if (!result.isHeader && result.updatedArray.length > 0 &&
-          newData != "" && newData != null && cell.rowIndex === 1 ) {
-          const newCellsAfterAddingRow = await addNewRow({
-            tableId,
-            tableIndex,
-            currentRowIndex: 1,
-            cells: result.updatedArray,
-            rowIndexesDisplayArr,
-            headers
-          });
-
-          setCells(newCellsAfterAddingRow.newCellsArray);
-          setRowIndexesDisplayArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
-          setNumOfRows((prev) => prev + 1);
-
-          // ✅ ADD THIS: track the new/shifted cells as pending
-          setPendingUpdates(prev =>
-            newCellsAfterAddingRow.pendingUpdates.reduce(updatePendingUpdates, prev)
-          );
-
-        } else if (result.updatedArray) {
+        if (result.updatedArray) {
           if (result.isHeader) {
             setHeaders(result.updatedArray);
           } else {
