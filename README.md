@@ -37,6 +37,8 @@ V0
 - { "users.userId": "67ec..." }
 - { _id: ObjectId("682c...") }
 - { tableId: "6773..."}
+- {tableName: "STED"}
+- 
  
 
 
