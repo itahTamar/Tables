@@ -9,6 +9,7 @@ frontend:
         - npm install
     build:
       commands:
+        - echo "📦 Starting build inside TableClient..."
         - npm run build
   artifacts:
     baseDirectory: TableClient/dist

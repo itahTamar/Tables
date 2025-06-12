@@ -29,10 +29,8 @@ function TablePage() {
   const [isSaving, setIsSaving] = useState(false);
   try {
     //variables:
-    console.log("🛠️ Inside TablePage Component");
     let renderCount = useRef(0);
     renderCount.current += 1;
-    console.log("🔄 TablePage Render Count:", renderCount.current);
 
     const serverUrl = useContext(ServerContext);
     const tableContext = useContext(TablesContext);
@@ -99,7 +97,6 @@ function TablePage() {
 
     // gets  headers, cells, num rows, num columns from DB, and updates showGenerateTable state from DB
     const fetchHeadersAndCells = async () => {
-      console.log("**** TablePage.tsx: fetchHeadersAndCells: start ****");
       try {
 //! get from DB
         const fetchedHeaders: CellData[] = await getHeaders({serverUrl,tableId,}); // get table's headers (documents)
@@ -113,7 +110,6 @@ function TablePage() {
         const tempRIndexDisplayArr = [...new Set(fetchedCells.map((e) => e.rowIndex)),]; 
         setRowIndexesDisplayArr(tempRIndexDisplayArr);
         setNumOfRows(tempRIndexDisplayArr.length);
-        console.log("TablePage.tsx: tempRIndexDisplayArr = ", tempRIndexDisplayArr);
 
         // Ensure all columns are displayed on initial load or when search is cleared
         const tempCIndexDisplayArr = [...new Set(fetchedHeaders.map((e) => e.columnIndex)),]; 
@@ -137,7 +133,6 @@ function TablePage() {
 
     //get user's tables every time the page is loaded (on init, refresh, ...)
     useEffect(() => { // triggered - Once when tablesFetched becomes true
-      console.log("**** TablePage.tsx: useEffect[]: start ****");
       const fetchTables = async () => {
         if (tables.length === 0) {
 //! tables from DB
@@ -149,8 +144,6 @@ function TablePage() {
 
     // Fetch headers and cells from DB
     useEffect(() => { // triggered - Every time selectedTable changes
-      console.log("**** TablePage.tsx: useEffect[tablesFetched, showGenerateTable,]: start ****");
-
       if (!tablesFetched) {
         return;
       }
@@ -190,7 +183,6 @@ function TablePage() {
         document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    console.log("Context values:", { serverUrl, tableContext });
     //Verification
     if (!serverUrl) console.error("🚨 Missing serverUrl!");
     if (!tableContext) console.error("🚨 Missing tableContext!");
@@ -203,31 +195,22 @@ function TablePage() {
       return <div>TablesContext is corrupted.</div>;
     }
     if (!tableContext.tablesFetched) {
-      console.log("⏳ !tableContext.tablesFetched: Waiting for tables to load...");
       return <div>Loading ableContext.tablesFetched...</div>;
     }
     if (!rowIndexesDisplayArr || !setRowIndexesDisplayArr) {
-      console.log("⏳ !rowIndexesDisplayArr || !setRowIndexesDisplayArr: Waiting for tables to load...");
       return <div>Loading rowIndexesDisplayArr...</div>;
     }
     if (!colIndexesDisplayArr || !setColIndexesDisplayArr) {
-      console.log("⏳ !colIndexesDisplayArr || !setColIndexesDisplayArr: Waiting for tables to load...");
       return <div>Loading colIndexesDisplayArr...</div>;
     }
     const table = tables.find((t) => t._id === tableId);
     if (!table || table === undefined) {
-      console.log(
-        `Table is ${table} with ID ${tableId} not found. Waiting for tables to load...`
-      );
       return <div>Loading table information...</div>;
     }
 
     //Wait until tables are loaded before accessing `tableName
     const tableName = table.tableName;
     const tableIndex = table.tableIndex;
-
-    console.log("Current tableName:", tableName);
-    console.log("Current tableIndex:", tableIndex);
 
     // Dynamically calculate `displayArr` based on `rowIndexesDisplayArr` and `cells`
     const displayArr = generateCellsForPlot(rowIndexesDisplayArr, colIndexesDisplayArr, cells, headers);
@@ -248,7 +231,6 @@ function TablePage() {
           { tableName: rename }
         );
         if (success) {
-          console.log("Table renamed successfully");
 
           // Update the tableName in the tableContext (UI)
           tableContext.setTables((prevTables) =>
@@ -355,7 +337,6 @@ function TablePage() {
       if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
 
       idleTimeoutRef.current = setTimeout(() => {
-        console.log("💾 Auto-saving due to idle...");
 
         addToSaveQueue(async () => {
           setIsSaving(true);
@@ -388,7 +369,6 @@ function TablePage() {
           elementType,
           cellId,
         });
-        console.log(`Right-clicked on row ${rowIndex}, column ${columnIndex}`);
         return true; // Return true on success
       } catch (error) {
         console.error("Error in handleRightClick:", error);
@@ -413,7 +393,6 @@ function TablePage() {
       
       // Copy to system clipboard
       navigator.clipboard.writeText(text).then(() => {
-        console.log("📋 Copied to system clipboard:", text);
       }).catch(err => {
         console.error("Clipboard write failed:", err);
       });
@@ -436,7 +415,6 @@ function TablePage() {
           return;
         }
         await handleCellUpdate(cell, clipboardData.data, cell.data);
-        console.log("📥 Pasted from internal clipboard");
         return;
       }
 
@@ -460,7 +438,6 @@ function TablePage() {
         // Fallback: if not image, try text
         const text = await navigator.clipboard.readText();
         await handleCellUpdate(cell, text, cell.data);
-        console.log("📥 Pasted text from system clipboard");
 
       } catch (error) {
         console.error("Clipboard read failed:", error);
@@ -511,7 +488,6 @@ function TablePage() {
         cells,
         headers,
       });
-      console.log("newCellsAfterAddingRow:", newCellsAfterAddingRow);
       setCells(newCellsAfterAddingRow.newCellsArray);
       setRowIndexesDisplayArr([
         ...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),
@@ -578,7 +554,6 @@ function TablePage() {
             result.toBeUpdated.reduce(updatePendingUpdates, prev)
           );
 
-          console.log("Row deleted successfully");
         }
       } catch (error) {
         console.error("Error handling delete row:", error);
@@ -586,8 +561,6 @@ function TablePage() {
     };
 
     const handleDeleteColumnBtnClick = async (currentColumnIndex: number) => {
-      console.log("Columns state before deletion:", headers);
-      console.log("Cells state before deletion:", cells);
       try {
         const result = await deleteColumnCells({
           colArrayIdx: colIndexesDisplayArr,
@@ -625,7 +598,13 @@ function TablePage() {
     };
 
     function getByteSize(obj: any): number {
-      return new Blob([JSON.stringify(obj)]).size;
+      const str = JSON.stringify(obj);
+      let totalBytes = 0;
+      for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        totalBytes += code < 0x80 ? 1 : code < 0x800 ? 2 : code < 0x10000 ? 3 : 4;
+      }
+      return totalBytes;
     }
 
     function chunkBySize<T>(items: T[], maxBytes: number): T[][] {
@@ -635,7 +614,6 @@ function TablePage() {
 
       for (const item of items) {
         const itemSize = getByteSize(item);
-        console.log(`🧮 Total update payload size: ${(itemSize / 1024).toFixed(1)} KB`);
 
         if (currentSize + itemSize > maxBytes) {
           if (currentChunk.length > 0) chunks.push(currentChunk);
@@ -682,7 +660,6 @@ function TablePage() {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        console.log("CSV export successful!");
       } catch (error) {
         console.error("Export failed:", error);
       }
@@ -706,9 +683,6 @@ function TablePage() {
       deleteList: string[] = cellsToDelete,
     ) => {
       setIsSaving(true);
-      console.log("🟢 Start: handleSaveToDB");
-
-      console.log("!!!!!!!!!!! updatesList",updatesList);
 
       // 🛠️ Remove any update whose _id is in the delete list
       const filteredUpdates = updatesList.filter(
@@ -717,7 +691,6 @@ function TablePage() {
       
       // 🔍 Early exit if nothing to do
       if (filteredUpdates.length === 0 && deleteList.length === 0) {
-        console.log("🚫 No updates or deletions. Skipping DB operations.");
         setIsSaving(false);
         setPendingUpdates([]);
         setCellsToDelete([]);
@@ -725,11 +698,9 @@ function TablePage() {
       }
 
       if (filteredUpdates.length === 0) {
-        console.log("ℹ️ No updates to apply.");
       }
 
       if (deleteList.length === 0) {
-        console.log("ℹ️ No deletions to apply.");
       }
       
       try {
@@ -754,25 +725,18 @@ function TablePage() {
             __v: 0,
           },
         }));
-        console.log(`🛠️ Preparing ${updates.length} document(s) for update`);
 
         const updateChunks = chunkBySize(updates, MAX_CHUNK_SIZE);
-        console.log(`📤 Split into ${updateChunks.length} update chunk(s)`);
-
-
         const deleteWrapped = deleteList.map(_id => ({ _id }));
         const deleteChunks = chunkBySize(deleteWrapped, MAX_CHUNK_SIZE);
-        console.log(`🗑️ Split into ${deleteChunks.length} delete chunk(s)`);
 
         for (let i = 0; i < deleteChunks.length; i++) {
           const chunkIds = deleteChunks[i].map(doc => doc._id);
-          console.log(`🗑️ Deleting chunk ${i + 1}/${deleteChunks.length}`);
           await DocumentRestAPIMethods.bulkDelete(serverUrl, collectionName, chunkIds);
         }
 
         for (let i = 0; i < updateChunks.length; i++) {
           try {
-          console.log(`📤 Saving update chunk ${i + 1}/${updateChunks.length}`);
           const success = await DocumentRestAPIMethods.bulkUpdate(
             serverUrl,
             collectionName,
@@ -797,8 +761,6 @@ function TablePage() {
 
 
     
-    console.log("🔥✅ About to return JSX in TablePage");
-
     return (
       <div>
         <header className="flex justify-between items-center">
