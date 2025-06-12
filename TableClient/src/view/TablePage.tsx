@@ -706,7 +706,7 @@ function TablePage() {
       try {
         const collectionName = "tables";
         
-        const MAX_CHUNK_SIZE = 2 * 1024 * 1024;
+        const MAX_CHUNK_SIZE = 10 * 1024 * 1024;
 
         // === Helper functions ===
 
