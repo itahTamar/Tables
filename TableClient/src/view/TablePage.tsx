@@ -284,35 +284,59 @@ function TablePage() {
       cell: CellData,
       newData: any,
       prevData: any
-    ) => {
-      if (prevData === null && newData === "") return;
-      if (prevData === newData) return;
+    ): Promise<{
+      updatedId: string;
+      field: string;
+      newValue: any;
+      isHeader: boolean;
+    } | null> => {
+      if (prevData === null && newData === "") return null;
+      if (prevData === newData) return null;
 
       try {
         const updatedCell = { ...cell, data: newData };
         const result = await visualDataCellsUpdate(cell, updatedCell);
 
-        //add new empty first row if needed
-        let newCellsAfterAddingRow; 
+        if (!result) return null;
+
+        // Handle first-row auto-insertion logic
         if (!result.isHeader && result.updatedArray.length > 0 &&
           newData != "" && newData != null && cell.rowIndex === 1 ) {
-          newCellsAfterAddingRow = await addNewRow({ tableId: tableId, tableIndex: tableIndex, currentRowIndex: 1, 
-            cells: result.updatedArray, rowIndexesDisplayArr: rowIndexesDisplayArr, headers: headers});
+          const newCellsAfterAddingRow = await addNewRow({
+            tableId,
+            tableIndex,
+            currentRowIndex: 1,
+            cells: result.updatedArray,
+            rowIndexesDisplayArr,
+            headers
+          });
+
           setCells(newCellsAfterAddingRow.newCellsArray);
-          setRowIndexesDisplayArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr),]);
+          setRowIndexesDisplayArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
           setNumOfRows((prev) => prev + 1);
+        } else if (result.updatedArray) {
+          if (result.isHeader) {
+            setHeaders(result.updatedArray);
+          } else {
+            setCells(result.updatedArray);
+          }
         }
-        else if (result.updatedArray){
-          if (result.isHeader) 
-            setHeaders(result.updatedArray)
-          else 
-            setCells(result.updatedArray)
-        }
+
         scheduleAutoSave();
+
+        return {
+          updatedId: cell._id,
+          field: "data",
+          newValue: newData,
+          isHeader: cell.rowIndex === 0
+        };
+
       } catch (error) {
         console.error("Error in handleCellUpdate:", error);
+        return null;
       }
     };
+
 
     const scheduleAutoSave = () => {
       if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
