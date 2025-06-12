@@ -740,7 +740,12 @@ function TablePage() {
             Back
           </button>
           {/* Save Button */}
-          <button className="save absolute px-4 py-2 rounded" onClick={() => handleSaveToDB(pendingUpdates, cellsToDelete)}>Save</button>
+          <button 
+            className="save absolute px-4 py-2 rounded" 
+            disabled={isSaving}
+            hidden = {isSaving}
+            onClick={() => handleSaveToDB(pendingUpdates, cellsToDelete)}
+            > Save </button>
           {/* table name */}
           <h1
             className="tableName absolute top-4"
