@@ -3,17 +3,16 @@ frontend:
   phases:
     preBuild:
       commands:
-        # - nvm install 20
-        - nvm use 18
-        # - cd TableClient
+        - nvm install 22
+        - nvm use 22
         - npm install
     build:
       commands:
         - npm run build
   artifacts:
-    baseDirectory: TableClient/dist
+    baseDirectory: dist
     files:
       - '**/*'
   cache:
     paths:
-      - TableClient/node_modules/**/*
+      - node_modules/**/*
