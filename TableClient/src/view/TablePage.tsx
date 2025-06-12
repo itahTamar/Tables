@@ -331,10 +331,13 @@ function TablePage() {
           } else {
             setCells(result.updatedArray);
           }
-          setPendingUpdates(prev => updatePendingUpdates(prev, updatedCell));
+          setPendingUpdates(prev => {
+            const updated = updatePendingUpdates(prev, updatedCell);
+            // ✅ Schedule after new state is prepared
+            scheduleAutoSave(updated, cellsToDelete);
+            return updated;
+          });
         }
-        
-        // scheduleAutoSave();
 
         return updatedCell;
 
@@ -345,13 +348,27 @@ function TablePage() {
     };
 
 
-    const scheduleAutoSave = () => {
+    const scheduleAutoSave = (
+      updatesSnapshot: CellData[],
+      deletionsSnapshot: string[],
+    ) => {
       if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+
       idleTimeoutRef.current = setTimeout(() => {
         console.log("💾 Auto-saving due to idle...");
-        addToSaveQueue(handleSaveToDB); // Add to queue
-      }, 1000); // 10 seconds idle threshold
+
+        addToSaveQueue(async () => {
+          setIsSaving(true);
+          try {
+            await handleSaveToDB(updatesSnapshot, deletionsSnapshot);
+          } finally {
+            setIsSaving(false);
+          }
+        });
+
+      }, 15000);
     };
+
 
     const handleRightClick = (
       event: React.MouseEvent,
@@ -744,7 +761,19 @@ function TablePage() {
             className="save absolute px-4 py-2 rounded" 
             disabled={isSaving}
             hidden = {isSaving}
-            onClick={() => handleSaveToDB(pendingUpdates, cellsToDelete)}
+            onClick={() => {
+              const updatesSnapshot = [...pendingUpdates];
+              const deletionsSnapshot = [...cellsToDelete];
+
+              addToSaveQueue(async () => {
+                setIsSaving(true);
+                try {
+                  await handleSaveToDB(updatesSnapshot, deletionsSnapshot);
+                } finally {
+                  setIsSaving(false);
+                }
+              });
+            }}
             > Save </button>
           {/* table name */}
           <h1
