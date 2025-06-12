@@ -57,26 +57,28 @@ function TablePage() {
 
     if (!tableId) throw new Error("at TablePage no tableId in params!");
 
+    if (!tableContext) {
+      console.error("Table context is null!");
+      return <div>Missing table context</div>;
+}
+
     const {
       tables = [],
       tablesFetched, // flag which tel that data from DB is not empty
-      headers, 
-      cells,
-      setHeaders,
-      setCells,
-      rowIndexesDisplayArr, // todo replace with DisplayObject
-      setRowIndexesDisplayArr,
-      colIndexesDisplayArr, // todo replace with DisplayObject
-      setColIndexesDisplayArr,
-      setNumOfColumns,
-      setNumOfRows,
-      numOfRows,
-      numOfColumns,
-    } = tableContext || {};
+      headers, setHeaders,
+      cells, setCells,
+      pendingUpdates, setPendingUpdates,
+      cellsToDelete, setCellsToDelete,
+      rowIndexesDisplayArr, setRowIndexesDisplayArr,
+      colIndexesDisplayArr, setColIndexesDisplayArr,
+      numOfColumns, setNumOfColumns,
+      numOfRows, setNumOfRows,
+    } = tableContext;
 
     if (
       cells===undefined ||
       headers===undefined ||
+      pendingUpdates===undefined ||
       numOfColumns===undefined ||
       numOfRows===undefined
     ) {
@@ -86,6 +88,7 @@ function TablePage() {
     if (
       setCells===undefined ||
       setHeaders===undefined ||
+      setPendingUpdates===undefined ||
       setRowIndexesDisplayArr===undefined ||
       setColIndexesDisplayArr===undefined ||
       setNumOfColumns===undefined ||
@@ -263,8 +266,8 @@ function TablePage() {
       }
     };
 
-    // update the data field only in the UI
-    const visualDataCellsUpdate = (
+    // repalce old cell with new updated cell
+    const replaceCellInArray = (
       cell: CellData,
       updatedCell: CellData
     ): { updatedArray: CellData[]; isHeader: boolean } => {
@@ -280,22 +283,24 @@ function TablePage() {
       return {updatedArray: updated, isHeader};
     };
 
+    const updatePendingUpdates = (prev: CellData[], updated: CellData): CellData[] => {
+      const exists = prev.find(c => c._id === updated._id);
+      return exists
+        ? prev.map(c => (c._id === updated._id ? updated : c))
+        : [...prev, updated];
+    };
+
     const handleCellUpdate = async (
       cell: CellData,
       newData: any,
       prevData: any
-    ): Promise<{
-      updatedId: string;
-      field: string;
-      newValue: any;
-      isHeader: boolean;
-    } | null> => {
+    ): Promise<CellData | null> => {
       if (prevData === null && newData === "") return null;
       if (prevData === newData) return null;
 
       try {
         const updatedCell = { ...cell, data: newData };
-        const result = await visualDataCellsUpdate(cell, updatedCell);
+        const result = await replaceCellInArray(cell, updatedCell);
 
         if (!result) return null;
 
@@ -322,14 +327,10 @@ function TablePage() {
           }
         }
 
+        setPendingUpdates(prev => updatePendingUpdates(prev, updatedCell));
         scheduleAutoSave();
 
-        return {
-          updatedId: cell._id,
-          field: "data",
-          newValue: newData,
-          isHeader: cell.rowIndex === 0
-        };
+        return updatedCell;
 
       } catch (error) {
         console.error("Error in handleCellUpdate:", error);
@@ -494,6 +495,10 @@ function TablePage() {
       ]);
       setNumOfRows((prev) => prev + 1);
 
+      setPendingUpdates(prev =>
+        newCellsAfterAddingRow.newlyAddedRow.reduce(updatePendingUpdates, prev)
+);
+
 //! update indexes in DB + add the new documents into DB
       // handleUpdateIndexInDB(newCellsAfterAddingRow.toBeUpdateInDB, serverUrl);
       // handleAddToDB(newCellsAfterAddingRow.newToAddInDB, serverUrl);
@@ -520,6 +525,10 @@ function TablePage() {
       setHeaders(newColumnAndCellsAfterAddingColumn.updatedHeaders);
       setColIndexesDisplayArr(newColumnAndCellsAfterAddingColumn.updatedColIndexesArr)
       setNumOfColumns((prev) => prev + 1);
+
+      setPendingUpdates(prev =>
+        newColumnAndCellsAfterAddingColumn.newlyAddedColumn.reduce(updatePendingUpdates, prev)
+      );
     };
 
     const handleDeleteRowBtnClick = async (currentRowIndex: number) => {
@@ -532,12 +541,19 @@ function TablePage() {
             rowIndexesDisplayArr,
           });
 
-          if (result === undefined) {
-            throw new Error("Result is undefined - delete row failed");
-          }
+          if (!result) throw new Error("Result is undefined - delete row failed");
+
           setCells(result.newCellsArrayAfterDelete);
           setRowIndexesDisplayArr([...new Set(result.updatedRowIndexesArr)]);
           setNumOfRows((prev) => prev - 1);
+
+          // ✅ Add deleted cell IDs to cellsToDelete
+          const deletedIds = result.toBeDeleted.map(cell => cell._id);
+          setCellsToDelete(prev => [...prev, ...deletedIds]); 
+          
+          setPendingUpdates(prev =>
+            result.toBeUpdated.reduce(updatePendingUpdates, prev)
+          );
 
           console.log("Row deleted successfully");
         }
@@ -563,6 +579,10 @@ function TablePage() {
         setHeaders(result.newHeaders);
         setCells(result.newCells);
         setColIndexesDisplayArr(result.newColIdx);
+        setCellsToDelete(prev => [...prev, ...result.toBeDeleted.map(c => c._id)]);
+        setPendingUpdates(prev =>
+          result.toBeUpdated.reduce(updatePendingUpdates, prev)
+        );
       } catch (error) {
         console.error("Error handling delete row:", error);
       }
@@ -574,8 +594,8 @@ function TablePage() {
 
     const handleDeleteCellBtnClick = async (cellId: string) => {
       try {
-        removeCellFromState(cellId)
-
+        removeCellFromState(cellId);
+        setCellsToDelete(prev => [...prev, cellId]); // ✅ track deletion
       } catch (error) {
         console.error("Error handling delete Cell:", error);
       }
@@ -633,6 +653,7 @@ function TablePage() {
     const handleSaveToDB = async () => {
       setIsSaving(true);
       console.log("!!!! ✅0 start to handleSaveToDB✅ !!!!")
+      
       const collectionName = "tables";
       const currentDocs = [...headers, ...cells];
       // add to_delete field to document
@@ -831,6 +852,8 @@ function TablePage() {
               handleRightClick={handleRightClick || (() => false)} // Provide a no-op fallback if undefined
               handleCellUpdate={handleCellUpdate}
               displayArr={displayArr}
+              updatePendingUpdates={updatePendingUpdates}
+              setPendingUpdates={setPendingUpdates}
             />
 
             {menuState.visible && (

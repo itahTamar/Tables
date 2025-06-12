@@ -86,6 +86,7 @@ export const addNewColumnWithCells = async ({
   return {
     updatedHeaders: [...adjustedHeaders, newHeader],
     updatedCells: [...adjustedCells, ...newCells],
-    updatedColIndexesArr: adjustedColIndexes, // updates indexes to display
+    updatedColIndexesArr: adjustedColIndexes, 
+    newlyAddedColumn: [newHeader, ...newCells],
   };
 };

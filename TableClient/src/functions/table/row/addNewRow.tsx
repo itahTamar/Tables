@@ -68,6 +68,7 @@ export const addNewRow = async ({
   return {
     newCellsArray: updatedCells,              // should be new local cells
     updatedRowIndexesArr: adjustedRowIndexes, // updates indexes to display
+    newlyAddedRow: newRowCells,
   };
 };
 
