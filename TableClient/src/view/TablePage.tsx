@@ -624,6 +624,34 @@ function TablePage() {
       }
     };
 
+    function getByteSize(obj: any): number {
+      return new Blob([JSON.stringify(obj)]).size;
+    }
+
+    function chunkBySize<T>(items: T[], maxBytes: number): T[][] {
+      const chunks: T[][] = [];
+      let currentChunk: T[] = [];
+      let currentSize = 0;
+
+      for (const item of items) {
+        const itemSize = getByteSize(item);
+        console.log(`🧮 Total update payload size: ${(itemSize / 1024).toFixed(1)} KB`);
+
+        if (currentSize + itemSize > maxBytes) {
+          if (currentChunk.length > 0) chunks.push(currentChunk);
+          currentChunk = [item];
+          currentSize = itemSize;
+        } else {
+          currentChunk.push(item);
+          currentSize += itemSize;
+        }
+      }
+
+      if (currentChunk.length > 0) chunks.push(currentChunk);
+      return chunks;
+    }
+
+
     const handleExportCSV = async (tableId: string) => {
       try {
         const collectionName = "tables";
@@ -689,6 +717,11 @@ function TablePage() {
       
       try {
         const collectionName = "tables";
+        
+        const MAX_CHUNK_SIZE = 2 * 1024 * 1024;
+
+        // === Helper functions ===
+
 
         // 1. Prepare updates for pending cells/headers
         const updates = filteredUpdates.map(doc => ({
@@ -700,30 +733,38 @@ function TablePage() {
             columnIndex: doc.columnIndex,
             tableId: doc.tableId,
             type: doc.type,
+            tableIndex: doc.tableIndex,
+            __v: 0,
           },
         }));
         console.log(`🛠️ Preparing ${updates.length} document(s) for update`);
 
-        // 2. Delete stale/removed cell IDs
-        if (deleteList.length > 0) {
-          console.log(`🗑️ Deleting ${deleteList.length} document(s):`, deleteList);
-          await DocumentRestAPIMethods.bulkDelete(serverUrl, collectionName, deleteList);
+        const updateChunks = chunkBySize(updates, MAX_CHUNK_SIZE);
+        console.log(`📤 Split into ${updateChunks.length} update chunk(s)`);
+
+
+        const deleteWrapped = deleteList.map(_id => ({ _id }));
+        const deleteChunks = chunkBySize(deleteWrapped, MAX_CHUNK_SIZE);
+        console.log(`🗑️ Split into ${deleteChunks.length} delete chunk(s)`);
+
+        for (let i = 0; i < deleteChunks.length; i++) {
+          const chunkIds = deleteChunks[i].map(doc => doc._id);
+          console.log(`🗑️ Deleting chunk ${i + 1}/${deleteChunks.length}`);
+          await DocumentRestAPIMethods.bulkDelete(serverUrl, collectionName, chunkIds);
         }
 
-        // 3. Perform bulk update if needed
-        if (updates.length > 0) {
+        for (let i = 0; i < updateChunks.length; i++) {
+          try {
+          console.log(`📤 Saving update chunk ${i + 1}/${updateChunks.length}`);
           const success = await DocumentRestAPIMethods.bulkUpdate(
             serverUrl,
             collectionName,
-            updates
+            updateChunks[i]
           );
-          if (success) {
-            console.log("✅ Updates saved successfully.");
-          } else {
-            console.error("❌ Failed to save some documents.");
+          if (!success) throw new Error("Bulk update failed");
+        } catch(e) {
+            console.error(`❌ Failed to save update chunk ${i + 1}`,e);
           }
-        } else {
-          console.log("✅ No pending updates to save.");
         }
 
         // 4. Reset state after save
