@@ -38,7 +38,8 @@ V0
 - { _id: ObjectId("682c...") }
 - { tableId: "6773..."}
 - {tableName: "STED"}
-- TBD
+- from 1 to 5
+{ tableId: "682c...", columnIndex:3, rowIndex: { $gte: 1, $lte: 5 }}
  
 
 
