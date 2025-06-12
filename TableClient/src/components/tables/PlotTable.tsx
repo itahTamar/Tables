@@ -17,14 +17,18 @@ interface PlotTableProps {
     cell: CellData,
     newData: any,
     prevData: any
-  ) => Promise<void>;
+  ) => Promise<CellData | null>;
   displayArr: { headers: CellData[]; rows: CellData[][] };
+  updatePendingUpdates: (prev: CellData[], updated: CellData) => CellData[];
+  setPendingUpdates: React.Dispatch<React.SetStateAction<CellData[]>>;
 }
 
 const PlotTable: React.FC<PlotTableProps> = ({
   handleRightClick,
   handleCellUpdate,
   displayArr,
+  updatePendingUpdates,
+  setPendingUpdates,
 }) => {
   const devFlag = false;
 
@@ -125,9 +129,14 @@ const PlotTable: React.FC<PlotTableProps> = ({
         headerArr: headers,
         cellsArr: cells,
       });
+
       if (result) {
         setCells(result.newCells);
         setHeaders(result.newHeaders);
+
+         // ✅ Track updated cells and headers in pendingUpdates
+        const allUpdated = [...result.cellsToBeInxUpdate, ...result.headerToBeInxUpdate];
+        setPendingUpdates(prev => allUpdated.reduce(updatePendingUpdates, prev));
       }
     }
 
@@ -137,6 +146,14 @@ const PlotTable: React.FC<PlotTableProps> = ({
         targetRowIndex,
         cellsArr: cells,
       });
+
+      if (result) {
+        setCells(result.newCells);
+
+        // ✅ Track updated cells in pendingUpdates
+        setPendingUpdates(prev => result.cellsToBeInxUpdate.reduce(updatePendingUpdates, prev));
+      }
+
       if (result) setCells(result.newCells);
     }
 

@@ -31,9 +31,10 @@ export const addNewRow = async ({
 
   // 🟨 Determine number of columns based on current headers
   const numOfColumns = headers.length;
+  console.log("Amir!!!!!!!!!!!!! addNewRow: numOfColumns",numOfColumns)
   
   // Adjust rowIndex for existing cells - the row before the current row to insert and the row after with adjusted rowIndex
-  const adjustedCells = cells.map((cell) => {
+  const updatedCells = cells.map((cell) => {
     if (cell.rowIndex >= currentRowIndex) {
       return { ...cell, rowIndex: cell.rowIndex + 1 };
     }
@@ -56,9 +57,6 @@ export const addNewRow = async ({
     })
   );
 
-  // Combine the adjusted cells with the new row
-  const updatedCells = [...adjustedCells, ...newRowCells];
-
   // adjust the rowIndexArr for plot
   const adjustedRowIndexes = rowIndexesDisplayArr.map((index) =>
     index >= currentRowIndex ? index + 1 : index
@@ -66,8 +64,9 @@ export const addNewRow = async ({
   adjustedRowIndexes.push(currentRowIndex);
 
   return {
-    newCellsArray: updatedCells,              // should be new local cells
-    updatedRowIndexesArr: adjustedRowIndexes, // updates indexes to display
+    newCellsArray: [...updatedCells, ...newRowCells],
+    updatedRowIndexesArr: adjustedRowIndexes,
+    pendingUpdates: [...[...updatedCells, ...newRowCells].filter(cell => cell.rowIndex >= currentRowIndex)],
   };
 };
 

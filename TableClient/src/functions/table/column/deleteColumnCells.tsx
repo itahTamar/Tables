@@ -14,10 +14,34 @@ export const deleteColumnCells = ({
   headers,
   cells,
 }: DeleteColumnProp): {
+  toBeDeleted: CellData[];
+  toBeUpdated: CellData[];
   newCells: CellData[];
   newHeaders: CellData[];
   newColIdx: number[];
 } => {
+
+  const toBeDeleted = [
+    ...headers.filter(h => h.columnIndex === currentColumnIndex),
+    ...cells.filter(c => c.columnIndex === currentColumnIndex),
+  ];
+
+  const shift = (doc: CellData): CellData =>
+    doc.columnIndex > currentColumnIndex
+      ? { ...doc, columnIndex: doc.columnIndex - 1 }
+      : doc;
+
+  const filteredHeaders = headers.filter(
+    h => h.columnIndex !== currentColumnIndex
+  );
+  const filteredCells = cells.filter(
+    c => c.columnIndex !== currentColumnIndex
+  );
+
+  const toBeUpdated = [...filteredHeaders, ...filteredCells]
+    .filter(doc => doc.columnIndex > currentColumnIndex)
+    .map(shift);
+
   // Remove the target column and shift others left
   const newHeaders = headers
     .filter((h) => h.columnIndex !== currentColumnIndex)
@@ -40,6 +64,8 @@ export const deleteColumnCells = ({
     .map((i) => (i > currentColumnIndex ? i - 1 : i));
 
   return {
+    toBeDeleted,
+    toBeUpdated,
     newHeaders,
     newCells,
     newColIdx,
