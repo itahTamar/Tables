@@ -319,16 +319,22 @@ function TablePage() {
           setCells(newCellsAfterAddingRow.newCellsArray);
           setRowIndexesDisplayArr([...new Set(newCellsAfterAddingRow.updatedRowIndexesArr)]);
           setNumOfRows((prev) => prev + 1);
+
+          // ✅ ADD THIS: track the new/shifted cells as pending
+          setPendingUpdates(prev =>
+            newCellsAfterAddingRow.pendingUpdates.reduce(updatePendingUpdates, prev)
+          );
+
         } else if (result.updatedArray) {
           if (result.isHeader) {
             setHeaders(result.updatedArray);
           } else {
             setCells(result.updatedArray);
           }
+          setPendingUpdates(prev => updatePendingUpdates(prev, updatedCell));
         }
-
-        setPendingUpdates(prev => updatePendingUpdates(prev, updatedCell));
-        scheduleAutoSave();
+        
+        // scheduleAutoSave();
 
         return updatedCell;
 
@@ -496,7 +502,7 @@ function TablePage() {
       setNumOfRows((prev) => prev + 1);
 
       setPendingUpdates(prev =>
-        newCellsAfterAddingRow.newlyAddedRow.reduce(updatePendingUpdates, prev)
+        newCellsAfterAddingRow.pendingUpdates.reduce(updatePendingUpdates, prev)
 );
 
 //! update indexes in DB + add the new documents into DB
@@ -650,31 +656,25 @@ function TablePage() {
       setTimeout(() => setShowColumnSelector(true), 0); // Delay to ensure state update
     };
 
-    const handleSaveToDB = async () => {
+    const handleSaveToDB = async (
+      updatesList: CellData[] = pendingUpdates,
+      deleteList: string[] = cellsToDelete,
+    ) => {
       setIsSaving(true);
-      console.log("!!!! ✅0 start to handleSaveToDB✅ !!!!")
+      console.log("🟢 Start: handleSaveToDB");
+
+      console.log("!!!!!!!!!!! updatesList",updatesList);
+
+      // 🛠️ Remove any update whose _id is in the delete list
+      const filteredUpdates = updatesList.filter(
+        doc => !deleteList.includes(doc._id)
+      );      
       
-      const collectionName = "tables";
-      const currentDocs = [...headers, ...cells];
-      // add to_delete field to document
       try {
-        // 1. Get all current _ids in local memory
-        const currentIds = new Set(currentDocs.map(doc => doc._id));
-        console.log("!!!! ✅1 currentIds✅ !!!!",currentIds)
+        const collectionName = "tables";
 
-        // 2. Fetch all documents in DB for this tableId
-        const fetchedHeaders: CellData[] = await getHeaders({serverUrl,tableId,}); // get table's headers (documents)
-        const fetchedCells: CellData[] = await getCells({serverUrl,tableId,}); // get table's cells (documents)
-        const existingDocs = [...fetchedHeaders, ...fetchedCells]
-        const existingIds = new Set(existingDocs.map(doc => doc._id));
-        console.log("!!!! ✅2 currentIds✅ !!!!",currentIds)
-
-        // 3. Determine which _ids are stale (exist in DB but not locally)
-        const toDelete = [...existingIds].filter(id => !currentIds.has(id));
-        console.log("!!!! ✅3 currentIds✅ !!!!",currentIds)
-
-        // 4. Build update (upsert) operations for headers + cells
-        const updates = currentDocs.map(doc => ({
+        // 1. Prepare updates for pending cells/headers
+        const updates = filteredUpdates.map(doc => ({
           _id: doc._id,
           update: {
             data: doc.data,
@@ -685,34 +685,41 @@ function TablePage() {
             type: doc.type,
           },
         }));
-        console.log("!!!! ✅4 currentIds✅ !!!!",currentIds)
+        console.log(`🛠️ Preparing ${updates.length} document(s) for update`);
 
-        // 5. Delete stale docs (if any)
-        if (toDelete.length > 0) {
-          await DocumentRestAPIMethods.bulkDelete(serverUrl, collectionName, toDelete);
-          console.log(`🗑️ Deleted ${toDelete.length} stale documents`);
+        // 2. Delete stale/removed cell IDs
+        if (deleteList.length > 0) {
+          console.log(`🗑️ Deleting ${deleteList.length} document(s):`, deleteList);
+          await DocumentRestAPIMethods.bulkDelete(serverUrl, collectionName, deleteList);
         }
-        console.log("!!!! ✅5 currentIds✅ !!!!",currentIds)
 
-        // 6. Upsert all current docs
-        const success = await DocumentRestAPIMethods.bulkUpdate(
-          serverUrl,
-          collectionName,
-          updates
-        );
-        console.log("!!!! ✅6 currentIds✅ !!!!",currentIds)
-
-        if (success) {
-          console.log("✅ All cells and headers saved successfully.");
+        // 3. Perform bulk update if needed
+        if (updates.length > 0) {
+          const success = await DocumentRestAPIMethods.bulkUpdate(
+            serverUrl,
+            collectionName,
+            updates
+          );
+          if (success) {
+            console.log("✅ Updates saved successfully.");
+          } else {
+            console.error("❌ Failed to save some documents.");
+          }
         } else {
-          console.error("❌ Failed to save cells and headers.");
+          console.log("✅ No pending updates to save.");
         }
+
+        // 4. Reset state after save
+        setPendingUpdates([]);
+        setCellsToDelete([]);
+
       } catch (error) {
         console.error("❌ Error in handleSaveToDB:", error);
       } finally {
         setIsSaving(false);
       }
     };
+
 
     
     console.log("🔥✅ About to return JSX in TablePage");
@@ -733,7 +740,7 @@ function TablePage() {
             Back
           </button>
           {/* Save Button */}
-          <button className="save absolute px-4 py-2 rounded" onClick={handleSaveToDB}>Save</button>
+          <button className="save absolute px-4 py-2 rounded" onClick={() => handleSaveToDB(pendingUpdates, cellsToDelete)}>Save</button>
           {/* table name */}
           <h1
             className="tableName absolute top-4"

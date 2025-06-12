@@ -61,6 +61,13 @@ export const addNewColumnWithCells = async ({
     __v: 0,
   };
 
+  numOfRows = cells.length > 0
+    ? Math.max(...cells.map(cell => cell.rowIndex))
+    : 0;
+
+  console.log("Amir!!!!!!!!!!!!! addNewColumnWithCells: numOfRows",numOfRows)
+
+
   // Add new cells for the rows corresponding to the new column
   const newCells: CellData[] = Array.from(
     { length: numOfRows },
@@ -76,7 +83,7 @@ export const addNewColumnWithCells = async ({
       __v: 0,
     })
   );
-
+  
   // adjust the rowIndexArr for plot
   const adjustedColIndexes = colIndexesDisplayArr.map((index) =>
     index >= newColumnIndex ? index + 1 : index
