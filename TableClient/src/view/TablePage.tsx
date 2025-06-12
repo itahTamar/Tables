@@ -713,7 +713,24 @@ function TablePage() {
       // 🛠️ Remove any update whose _id is in the delete list
       const filteredUpdates = updatesList.filter(
         doc => !deleteList.includes(doc._id)
-      );      
+      );
+      
+      // 🔍 Early exit if nothing to do
+      if (filteredUpdates.length === 0 && deleteList.length === 0) {
+        console.log("🚫 No updates or deletions. Skipping DB operations.");
+        setIsSaving(false);
+        setPendingUpdates([]);
+        setCellsToDelete([]);
+        return;
+      }
+
+      if (filteredUpdates.length === 0) {
+        console.log("ℹ️ No updates to apply.");
+      }
+
+      if (deleteList.length === 0) {
+        console.log("ℹ️ No deletions to apply.");
+      }
       
       try {
         const collectionName = "tables";
