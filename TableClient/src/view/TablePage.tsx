@@ -248,7 +248,7 @@ function TablePage() {
       }
     };
 
-    // repalce old cell with new updated cell
+    // replace old cell with new updated cell
     const replaceCellInArray = (
       cell: CellData,
       updatedCell: CellData
