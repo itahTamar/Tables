@@ -23,7 +23,6 @@ import ColumnSelector from "../components/columns/ColumnSelector";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
 
 function TablePage() {
-  const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSavingRef = useRef(false);
   const [isSaving, setIsSaving] = useState(false);
   try {
