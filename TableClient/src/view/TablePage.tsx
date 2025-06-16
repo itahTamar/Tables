@@ -295,7 +295,7 @@ function TablePage() {
           setPendingUpdates(prev => {
             const updated = updatePendingUpdates(prev, updatedCell);
             // ✅ Schedule after new state is prepared
-            scheduleAutoSave(updated, cellsToDelete);
+            // scheduleAutoSave(updated, cellsToDelete);
             return updated;
           });
         }
@@ -309,16 +309,16 @@ function TablePage() {
     };
 
 
-    const scheduleAutoSave = (
-      updatesSnapshot: CellData[],
-      deletionsSnapshot: string[],
-    ) => {
-      if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+    // const scheduleAutoSave = (
+    //   updatesSnapshot: CellData[],
+    //   deletionsSnapshot: string[],
+    // ) => {
+    //   if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
 
-      idleTimeoutRef.current = setTimeout(async () => {
-          await handleSaveToDB(updatesSnapshot, deletionsSnapshot);
-        }, 5000);
-    };
+    //   idleTimeoutRef.current = setTimeout(async () => {
+    //       await handleSaveToDB(updatesSnapshot, deletionsSnapshot);
+    //     }, 5000);
+    // };
 
 
     const handleRightClick = (

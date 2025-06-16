@@ -321,7 +321,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     />
                   )}
 
-                    <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem", textAlign: "left" }}>
+                    <div style={{ color: "rgb(100, 100, 100)", fontSize: "0.7rem", textAlign: "left" }}>
                       ({cell.rowIndex},{cell.columnIndex})
                     </div>
                   </td>
