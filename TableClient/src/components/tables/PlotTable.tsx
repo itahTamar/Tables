@@ -292,6 +292,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       if (timeout) clearTimeout(timeout);
                     }}
                   >
+                    <div style={{ width: "100%", height: "100%" }}></div>
                     {cell.data && cell.data.startsWith("data:image") ? (
                     <img
                       src={cell.data}
@@ -313,6 +314,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       title="Editable cell"
                       placeholder="..."
                       className="plotTableTextarea w-full h-auto"
+                      style={{ minHeight: "100%", boxSizing: "border-box" }}
                       defaultValue={cell.data || ""}
                       onInput={(e) => {
                         const target = e.currentTarget;
