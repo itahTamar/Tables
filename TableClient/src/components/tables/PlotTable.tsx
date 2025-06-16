@@ -264,19 +264,25 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     onDragEnd={handleDragEnd}
                     onTouchStart={(e) => {
                       const touch = e.touches?.[0];
+                      if (!touch) return; // safe exit
+
+                      const x = touch.pageX;
+                      const y = touch.pageY;
+
                       const timeout = setTimeout(() => {
-                        if (touch) {
-                          const simulatedEvent = {
-                            pageX: touch.pageX,
-                            pageY: touch.pageY,
-                            preventDefault: () => {},
-                            stopPropagation: () => {},
-                          } as unknown as React.MouseEvent;
-                          handleRightClickWithFlag(simulatedEvent, cell.rowIndex, cell.columnIndex, cell._id);
-                        }
+                        const fakeEvent = {
+                          pageX: x,
+                          pageY: y,
+                          preventDefault: () => {},
+                          stopPropagation: () => {},
+                        } as unknown as React.MouseEvent;
+
+                        handleRightClickWithFlag(fakeEvent, cell.rowIndex, cell.columnIndex, cell._id);
                       }, 600);
+
                       (e.currentTarget as any)._longPressTimeout = timeout;
                     }}
+
                     onTouchEnd={(e) => {
                       const timeout = (e.currentTarget as any)._longPressTimeout;
                       if (timeout) clearTimeout(timeout);
