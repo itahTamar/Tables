@@ -21,11 +21,10 @@ import SelectionMenu from "./../components/tables/SelectionMenu";
 // import { hideOrRevealColumn } from "../functions/table/column/hideOrRevealColumn";
 import ColumnSelector from "../components/columns/ColumnSelector";
 import { useGetAllUserTables } from "../hooks/tables/useGetTablesHooks";
-import { addToSaveQueue } from "../utils/saveQueue";
-
 
 function TablePage() {
   const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSavingRef = useRef(false);
   const [isSaving, setIsSaving] = useState(false);
   try {
     //variables:
@@ -316,18 +315,9 @@ function TablePage() {
     ) => {
       if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
 
-      idleTimeoutRef.current = setTimeout(() => {
-
-        addToSaveQueue(async () => {
-          setIsSaving(true);
-          try {
-            await handleSaveToDB(updatesSnapshot, deletionsSnapshot);
-          } finally {
-            setIsSaving(false);
-          }
-        });
-
-      }, 15000);
+      idleTimeoutRef.current = setTimeout(async () => {
+          await handleSaveToDB(updatesSnapshot, deletionsSnapshot);
+        }, 5000);
     };
 
 
@@ -662,6 +652,13 @@ function TablePage() {
       updatesList: CellData[] = pendingUpdates,
       deleteList: string[] = cellsToDelete,
     ) => {
+
+      if (isSavingRef.current) {
+        console.warn("⏳ Save already in progress, skipping duplicate call.");
+        return;
+      }
+
+      isSavingRef.current = true;
       setIsSaving(true);
 
       // 🛠️ Remove any update whose _id is in the delete list
@@ -671,6 +668,7 @@ function TablePage() {
       
       // 🔍 Early exit if nothing to do
       if (filteredUpdates.length === 0 && deleteList.length === 0) {
+        isSavingRef.current = false;
         setIsSaving(false);
         setPendingUpdates([]);
         setCellsToDelete([]);
@@ -735,6 +733,7 @@ function TablePage() {
       } catch (error) {
         console.error("❌ Error in handleSaveToDB:", error);
       } finally {
+        isSavingRef.current = false;
         setIsSaving(false);
       }
     };
@@ -764,15 +763,8 @@ function TablePage() {
             onClick={() => {
               const updatesSnapshot = [...pendingUpdates];
               const deletionsSnapshot = [...cellsToDelete];
-
-              addToSaveQueue(async () => {
-                setIsSaving(true);
-                try {
-                  await handleSaveToDB(updatesSnapshot, deletionsSnapshot);
-                } finally {
-                  setIsSaving(false);
-                }
-              });
+              
+              handleSaveToDB(updatesSnapshot, deletionsSnapshot);
             }}
             > Save </button>
           {/* table name */}
