@@ -481,7 +481,7 @@ function TablePage() {
       setNumOfColumns((prev) => prev + 1);
 
       setPendingUpdates(prev =>
-        newColumnAndCellsAfterAddingColumn.newlyAddedColumn.reduce(updatePendingUpdates, prev)
+        [...newColumnAndCellsAfterAddingColumn.updatedHeaders, ...newColumnAndCellsAfterAddingColumn.updatedCells].reduce(updatePendingUpdates, prev)
       );
     };
 
