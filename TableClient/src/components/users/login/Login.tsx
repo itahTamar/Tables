@@ -47,6 +47,8 @@ const Login = () => {
       navigate(`/mainTablesPage`);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoginFlag(false);
     }
   };
 
