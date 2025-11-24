@@ -7,7 +7,7 @@ V0
    - open new terminal or PowerShell and verify versions
    - node -v
    - npm -v
-   - if not found check in powershell path: &env:PATH
+   - if not found check in powershell path: $env:PATH
    - look for C:\Program Files\nodejs\
    - if not exist add it to windows PATH
    - verify you have PowerShell profile script
