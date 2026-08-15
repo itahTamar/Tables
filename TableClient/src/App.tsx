@@ -1,7 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import "./App.css";
 import { router } from "./router/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserContext } from "./context/userContext";
 import { disableReactDevTools } from '@fvilers/disable-react-devtools' //add before prodction
 import { ServerContext } from "./context/ServerUrlContext";
@@ -23,9 +23,12 @@ function App() {
 
   const [serverUrl] = useState<string>(checkEnvironment);
   console.log("serverUrl:", serverUrl);
-
-  const [user, setUser] = useState<any>(null);
-  const [email, setUserEmail] = useState<string>("");
+  // Add wakeup function to App.tsx to wake up the server with first entering the site
+  useEffect(() => {
+    fetch(serverUrl, { mode: "no-cors" }).catch(() => {});
+  }, [serverUrl]);
+    const [user, setUser] = useState<any>(null);
+    const [email, setUserEmail] = useState<string>("");
  
   console.log(`Server URL: ${serverUrl}`); // Use serverUrl as needed in the API path
   return (
