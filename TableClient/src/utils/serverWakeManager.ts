@@ -1,5 +1,6 @@
-const IDLE_TIME = 12 * 60 * 1000; // 12 minutes for PROD
-// const IDLE_TIME = 10 * 1000; // 10 seconds for DEV testing
+const MIN_IDLE_MINUTES = 8; // DEV
+const MAX_IDLE_MINUTES = 13; // DEV
+
 const MAX_WAKE_COUNT = 4;
 
 let wakeCount = 0;
@@ -10,6 +11,28 @@ let exhausted = false;
 let serverUrl = "";
 
 let onWakeLimitReached: (() => void) | null = null;
+let lastIdleMinutes: number | null = null;
+
+const getNextIdleTime = () => {
+  const numberOfOptions = MAX_IDLE_MINUTES - MIN_IDLE_MINUTES + 1;
+
+  // If there is only one possible value
+  if (numberOfOptions <= 1) {
+    lastIdleMinutes = MIN_IDLE_MINUTES;
+    return MIN_IDLE_MINUTES * 60 * 1000;
+  }
+
+  let randomMinutes: number;
+
+  do {
+    randomMinutes =
+      Math.floor(Math.random() * numberOfOptions) + MIN_IDLE_MINUTES;
+  } while (randomMinutes === lastIdleMinutes);
+
+  lastIdleMinutes = randomMinutes;
+
+  return randomMinutes * 60 * 1000;
+};
 
 const clearTimer = () => {
   if (timer !== null) {
@@ -22,6 +45,12 @@ const scheduleWakeUp = () => {
   clearTimer();
 
   if (!enabled || exhausted) return;
+
+  const nextIdleTime = getNextIdleTime();
+
+  console.log(
+    `Next server wake-up in ${nextIdleTime / 60000} minutes`
+  );
 
   timer = setTimeout(async () => {
     if (!enabled || exhausted) return;
@@ -39,18 +68,18 @@ const scheduleWakeUp = () => {
     console.log(`Server wake-up ${wakeCount}/${MAX_WAKE_COUNT}`);
 
     if (wakeCount >= MAX_WAKE_COUNT) {
-    exhausted = true;
-    clearTimer();
+      exhausted = true;
+      clearTimer();
 
-    console.log("Server wake-up limit reached - logging out");
+      console.log("Server wake-up limit reached - logging out");
 
-    onWakeLimitReached?.();
+      onWakeLimitReached?.();
 
-    return;
+      return;
     }
 
     scheduleWakeUp();
-  }, IDLE_TIME);
+  }, nextIdleTime);
 };
 
 
@@ -75,6 +104,8 @@ export const startServerWakeManager = (
 // Stop, for example after logout
 export const stopServerWakeManager = () => {
   enabled = false;
+  wakeCount = 0;
+  lastIdleMinutes = null;
 
   clearTimer();
 
