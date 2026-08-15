@@ -13,6 +13,7 @@ import TableSelector from "../components/tables/TableSelector";
 import { TablesContext } from "../context/tableContext";
 import { handleUpdateVisibilityToDB } from "../functions/dbHandler/handleUpdateVisibilityToDB";
 import axios from "axios";
+import { UserContext } from "../context/userContext";
 
 const MainTablesPage: React.FC = () => {
   //variables
@@ -40,6 +41,7 @@ const MainTablesPage: React.FC = () => {
   }
   const { tables, setTables } = tableContext;
   if (tables === undefined) throw new Error("at MainTablePage tables are undefine");
+  const { setUserEmail } = useContext(UserContext);
   
   //cookie
   useEffect(() => {
@@ -68,6 +70,7 @@ const MainTablesPage: React.FC = () => {
   
   const handleLogout = () => {
     logout();
+    setUserEmail(""); // Clear the email in context
     navigate("/");
   };
 
