@@ -1,5 +1,5 @@
-const MIN_IDLE_MINUTES = 8; // DEV
-const MAX_IDLE_MINUTES = 13; // DEV
+const MIN_IDLE_MINUTES = 8;
+const MAX_IDLE_MINUTES = 13; 
 
 const MAX_WAKE_COUNT = 4;
 

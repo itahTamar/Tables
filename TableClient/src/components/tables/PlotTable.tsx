@@ -264,19 +264,25 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     onDragEnd={handleDragEnd}
                     onTouchStart={(e) => {
                       const touch = e.touches?.[0];
+                      if (!touch) return; // safe exit
+
+                      const x = touch.pageX;
+                      const y = touch.pageY;
+
                       const timeout = setTimeout(() => {
-                        if (touch) {
-                          const simulatedEvent = {
-                            pageX: touch.pageX,
-                            pageY: touch.pageY,
-                            preventDefault: () => {},
-                            stopPropagation: () => {},
-                          } as unknown as React.MouseEvent;
-                          handleRightClickWithFlag(simulatedEvent, cell.rowIndex, cell.columnIndex, cell._id);
-                        }
+                        const fakeEvent = {
+                          pageX: x,
+                          pageY: y,
+                          preventDefault: () => {},
+                          stopPropagation: () => {},
+                        } as unknown as React.MouseEvent;
+
+                        handleRightClickWithFlag(fakeEvent, cell.rowIndex, cell.columnIndex, cell._id);
                       }, 600);
+
                       (e.currentTarget as any)._longPressTimeout = timeout;
                     }}
+
                     onTouchEnd={(e) => {
                       const timeout = (e.currentTarget as any)._longPressTimeout;
                       if (timeout) clearTimeout(timeout);
@@ -286,6 +292,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       if (timeout) clearTimeout(timeout);
                     }}
                   >
+                    <div style={{ width: "100%", height: "100%" }}></div>
                     {cell.data && cell.data.startsWith("data:image") ? (
                     <img
                       src={cell.data}
@@ -307,6 +314,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                       title="Editable cell"
                       placeholder="..."
                       className="plotTableTextarea w-full h-auto"
+                      style={{ minHeight: "100%", boxSizing: "border-box" }}
                       defaultValue={cell.data || ""}
                       onInput={(e) => {
                         const target = e.currentTarget;
@@ -321,7 +329,7 @@ const PlotTable: React.FC<PlotTableProps> = ({
                     />
                   )}
 
-                    <div style={{ color: "rgb(230, 230, 230)", fontSize: "0.7rem", textAlign: "left" }}>
+                    <div style={{ color: "rgb(100, 100, 100)", fontSize: "0.7rem", textAlign: "left" }}>
                       ({cell.rowIndex},{cell.columnIndex})
                     </div>
                   </td>
