@@ -1,5 +1,5 @@
-const IDLE_TIME = 12 * 60 * 1000; // 12 minutes for PROD
-// const IDLE_TIME = 10 * 1000; // 10 seconds for DEV testing
+// const IDLE_TIME = 12 * 60 * 1000; // 12 minutes for PROD
+const IDLE_TIME = 10 * 1000; // 10 seconds for DEV testing
 const MAX_WAKE_COUNT = 4;
 
 let wakeCount = 0;
