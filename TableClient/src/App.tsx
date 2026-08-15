@@ -1,12 +1,16 @@
 import { RouterProvider } from "react-router-dom";
 import "./App.css";
 import { router } from "./router/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserContext } from "./context/userContext";
 import { disableReactDevTools } from '@fvilers/disable-react-devtools' //add before prodction
 import { ServerContext } from "./context/ServerUrlContext";
 import { TableProvider } from "./context/tableContext";
-
+import {
+  startServerWakeManager,
+  stopServerWakeManager,
+} from "../src/utils/serverWakeManager";
+import { logout } from "./api/userApi";
 
 let environment = import.meta.env.MODE;
 const dev_server = import.meta.env.VITE_REACT_APP_SERVER_URL_DEV;
@@ -23,9 +27,27 @@ function App() {
 
   const [serverUrl] = useState<string>(checkEnvironment);
   console.log("serverUrl:", serverUrl);
+  // Wakeup function to App.tsx to wake up the server with first entering the site
+  useEffect(() => {
+    fetch(serverUrl, { mode: "no-cors" }).catch(() => {});
+  }, [serverUrl]);
 
   const [user, setUser] = useState<any>(null);
   const [email, setUserEmail] = useState<string>("");
+  const isLoggedIn = Boolean(email);
+  console.log("user in App:", email);
+  console.log("isLoggedIn:", isLoggedIn);
+  useEffect(() => {
+    if (isLoggedIn) {
+      startServerWakeManager(serverUrl, () => {
+        logout();
+        setUserEmail("");
+        router.navigate("/");
+      });
+    } else {
+      stopServerWakeManager();
+    }
+  }, [isLoggedIn, serverUrl]);
  
   console.log(`Server URL: ${serverUrl}`); // Use serverUrl as needed in the API path
   return (

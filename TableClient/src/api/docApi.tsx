@@ -1,4 +1,10 @@
 import axios from "axios";
+import { registerServerActivity } from "../utils/serverWakeManager";
+
+axios.interceptors.request.use((config) => {
+  registerServerActivity();
+  return config;
+});
 
 class DocumentRestAPIMethods {
   //add document
